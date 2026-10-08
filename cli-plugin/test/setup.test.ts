@@ -76,6 +76,12 @@ describe('npm run doctor', () => {
     expect(status(r, '[lavazza-prd] search exception')).toBe('WARN');
   });
 
+  it('ignores a commented secret in .env', () => {
+    writeFileSync(join(root, 'dw.json'), JSON.stringify({configs: [instance({'client-secret': undefined})]}));
+    writeFileSync(join(root, '.env'), '# SFCC_CLIENT_SECRET=\nSFCC_DISABLE_TELEMETRY=true\n');
+    expect(status(runChecks({root, env: {}}), '[lavazza-prd] client secret')).toBe('WARN');
+  });
+
   it('accepts the secret from the environment or from a local .env', () => {
     writeFileSync(join(root, 'dw.json'), JSON.stringify({configs: [instance({'client-secret': undefined})]}));
     expect(status(runChecks({root, env: {SFCC_CLIENT_SECRET: 'x'}}), '[lavazza-prd] client secret')).toBe('OK');
@@ -123,15 +129,18 @@ describe('postinstall', () => {
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'cli-plugin', 'built'))).toBe(true);
     expect(readFileSync(join(dir, 'dw.json'), 'utf8')).toBe(readFileSync(join(REPO, 'config', 'dw.example.json'), 'utf8'));
+    expect(readFileSync(join(dir, '.env'), 'utf8')).toMatch(/^SFCC_DISABLE_TELEMETRY=true$/m);
     expect(res.stdout).toContain('npx realm-doctor');
     expect(res.stdout).not.toMatch(/-g\b|--global/);
   });
 
-  it('never overwrites an existing dw.json', () => {
+  it('never overwrites an existing dw.json or .env', () => {
     const dir = fakeInstallRoot();
     writeFileSync(join(dir, 'dw.json'), '{"configs":[{"name":"mine-prd"}]}');
+    writeFileSync(join(dir, '.env'), 'SFCC_CLIENT_SECRET=keep-me\n');
     expect(run(dir).status).toBe(0);
     expect(readFileSync(join(dir, 'dw.json'), 'utf8')).toBe('{"configs":[{"name":"mine-prd"}]}');
+    expect(readFileSync(join(dir, '.env'), 'utf8')).toBe('SFCC_CLIENT_SECRET=keep-me\n');
   });
 
   it('can be skipped (CI)', () => {
@@ -139,6 +148,7 @@ describe('postinstall', () => {
     const res = run(dir, {REALM_DOCTOR_SKIP_POSTINSTALL: '1'});
     expect(res.status).toBe(0);
     expect(existsSync(join(dir, 'dw.json'))).toBe(false);
+    expect(existsSync(join(dir, '.env'))).toBe(false);
     expect(existsSync(join(dir, 'cli-plugin', 'built'))).toBe(false);
   });
 });

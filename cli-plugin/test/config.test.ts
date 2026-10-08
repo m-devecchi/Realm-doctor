@@ -68,7 +68,9 @@ describe('project-level setup (no global installs)', () => {
     for (const s of [claude, vscode]) {
       expect(s.command).toBe('npx');
       expect(s.args).toEqual(['--no-install', 'b2c-dx-mcp']);
+      expect(s.env).toEqual({SFCC_DISABLE_TELEMETRY: 'true'});
     }
+    expect(readFileSync(join(REPO, 'config', 'env.example'), 'utf8')).toMatch(/^SFCC_DISABLE_TELEMETRY=true$/m);
   });
 
   it('the cache lives inside the repository and is git-ignored', () => {

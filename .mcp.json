@@ -2,7 +2,13 @@
   "mcpServers": {
     "b2c-dx-mcp": {
       "command": "npx",
-      "args": ["--no-install", "b2c-dx-mcp"]
+      "args": [
+        "--no-install",
+        "b2c-dx-mcp"
+      ],
+      "env": {
+        "SFCC_DISABLE_TELEMETRY": "true"
+      }
     }
   }
 }

@@ -22,7 +22,7 @@ npm install
 
 1. installs the Salesforce `b2c` CLI and the `b2c-dx-mcp` MCP server in `node_modules`;
 2. builds the `realm-doctor` commands;
-3. creates `dw.json` from [`config/dw.example.json`](config/dw.example.json) if it does not exist.
+3. creates `dw.json` from [`config/dw.example.json`](config/dw.example.json) and `.env` from [`config/env.example`](config/env.example) if they do not exist (`.env` turns Salesforce CLI telemetry off).
 
 Then:
 
@@ -30,7 +30,7 @@ Then:
 2. Run `npm run doctor` to check everything.
 3. Open **this folder** in GitHub Copilot or Claude Code. The skills (`.claude/skills`) and the MCP server (`.mcp.json`, `.vscode/mcp.json`) are picked up automatically; approve the MCP server when the client asks.
 
-Deleting the folder removes everything. The only thing outside it is the token cache of the Salesforce SDK.
+Deleting the folder removes everything. Outside it, the Salesforce tools only keep a few small files of their own in your home folder (token cache, version check).
 
 ## Instances: one file for every realm
 
@@ -101,6 +101,7 @@ Add `--json` for structured output; this is what the skills use. Full rule list:
 - **Safety Mode** `READ_ONLY` is a second layer of protection. The tests check that, without the expected exceptions, searches are blocked before they reach the instance.
 - **Personal data.** Emails, IPs, phone numbers, card numbers, order and customer numbers, tokens and secrets are masked before caching or printing. Masking is pattern-based: free-text names and addresses are not guaranteed to be removed.
 - **Local files.** `dw.json`, `.env` and the cache (`.cache/`) stay in this folder and are git-ignored. `npm run doctor` fails if they are not.
+- **Telemetry.** Salesforce CLI and MCP telemetry is off (`SFCC_DISABLE_TELEMETRY=true` in `.env` and in the MCP configs).
 - **Never on production:** the debugger (`debug_*`), deployments and test baskets.
 - **Dependencies.** `npm audit` reports vulnerabilities inside the pinned dependencies of the Salesforce packages (`@salesforce/b2c-cli`, `@salesforce/b2c-dx-mcp`, `@salesforce/b2c-tooling-sdk`). They are fixed by upgrading those packages when Salesforce releases new versions, not with `npm audit fix --force`.
 

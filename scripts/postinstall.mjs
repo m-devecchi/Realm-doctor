@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Runs after `npm install` in the repository root. Everything stays inside this folder:
-// builds the realm-doctor commands and creates a local dw.json from the example if missing.
+// builds the realm-doctor commands and creates local dw.json and .env from the examples if missing.
 // Nothing is installed globally and nothing outside the repository is changed.
 import {spawnSync} from 'node:child_process';
 import {copyFileSync, existsSync} from 'node:fs';
@@ -27,6 +27,8 @@ if (!existsSync(dw)) {
   copyFileSync(join(ROOT, 'config', 'dw.example.json'), dw);
   created = true;
 }
+const dotenv = join(ROOT, '.env');
+if (!existsSync(dotenv)) copyFileSync(join(ROOT, 'config', 'env.example'), dotenv);
 
 console.log(`
 realm-doctor is installed in this folder.
@@ -35,6 +37,7 @@ realm-doctor is installed in this folder.
   Skills:       .claude/skills (read by Claude Code and GitHub Copilot)
   MCP config:   .mcp.json and .vscode/mcp.json
   Instances:    dw.json${created ? ' (created from config/dw.example.json: replace the example values)' : ''}
+  Environment:  .env (telemetry off)
 
 Next:
   1. Edit dw.json with your instances (hostname, client-id, client-secret).
