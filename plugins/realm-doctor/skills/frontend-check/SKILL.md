@@ -1,6 +1,6 @@
 ---
 name: frontend-check
-description: Frontend performance check of an SFCC storefront - Core Web Vitals (LCP, CLS, INP), heavy JavaScript, blocking third parties and console errors on home, PLP, PDP and cart via PageSpeed Insights. Use when the user asks "il sito è lento", "core web vitals", "performance frontend", "lighthouse", "pagespeed".
+description: Frontend performance check of an SFCC storefront - Core Web Vitals (LCP, CLS, INP), heavy JavaScript, blocking third parties and console errors on home, PLP, PDP and cart via PageSpeed Insights. Use when the user asks "the site is slow", "core web vitals", "frontend performance", "lighthouse", "pagespeed".
 ---
 
 # Frontend check
@@ -26,5 +26,5 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 
 Report as in conventions, with a table:
 
-| Pagina | Fonte | LCP | CLS | INP | JS | Terze parti (blocco) | Score |
+| Page | Source | LCP | CLS | INP | JS | Third parties (blocking) | Score |
 | --- | --- | --- | --- | --- | --- | --- | --- |

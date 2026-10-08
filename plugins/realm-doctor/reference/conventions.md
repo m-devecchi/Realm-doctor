@@ -28,42 +28,42 @@ Before any analysis, confirm the target and show it at the top of the report:
 
 | Severity | Criteria |
 | --- | --- |
-| critica | Customers cannot buy or are charged wrongly now: checkout or payment errors, enforced quota limits hit, wrong discounts on live orders |
-| alta | Recurring errors or quota problems in production, a promotion that does not work as communicated, security exposure (secrets, unencoded output) |
-| media | Performance degradation, problems that will become blocking (non-enforced quota, warnings near the limit), configuration inconsistencies |
-| bassa | Code hygiene, cleanup, things to check when convenient |
+| critical | Customers cannot buy or are charged wrongly now: checkout or payment errors, enforced quota limits hit, wrong discounts on live orders |
+| high | Recurring errors or quota problems in production, a promotion that does not work as communicated, security exposure (secrets, unencoded output) |
+| medium | Performance degradation, problems that will become blocking (non-enforced quota, warnings near the limit), configuration inconsistencies |
+| low | Code hygiene, cleanup, things to check when convenient |
 
-The CLI already assigns `critical|high|medium|low` (= critica, alta, media, bassa). You may raise a severity when
-the context justifies it (e.g. the error is on the checkout); say why in one line. Never lower it silently.
+The CLI already assigns `critical|high|medium|low`. You may raise a severity when the context justifies it (e.g. the
+error is on the checkout); say why in one line. Never lower it silently.
 
 ## Finding format
 
 Every finding in a report uses exactly this structure:
 
 ```
-### [SEVERITÀ] <RULE-ID> <titolo>
-- **Evidenza:** <signature / job id / promo id / file:riga> — <dato concreto: conteggi, date, valori>
-- **Impatto:** <cosa succede per il cliente o il business>
-- **Fix:** <dove e cosa cambiare; in Business Manager indicare il percorso del menu>
-- **Stima:** <ore o giorni-uomo, solo se ragionevole; altrimenti "da valutare">
+### [SEVERITY] <RULE-ID> <title>
+- **Evidence:** <signature / job id / promotion id / file:line> — <concrete data: counts, dates, values>
+- **Impact:** <what happens for customers or the business>
+- **Fix:** <where and what to change; for Business Manager give the menu path>
+- **Estimate:** <hours or person-days, only when reasonable; otherwise "to be assessed">
 ```
 
 ## Rules of evidence
 
-- No statement without data from a tool call made in this session. If data is missing, write "dato non disponibile" and why.
+- No statement without data from a tool call made in this session. If data is missing, write "data not available" and why.
 - Quote at most 3 lines of log or code per finding. Logs are already masked by the CLI; never paste raw logs fetched
   with `logs_get_recent` or `webdav_get` without removing emails, names, addresses, order and customer numbers.
-- Distinguish facts (from tools) from hypotheses (your interpretation): label hypotheses "Ipotesi:".
+- Distinguish facts (from tools) from hypotheses (your interpretation): label hypotheses "Hypothesis:".
 - Use the rule ids from the CLI; for findings you derive yourself use the prefix `MAN-` and explain the logic.
 
 ## Report
 
-Write reports in Italian unless the user writes in another language. Structure (always the same order):
+Write reports in English. Structure (always the same order):
 
-1. **Header:** skill, istanza (hostname), periodo analizzato, data e ora dell'analisi.
-2. **Sintesi:** 3-5 righe con il verdetto e i numeri chiave (finding per severità).
-3. **Finding:** ordinati per severità, nel formato sopra.
-4. **Limiti dell'analisi:** cosa non è stato possibile verificare e perché (permessi, dati mancanti, regole non coperte).
-5. **Prossime azioni:** massimo 5, ognuna con un responsabile suggerito (sviluppo, business, Salesforce Support).
+1. **Header:** skill, instance (hostname), period analyzed, date and time of the analysis.
+2. **Summary:** 3-5 lines with the verdict and the key numbers (findings by severity).
+3. **Findings:** ordered by severity, in the format above.
+4. **Analysis limits:** what could not be verified and why (permissions, missing data, rules not covered).
+5. **Next actions:** at most 5, each with a suggested owner (development, business, Salesforce Support).
 
 When the user asks for a document or the report is long, produce it as a document; otherwise answer in chat.

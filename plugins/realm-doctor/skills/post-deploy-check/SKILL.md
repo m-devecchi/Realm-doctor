@@ -1,6 +1,6 @@
 ---
 name: post-deploy-check
-description: Compares errors and quota before and after a code deployment on an SFCC instance and gives a verdict - OK, da verificare, rollback consigliato. Use when the user says "abbiamo rilasciato", "check post deploy", "com'è andato il rilascio", "controlla dopo il go-live", or after activating a new code version.
+description: Compares errors and quota before and after a code deployment on an SFCC instance and gives a verdict - OK, to check, rollback recommended. Use when the user says "we released", "post-deploy check", "how did the release go", "check after go-live", or after activating a new code version.
 ---
 
 # Post-deploy check
@@ -30,13 +30,13 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 
 ## Verdict
 
-- **Rollback consigliato**: a new or regressed error on checkout/payment/cart pipelines, or a new enforced quota limit.
-- **Da verificare**: new or regressed errors elsewhere, new quota warnings.
+- **Rollback recommended**: a new or regressed error on checkout/payment/cart pipelines, or a new enforced quota limit.
+- **To check**: new or regressed errors elsewhere, new quota warnings.
 - **OK**: nothing new; list the fixed errors as good news.
 
 ## Output
 
-Report as in conventions, with the verdict in the first line of the Sintesi and a table:
+Report as in conventions, with the verdict in the first line of the Summary and a table:
 
-| Firma | Prima (/h) | Dopo (/h) | Stato | Dove |
+| Signature | Before (/h) | After (/h) | Status | Where |
 | --- | --- | --- | --- | --- |

@@ -102,7 +102,7 @@ describe('audit commands against a fake instance (READ_ONLY safety)', () => {
     const before = sfcc.requests.length;
     const {status, report, stderr} = await run(['audit', 'errors', '--since', '2026-10-08T00:00:00Z', '--max-kb', '4', ...instanceArgs()]);
     expect(status, stderr).toBe(0);
-    expect(report!.notes.join()).toMatch(/1 file letti solo in coda/);
+    expect(report!.notes.join()).toMatch(/1 file\(s\) read from the tail only/);
     const ranged = sfcc.requests.slice(before).filter((r) => r.range);
     expect(ranged).toHaveLength(1);
     expect(ranged[0].path).toMatch(/error-blade1-0-appserver-20261008\.log$/);
@@ -139,7 +139,7 @@ describe('audit commands against a fake instance (READ_ONLY safety)', () => {
     const {status, report, stderr} = await run(['audit', 'hyperforce', ...instanceArgs()]);
     expect(status, stderr).toBe(0);
     expect(ruleIds(report)).toEqual(['HF-001', 'HF-002']);
-    expect(report!.notes.join()).toMatch(/5 dalla cache/);
+    expect(report!.notes.join()).toMatch(/5 from cache/);
   });
 
   it('audit promotions: pages through OCAPI searches and finds the same issues as the offline analysis', async () => {
@@ -195,6 +195,6 @@ describe('commands that do not need an instance', () => {
     const {status, stdout} = await run(['audit', 'promotions', '--input', join(FIX, 'promo', 'bundle.json')]);
     expect(status).toBe(0);
     expect(stdout).toMatch(/^realm-doctor audit promotions/);
-    expect(stdout).toContain('[ALTA] PROMO-');
+    expect(stdout).toContain('[HIGH] PROMO-');
   });
 });

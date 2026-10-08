@@ -54,4 +54,3 @@ Claude Code
 - Promotion qualifiers are verified only with guest baskets on a sandbox; promotions for registered customers are limited to static analysis.
 - Masking does not recognize names and addresses in free text.
 - Log formats can change between releases: lines the signature parser does not recognize are ignored.
-- Finding titles, impacts and fixes produced by the commands are in Italian, matching the default report language.

@@ -19,10 +19,10 @@ export function analyzeIsml(file: SourceFile): Finding[] {
       rule: 'ISML-001',
       category: 'code',
       severity: 'high',
-      title: 'Output senza encoding (isprint encoding="off")',
+      title: 'Unencoded output (isprint encoding="off")',
       evidence: [{location: loc(m.index ?? 0), excerpt: ex(m.index ?? 0)}],
-      impact: 'Rischio XSS se il valore contiene dati inseriti da utenti o da import non controllati.',
-      fix: 'Rimuovere encoding="off" o limitarlo a contenuti HTML gestiti e sanificati (es. content asset).',
+      impact: 'XSS risk if the value contains user input or data from unchecked imports.',
+      fix: 'Remove encoding="off" or limit it to managed, sanitized HTML content (e.g. content assets).',
     });
   }
 
@@ -43,12 +43,12 @@ export function analyzeIsml(file: SourceFile): Finding[] {
       rule: 'ISML-002',
       category: 'code',
       severity: looped ? 'high' : 'medium',
-      title: `API di business nel template${looped ? ' dentro isloop' : ''}: ${m[1]}`,
+      title: `Business API in template${looped ? ' inside isloop' : ''}: ${m[1]}`,
       evidence: [{location: loc(i), excerpt: ex(i)}],
       impact: looped
-        ? 'Accesso al database per ogni elemento del ciclo durante il rendering: pagine lente e quota.'
-        : 'Logica di accesso ai dati nel template: difficile da cachare e da testare.',
-      fix: 'Preparare i dati nel controller o in un model e passarli al template.',
+        ? 'Database access for every loop item during rendering: slow pages and quota.'
+        : 'Data access logic in the template: hard to cache and test.',
+      fix: 'Prepare the data in the controller or a model and pass it to the template.',
     });
   }
 
@@ -60,10 +60,10 @@ export function analyzeIsml(file: SourceFile): Finding[] {
       rule: 'ISML-003',
       category: 'code',
       severity: 'high',
-      title: 'Remote include dentro isloop',
+      title: 'Remote include inside isloop',
       evidence: [{location: loc(m.index ?? 0), excerpt: ex(m.index ?? 0)}],
-      impact: 'Una richiesta server aggiuntiva per ogni elemento del ciclo.',
-      fix: 'Rendere il contenuto con un local include o raggruppare in un solo remote include.',
+      impact: 'One extra server request for every loop item.',
+      fix: 'Render the content with a local include or group it into a single remote include.',
     });
   }
   if (includes.length > REMOTE_INCLUDE_THRESHOLD) {
@@ -71,10 +71,10 @@ export function analyzeIsml(file: SourceFile): Finding[] {
       rule: 'ISML-004',
       category: 'code',
       severity: 'low',
-      title: `Molti remote include nello stesso template (${includes.length})`,
+      title: `Many remote includes in one template (${includes.length})`,
       evidence: [{location: loc(includes[0].index ?? 0), data: {count: includes.length}}],
-      impact: 'Ogni remote include è una richiesta separata: aumenta il tempo di risposta se non sono in cache.',
-      fix: 'Verificare la cache di ogni include e accorpare quelli con la stessa politica di cache.',
+      impact: 'Each remote include is a separate request: response time grows when they are not cached.',
+      fix: 'Check the caching of every include and merge those with the same cache policy.',
     });
   }
   return findings;

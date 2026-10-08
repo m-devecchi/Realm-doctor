@@ -93,51 +93,51 @@ export function summarizePsi(url: string, psi: PsiResult): FrontendSummary {
 export function frontendFindings(s: FrontendSummary): Finding[] {
   const out: Finding[] = [];
   const ref = s.url;
-  const src = s.source === 'field' ? 'dati reali utenti (CrUX, 75° percentile)' : 'misura di laboratorio (Lighthouse)';
+  const src = s.source === 'field' ? 'real-user data (CrUX, 75th percentile)' : 'lab measurement (Lighthouse)';
   const metric = (rule: string, name: string, value: number | undefined, lim: {good: number; poor: number}, unit: string, impact: string, fix: string) => {
     if (value === undefined || value <= lim.good) return;
     out.push({
       rule,
       category: 'frontend',
       severity: value > lim.poor ? 'high' : 'medium',
-      title: `${name} ${value > lim.poor ? 'scarso' : 'da migliorare'}: ${fmt(value, unit)} (soglia ${fmt(lim.good, unit)})`,
+      title: `${name} ${value > lim.poor ? 'poor' : 'needs improvement'}: ${fmt(value, unit)} (threshold ${fmt(lim.good, unit)})`,
       evidence: [{ref, data: {value, good: lim.good, poor: lim.poor, source: src}}],
       impact,
       fix,
     });
   };
-  metric('FE-001', 'LCP', s.lcpMs, LIMITS.lcp, 'ms', 'Il contenuto principale appare tardi: impatto diretto su conversione e SEO.',
-    'Ottimizzare immagine hero (formato, dimensioni, preload), ridurre CSS/JS bloccanti, verificare il tempo di risposta del server e la cache.');
-  metric('FE-002', 'CLS', s.cls, LIMITS.cls, '', 'La pagina si sposta durante il caricamento: clic sbagliati e cattiva esperienza.',
-    'Riservare lo spazio a immagini, banner e slot (width/height, aspect-ratio).');
-  metric('FE-003', 'INP', s.inpMs, LIMITS.inp, 'ms', 'La pagina risponde lentamente ai clic.',
-    'Ridurre il JavaScript eseguito sul thread principale e i listener pesanti.');
+  metric('FE-001', 'LCP', s.lcpMs, LIMITS.lcp, 'ms', 'The main content appears late: direct impact on conversion and SEO.',
+    'Optimize the hero image (format, size, preload), reduce render-blocking CSS/JS, check server response time and caching.');
+  metric('FE-002', 'CLS', s.cls, LIMITS.cls, '', 'The page shifts while loading: wrong clicks and a poor experience.',
+    'Reserve space for images, banners and slots (width/height, aspect-ratio).');
+  metric('FE-003', 'INP', s.inpMs, LIMITS.inp, 'ms', 'The page responds slowly to clicks.',
+    'Reduce JavaScript running on the main thread and heavy event listeners.');
   if (s.source === 'lab') {
-    metric('FE-004', 'Total Blocking Time', s.tbtMs, LIMITS.tbt, 'ms', 'Thread principale bloccato: la pagina non risponde durante il caricamento.',
-      'Dividere i bundle, rimandare gli script non critici, ridurre le terze parti.');
+    metric('FE-004', 'Total Blocking Time', s.tbtMs, LIMITS.tbt, 'ms', 'Main thread blocked: the page does not respond while loading.',
+      'Split bundles, defer non-critical scripts, reduce third parties.');
   }
   if (s.jsBytes && s.jsBytes > LIMITS.jsBytes) {
-    out.push({rule: 'FE-005', category: 'frontend', severity: 'medium', title: `JavaScript pesante: ${fmt(s.jsBytes, 'B')}`,
+    out.push({rule: 'FE-005', category: 'frontend', severity: 'medium', title: `Heavy JavaScript: ${fmt(s.jsBytes, 'B')}`,
       evidence: [{ref, data: {jsBytes: s.jsBytes, limit: LIMITS.jsBytes}}],
-      impact: 'Più download e più tempo di esecuzione, soprattutto su mobile.',
-      fix: 'Rimuovere codice non usato, caricare i moduli solo nelle pagine che servono.'});
+      impact: 'More download and execution time, especially on mobile.',
+      fix: 'Remove unused code, load modules only on the pages that need them.'});
   } else if (s.totalBytes && s.totalBytes > LIMITS.totalBytes) {
-    out.push({rule: 'FE-005', category: 'frontend', severity: 'low', title: `Pagina pesante: ${fmt(s.totalBytes, 'B')}`,
+    out.push({rule: 'FE-005', category: 'frontend', severity: 'low', title: `Heavy page: ${fmt(s.totalBytes, 'B')}`,
       evidence: [{ref, data: {totalBytes: s.totalBytes, limit: LIMITS.totalBytes}}],
-      impact: 'Caricamento lento su reti mobili.', fix: 'Comprimere immagini e ridurre le risorse caricate.'});
+      impact: 'Slow loading on mobile networks.', fix: 'Compress images and reduce loaded resources.'});
   }
   if (s.thirdPartyBlockingMs && s.thirdPartyBlockingMs > LIMITS.thirdPartyBlockingMs) {
     out.push({rule: 'FE-006', category: 'frontend', severity: 'medium',
-      title: `Terze parti bloccano il thread principale per ${s.thirdPartyBlockingMs} ms`,
+      title: `Third parties block the main thread for ${s.thirdPartyBlockingMs} ms`,
       evidence: [{ref, data: {topThirdParties: s.topThirdParties}}],
-      impact: 'Tag di marketing e widget rallentano la pagina.',
-      fix: 'Caricare le terze parti in modo differito o dopo il consenso; rimuovere quelle non usate.'});
+      impact: 'Marketing tags and widgets slow the page down.',
+      fix: 'Load third parties deferred or after consent; remove unused ones.'});
   }
   if (s.consoleErrors.length) {
-    out.push({rule: 'FE-007', category: 'frontend', severity: 'medium', title: `Errori nella console del browser (${s.consoleErrors.length})`,
+    out.push({rule: 'FE-007', category: 'frontend', severity: 'medium', title: `Browser console errors (${s.consoleErrors.length})`,
       evidence: [{ref, excerpt: s.consoleErrors.join('\n')}],
-      impact: 'Script che falliscono possono rompere funzioni della pagina (tracking, add to cart, widget).',
-      fix: 'Correggere gli errori indicati partendo da quelli del codice della storefront.'});
+      impact: 'Failing scripts can break page features (tracking, add to cart, widgets).',
+      fix: 'Fix the listed errors, starting with those from the storefront code.'});
   }
   return out;
 }

@@ -32,7 +32,7 @@ export default class AuditFrontend extends BaseCommand<typeof AuditFrontend> {
         if (process.env.PSI_API_KEY) q.set('key', process.env.PSI_API_KEY);
         const res = await fetch(`${PSI}?${q}`);
         if (!res.ok) {
-          notes.push(`PageSpeed Insights non disponibile per ${url}: HTTP ${res.status}`);
+          notes.push(`PageSpeed Insights not available for ${url}: HTTP ${res.status}`);
           continue;
         }
         psi = (await res.json()) as PsiResult;

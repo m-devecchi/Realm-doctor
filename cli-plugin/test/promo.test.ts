@@ -30,7 +30,7 @@ describe('promotion rules', () => {
     expect(about('P_EXPIRED')).toEqual(['PROMO-001']);
     expect(about('P_UNASSIGNED')).toEqual(['PROMO-001']);
     const expired = findings.find((f) => f.title.includes('P_EXPIRED'))!;
-    expect(expired.evidence[0].data).toEqual({reasons: ['C_OLD: scaduta il 2026-09-30']});
+    expect(expired.evidence[0].data).toEqual({reasons: ['C_OLD: expired on 2026-09-30']});
   });
 
   it('PROMO-002: assignment pointing to a missing promotion', () => {
@@ -67,8 +67,8 @@ describe('promotion rules', () => {
 
   it('PROMO-008: exclusive promotions with duplicate rank and without rank', () => {
     const f = findings.filter((x) => x.rule === 'PROMO-008');
-    expect(f.map((x) => x.title).join()).toContain('senza rank');
-    expect(f.map((x) => x.title).join()).toContain('Rank duplicato (5)');
+    expect(f.map((x) => x.title).join()).toContain('without rank');
+    expect(f.map((x) => x.title).join()).toContain('Duplicate rank (5)');
   });
 
   it('PROMO-009: same promotion live in two campaigns', () => {

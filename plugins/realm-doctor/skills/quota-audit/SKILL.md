@@ -1,6 +1,6 @@
 ---
 name: quota-audit
-description: Audit of SFCC platform quota violations and warnings with the code that causes them and how to fix it. Use when the user asks about "quota", "quote superate", "api.jsArraySize", "object quota", "governance", or before a peak (Black Friday) to check limits.
+description: Audit of SFCC platform quota violations and warnings with the code that causes them and how to fix it. Use when the user asks about "quota", "quota exceeded", "api.jsArraySize", "object quota", "governance", or before a peak (Black Friday) to check limits.
 ---
 
 # Quota audit
@@ -26,10 +26,10 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 
 ## Output
 
-Report as in conventions. QUOTA-001 (enforced limit) is always at least **alta**, **critica** when the pipeline is
+Report as in conventions. QUOTA-001 (enforced limit) is always at least **high**, **critical** when the pipeline is
 cart/checkout/order. Add a table:
 
-| Quota | Enforced | Warn / Limit | Max osservato | Superamenti | Dove |
+| Quota | Enforced | Warn / Limit | Max observed | Times exceeded | Where |
 | --- | --- | --- | --- | --- | --- |
 
-Remind once in "Prossime azioni" that quota overrides from Salesforce are a last resort.
+Remind once in "Next actions" that quota overrides from Salesforce are a last resort.

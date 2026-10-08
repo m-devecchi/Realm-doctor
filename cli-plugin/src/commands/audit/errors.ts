@@ -38,9 +38,9 @@ export default class AuditErrors extends InstanceCommand<typeof AuditErrors> {
     const signatures = aggregateErrors(entries, {since: since.toISOString()});
     const findings = errorFindings(signatures, {day: this.flags.day});
     const notes: string[] = [];
-    if (files.length === 0) notes.push('Nessun file di log nel periodo per i prefissi indicati.');
+    if (files.length === 0) notes.push('No log files in the period for the given prefixes.');
     const truncated = files.filter((f) => f.truncated).length;
-    if (truncated) notes.push(`${truncated} file letti solo in coda (oltre ${this.flags['max-kb']} KB).`);
+    if (truncated) notes.push(`${truncated} file(s) read from the tail only (larger than ${this.flags['max-kb']} KB).`);
 
     const report = buildReport(
       'audit errors',

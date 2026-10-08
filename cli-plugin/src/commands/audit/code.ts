@@ -32,7 +32,7 @@ export default class AuditCode extends InstanceCommand<typeof AuditCode> {
     const all = analyzeCode(code.files);
     const findings = all.slice(0, this.flags['max-findings']);
     const notes = [...code.notes];
-    if (all.length > findings.length) notes.push(`Mostrati ${findings.length} finding su ${all.length}.`);
+    if (all.length > findings.length) notes.push(`Showing ${findings.length} of ${all.length} findings.`);
     const report = buildReport(
       'audit code',
       {origin: code.origin, codeVersion: code.codeVersion, dir: code.root, cartridges: this.flags.cartridge},

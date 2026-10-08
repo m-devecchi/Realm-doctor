@@ -130,16 +130,16 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     const mine = effective.filter((e) => e.a.promotion_id === p.id);
     if (mine.some(isLiveOrUpcoming)) continue;
     const reasons = mine.length === 0
-      ? ['non assegnata a nessuna campagna']
+      ? ['not assigned to any campaign']
       : mine.map((e) => describeDead(e, now));
     push(
       'PROMO-001',
       'medium',
-      `Promo abilitata che non può scattare: ${p.id}`,
+      `Enabled promotion that can never fire: ${p.id}`,
       `promotion:${p.id}`,
       {reasons},
-      'Il business la considera attiva, ma nessun cliente la riceverà.',
-      'Assegnarla a una campagna attiva con date corrette, o disabilitarla/archiviarla per evitare confusione.',
+      'The business considers it live, but no customer will get it.',
+      'Assign it to an active campaign with correct dates, or disable/archive it to avoid confusion.',
     );
   }
 
@@ -150,10 +150,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
 
     // PROMO-002 assignment to a missing campaign or promotion
     if (!e.campaign || !e.promo) {
-      push('PROMO-002', 'high', `Assegnazione orfana: ${pid} @ ${cid}`, ref,
+      push('PROMO-002', 'high', `Orphan assignment: ${pid} @ ${cid}`, ref,
         {campaignFound: !!e.campaign, promotionFound: !!e.promo},
-        'Configurazione incoerente: la promo non si comporta come previsto.',
-        'Ricreare o rimuovere l\'assegnazione in Business Manager > Online Marketing > Campaigns.');
+        'Inconsistent configuration: the promotion does not behave as expected.',
+        'Recreate or remove the assignment in Business Manager > Online Marketing > Campaigns.');
       continue;
     }
 
@@ -162,10 +162,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     const aw = toWindow(e.a.schedule?.start_date, e.a.schedule?.end_date);
     if ((e.a.schedule?.start_date || e.a.schedule?.end_date) && (!e.window || aw.start < cw.start || aw.end > cw.end)) {
       push('PROMO-003', e.window ? 'medium' : 'high',
-        `Date della promo fuori dalla campagna: ${pid} @ ${cid}`, ref,
-        {campaign: fmt(cw), promotionSchedule: fmt(aw), effective: e.window ? fmt(e.window) : 'nessuna sovrapposizione'},
-        e.window ? 'La promo vale solo nella parte di date in comune con la campagna.' : 'La promo non può mai scattare: le date non si sovrappongono.',
-        'Allineare le date della promo e della campagna.');
+        `Promotion dates outside the campaign: ${pid} @ ${cid}`, ref,
+        {campaign: fmt(cw), promotionSchedule: fmt(aw), effective: e.window ? fmt(e.window) : 'no overlap'},
+        e.window ? 'The promotion only applies in the date range shared with the campaign.' : 'The promotion can never fire: the dates do not overlap.',
+        'Align the promotion and campaign dates.');
     }
 
     if (!isLiveOrUpcoming(e)) continue;
@@ -175,49 +175,49 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     for (const gid of new Set(groupIds)) {
       const g = groups.get(gid);
       if (!g) {
-        push('PROMO-004', 'high', `Customer group inesistente: ${gid} (${pid} @ ${cid})`, ref, {customerGroup: gid},
-          'Nessun cliente appartiene al gruppo: la promo non scatta.',
-          'Correggere il customer group nella campagna o nella promo.');
+        push('PROMO-004', 'high', `Customer group does not exist: ${gid} (${pid} @ ${cid})`, ref, {customerGroup: gid},
+          'No customer belongs to the group: the promotion does not fire.',
+          'Fix the customer group in the campaign or the promotion.');
       } else if (g.type === 'static' && (g.member_count ?? 0) === 0) {
-        push('PROMO-004', 'high', `Customer group statico vuoto: ${gid} (${pid} @ ${cid})`, ref, {customerGroup: gid, members: 0},
-          'Il gruppo non ha membri: la promo non scatta per nessuno.',
-          'Importare i membri del gruppo o usare un gruppo dinamico.');
+        push('PROMO-004', 'high', `Empty static customer group: ${gid} (${pid} @ ${cid})`, ref, {customerGroup: gid, members: 0},
+          'The group has no members: the promotion fires for nobody.',
+          'Import the group members or use a dynamic group.');
       }
     }
 
     // PROMO-005 coupons: missing, disabled, exhausted; coupon-based without coupons
     const couponIds = [...(e.campaign.coupons ?? []), ...(e.a.coupons ?? [])];
     if (e.a.coupons_based && couponIds.length === 0) {
-      push('PROMO-005', 'high', `Promo basata su coupon senza coupon: ${pid} @ ${cid}`, ref, {},
-        'Il qualificatore richiede un coupon ma nessun coupon è collegato: la promo non scatta.',
-        'Collegare il coupon alla campagna o alla promo, oppure togliere il qualificatore coupon.');
+      push('PROMO-005', 'high', `Coupon-based promotion without coupons: ${pid} @ ${cid}`, ref, {},
+        'The qualifier requires a coupon but none is linked: the promotion does not fire.',
+        'Link the coupon to the campaign or the promotion, or remove the coupon qualifier.');
     }
     for (const id of new Set(couponIds)) {
       const c = coupons.get(id);
       if (!c) {
-        push('PROMO-005', 'high', `Coupon inesistente: ${id} (${pid} @ ${cid})`, ref, {coupon: id},
-          'Il coupon collegato non esiste: nessun codice può attivare la promo.', 'Correggere il riferimento al coupon.');
+        push('PROMO-005', 'high', `Coupon does not exist: ${id} (${pid} @ ${cid})`, ref, {coupon: id},
+          'The linked coupon does not exist: no code can activate the promotion.', 'Fix the coupon reference.');
       } else if (c.enabled === false) {
-        push('PROMO-005', 'high', `Coupon disabilitato: ${id} (${pid} @ ${cid})`, ref, {coupon: id},
-          'I clienti inseriscono il codice ma viene rifiutato.', 'Abilitare il coupon o fermare la comunicazione del codice.');
+        push('PROMO-005', 'high', `Coupon disabled: ${id} (${pid} @ ${cid})`, ref, {coupon: id},
+          'Customers enter the code but it is rejected.', 'Enable the coupon or stop communicating the code.');
       } else if (c.type === 'single_code' && !c.single_code) {
-        push('PROMO-005', 'high', `Coupon single code senza codice: ${id}`, ref, {coupon: id},
-          'Non esiste un codice da inserire.', 'Impostare il codice del coupon.');
+        push('PROMO-005', 'high', `Single-code coupon without a code: ${id}`, ref, {coupon: id},
+          'There is no code to enter.', 'Set the coupon code.');
       } else if (c.type === 'multiple_codes' && (c.total_codes_count ?? 0) === 0) {
-        push('PROMO-005', 'high', `Coupon multi-codice senza codici caricati: ${id}`, ref, {coupon: id},
-          'Nessun codice valido: la promo non può scattare.', 'Importare i codici del coupon.');
+        push('PROMO-005', 'high', `Multi-code coupon with no codes loaded: ${id}`, ref, {coupon: id},
+          'No valid code: the promotion cannot fire.', 'Import the coupon codes.');
       } else if (c.type === 'multiple_codes' && c.total_codes_count && c.redemption_count !== undefined && c.redemption_count >= c.total_codes_count) {
-        push('PROMO-005', 'medium', `Coupon esaurito: ${id}`, ref, {coupon: id, total: c.total_codes_count, redeemed: c.redemption_count},
-          'Tutti i codici risultano già usati.', 'Caricare nuovi codici o chiudere la campagna.');
+        push('PROMO-005', 'medium', `Coupon exhausted: ${id}`, ref, {coupon: id, total: c.total_codes_count, redeemed: c.redemption_count},
+          'All codes have already been redeemed.', 'Load new codes or close the campaign.');
       }
     }
 
     // PROMO-006 currency different from the site currencies
     if (e.promo.currency_code && bundle.currencies?.length && !bundle.currencies.includes(e.promo.currency_code)) {
-      push('PROMO-006', 'high', `Valuta della promo non usata dal sito: ${pid} (${e.promo.currency_code})`, ref,
+      push('PROMO-006', 'high', `Promotion currency not used by the site: ${pid} (${e.promo.currency_code})`, ref,
         {promotionCurrency: e.promo.currency_code, siteCurrencies: bundle.currencies},
-        'Soglie e sconti a importo valgono solo per i carrelli in quella valuta: la promo non scatta.',
-        'Impostare la valuta corretta o lasciarla vuota per le promo a percentuale.');
+        'Thresholds and amount discounts only apply to baskets in that currency: the promotion does not fire.',
+        'Set the correct currency, or leave it empty for percentage promotions.');
     }
   }
 
@@ -227,11 +227,11 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     if (e.promo?.exclusivity !== 'global') continue;
     const others = live.filter((o) => o.promo?.id !== e.promo?.id);
     if (others.length === 0) continue;
-    push('PROMO-007', 'high', `Promo con esclusività globale attiva insieme ad altre: ${e.promo.id}`,
+    push('PROMO-007', 'high', `Globally exclusive promotion live alongside others: ${e.promo.id}`,
       `promotion:${e.promo.id}`,
       {otherLivePromotions: [...new Set(others.map((o) => o.promo?.id))].slice(0, 20)},
-      'Se si qualifica, blocca tutte le altre promo nel carrello, anche quelle che il business pensa si sommino.',
-      'Verificare se l\'esclusività globale è voluta; altrimenti usare "class" o "no" e definire il rank.');
+      'When it qualifies, it blocks every other promotion in the basket, including those the business expects to stack.',
+      'Check whether global exclusivity is intended; otherwise use "class" or "no" and set the rank.');
   }
 
   // PROMO-008 same rank, same class, overlapping, exclusive at class level -> ambiguous winner
@@ -244,10 +244,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     const exclusive = list.filter((e) => e.promo?.exclusivity === 'class' || e.promo?.exclusivity === 'global');
     const noRank = exclusive.filter((e) => e.a.rank === undefined || e.a.rank === null);
     if (exclusive.length > 1 && noRank.length > 0) {
-      push('PROMO-008', 'medium', `Promo esclusive di classe ${cls} senza rank`, `class:${cls}`,
+      push('PROMO-008', 'medium', `Exclusive ${cls} promotions without rank`, `class:${cls}`,
         {promotions: noRank.map((e) => e.promo?.id)},
-        'Con più promo esclusive senza rank, quale vince dipende dall\'ordine interno della piattaforma: risultato poco prevedibile.',
-        'Assegnare un rank esplicito a ogni promo esclusiva.');
+        'With several exclusive promotions without rank, the winner depends on the platform\'s internal order: hard to predict.',
+        'Set an explicit rank on every exclusive promotion.');
     }
     const ranks = new Map<number, string[]>();
     for (const e of exclusive) {
@@ -257,10 +257,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
     for (const [rank, ids] of ranks) {
       const unique = [...new Set(ids)];
       if (unique.length > 1) {
-        push('PROMO-008', 'medium', `Rank duplicato (${rank}) tra promo esclusive di classe ${cls}`, `class:${cls}`,
+        push('PROMO-008', 'medium', `Duplicate rank (${rank}) among exclusive ${cls} promotions`, `class:${cls}`,
           {rank, promotions: unique},
-          'A parità di rank la promo applicata non è quella che il business si aspetta.',
-          'Differenziare i rank secondo la priorità desiderata.');
+          'With equal ranks the applied promotion may not be the one the business expects.',
+          'Use distinct ranks following the intended priority.');
       }
     }
   }
@@ -274,10 +274,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
   }
   for (const [id, set] of livePerPromo) {
     if (set.size > 1) {
-      push('PROMO-009', 'low', `Promo attiva in più campagne contemporaneamente: ${id}`, `promotion:${id}`,
+      push('PROMO-009', 'low', `Promotion live in several campaigns at the same time: ${id}`, `promotion:${id}`,
         {campaigns: [...set]},
-        'Qualificatori diversi per campagna possono estendere la promo a clienti non previsti.',
-        'Verificare che ogni assegnazione sia voluta; tenere una sola campagna se possibile.');
+        'Different qualifiers per campaign can extend the promotion to unintended customers.',
+        'Check that every assignment is intended; keep a single campaign when possible.');
     }
   }
 
@@ -286,10 +286,10 @@ export function analyzePromotions(bundle: PromoBundle): Finding[] {
 
 function describeDead(e: EffectiveAssignment, now: number): string {
   const where = `${e.a.campaign_id ?? '?'}`;
-  if (!e.campaign) return `${where}: campagna inesistente`;
-  if (e.campaign.enabled === false) return `${where}: campagna disabilitata`;
-  if (e.a.enabled === false) return `${where}: assegnazione disabilitata`;
-  if (!e.window) return `${where}: date promo e campagna non si sovrappongono`;
-  if (e.window.end <= now) return `${where}: scaduta il ${new Date(e.window.end).toISOString().slice(0, 10)}`;
-  return `${where}: non attiva`;
+  if (!e.campaign) return `${where}: campaign does not exist`;
+  if (e.campaign.enabled === false) return `${where}: campaign disabled`;
+  if (e.a.enabled === false) return `${where}: assignment disabled`;
+  if (!e.window) return `${where}: promotion and campaign dates do not overlap`;
+  if (e.window.end <= now) return `${where}: expired on ${new Date(e.window.end).toISOString().slice(0, 10)}`;
+  return `${where}: not active`;
 }

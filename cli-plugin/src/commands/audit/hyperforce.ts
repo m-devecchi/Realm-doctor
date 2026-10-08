@@ -26,11 +26,11 @@ export default class AuditHyperforce extends InstanceCommand<typeof AuditHyperfo
     );
     const findings = analyzeHyperforceReadiness(code.files);
     const checklist = [
-      {item: 'IP hardcoded nel codice', status: findings.some((f) => f.rule === 'HF-001') ? 'KO' : 'OK'},
-      {item: 'Hostname di istanza hardcoded', status: findings.some((f) => f.rule === 'HF-002') ? 'KO' : 'OK'},
-      {item: 'Allowlist IP sui sistemi esterni (ERP, PSP, OMS, WAF)', status: 'DA VERIFICARE', note: 'Non verificabile dal codice: chiedere ai fornitori.'},
-      {item: 'Integrazioni che chiamano SFCC con IP o host fissi', status: 'DA VERIFICARE', note: 'Censire i sistemi in ingresso.'},
-      {item: 'Certificati mTLS e servizi in Business Manager', status: 'DA VERIFICARE', note: 'Controllare gli endpoint dei servizi configurati.'},
+      {item: 'Hardcoded IPs in code', status: findings.some((f) => f.rule === 'HF-001') ? 'FAIL' : 'OK'},
+      {item: 'Hardcoded instance hostnames', status: findings.some((f) => f.rule === 'HF-002') ? 'FAIL' : 'OK'},
+      {item: 'IP allowlists on external systems (ERP, PSP, OMS, WAF)', status: 'TO CHECK', note: 'Cannot be verified from code: ask the vendors.'},
+      {item: 'Integrations calling SFCC with fixed IPs or hosts', status: 'TO CHECK', note: 'List the inbound systems.'},
+      {item: 'mTLS certificates and services in Business Manager', status: 'TO CHECK', note: 'Check the endpoints of the configured services.'},
     ];
     const report = buildReport('audit hyperforce', {origin: code.origin, codeVersion: code.codeVersion, dir: code.root}, findings, {files: code.files.length, checklist}, code.notes);
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));

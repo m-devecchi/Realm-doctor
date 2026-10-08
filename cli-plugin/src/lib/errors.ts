@@ -133,20 +133,20 @@ export function errorFindings(signatures: ErrorSignature[], options: SpikeOption
         rule: 'ERR-001',
         category: 'errors',
         severity: sev(isFatal ? 'critical' : today >= minCount ? 'high' : 'medium'),
-        title: `Nuovo errore dal ${day}: ${s.template.slice(0, 120)}`,
+        title: `New error since ${day}: ${s.template.slice(0, 120)}`,
         evidence,
-        impact: `Errore mai visto nei ${previousDays.length} giorni precedenti, ${today} occorrenze il ${day}.`,
-        fix: 'Verificare deploy, cambi di configurazione o di dati del giorno; aprire il file indicato nello stack.',
+        impact: `Error never seen in the previous ${previousDays.length} days, ${today} occurrences on ${day}.`,
+        fix: 'Check deployments, configuration or data changes of that day; open the file referenced in the stack trace.',
       });
     } else if (today >= minCount && avg > 0 && today >= factor * avg) {
       findings.push({
         rule: 'ERR-002',
         category: 'errors',
         severity: sev(isFatal ? 'critical' : 'high'),
-        title: `Picco di errori: ${s.template.slice(0, 120)}`,
+        title: `Error spike: ${s.template.slice(0, 120)}`,
         evidence,
-        impact: `${today} occorrenze il ${day} contro una media di ${avg.toFixed(1)} al giorno (x${(today / avg).toFixed(1)}).`,
-        fix: 'Correlare con deploy, job o campagne del giorno; verificare la riga di codice indicata nello stack.',
+        impact: `${today} occurrences on ${day} against an average of ${avg.toFixed(1)} per day (x${(today / avg).toFixed(1)}).`,
+        fix: 'Correlate with deployments, jobs or campaigns of that day; check the code line referenced in the stack trace.',
       });
     }
   }
@@ -159,7 +159,7 @@ export function errorFindings(signatures: ErrorSignature[], options: SpikeOption
       rule: 'ERR-003',
       category: 'errors',
       severity: s.level === 'FATAL' ? 'critical' : 'medium',
-      title: `Errore ricorrente (${s.total} occorrenze): ${s.template.slice(0, 120)}`,
+      title: `Recurring error (${s.total} occurrences): ${s.template.slice(0, 120)}`,
       evidence: [
         {
           ref: `signature:${s.id}`,
@@ -168,8 +168,8 @@ export function errorFindings(signatures: ErrorSignature[], options: SpikeOption
           data: {total: s.total, perDay: s.perDay, topLocations: s.locations.slice(0, 3)},
         },
       ],
-      impact: 'Errore costante nel periodo: rumore nei log e possibile impatto su conversione o prestazioni.',
-      fix: 'Correggere la causa nel codice indicato o, se atteso, ridurre il livello di log.',
+      impact: 'Constant error over the period: log noise and possible impact on conversion or performance.',
+      fix: 'Fix the cause in the referenced code or, if expected, lower the log level.',
     });
   }
   return findings;

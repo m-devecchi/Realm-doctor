@@ -28,7 +28,7 @@ export default class AuditPromotions extends InstanceCommand<typeof AuditPromoti
     if (this.flags.input) {
       bundle = JSON.parse(await readFile(this.flags.input, 'utf8')) as PromoBundle;
     } else {
-      if (!this.flags.site) this.error('Indicare --site oppure --input.');
+      if (!this.flags.site) this.error('Pass --site or --input.');
       this.requireServer();
       bundle = await fetchPromoBundle(this.instance, this.flags.site, this.flags.currency);
       if (this.flags.save) await writeFile(this.flags.save, JSON.stringify(bundle, null, 2), {mode: 0o600});
@@ -38,9 +38,9 @@ export default class AuditPromotions extends InstanceCommand<typeof AuditPromoti
 
     const findings = analyzePromotions(bundle);
     const notes = [
-      'Qualificatori di prodotto e regole di sconto non sono esposti dalle API: verificarli con carrelli di prova (skill promo-audit).',
+      'Product qualifiers and discount rules are not exposed by the APIs: verify them with test baskets (promo-audit skill).',
     ];
-    if (!bundle.currencies?.length) notes.push('Controllo valuta saltato: indicare --currency.');
+    if (!bundle.currencies?.length) notes.push('Currency check skipped: pass --currency.');
     const report = buildReport(
       'audit promotions',
       {site: bundle.site, now: bundle.now},

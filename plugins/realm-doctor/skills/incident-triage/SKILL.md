@@ -1,6 +1,6 @@
 ---
 name: incident-triage
-description: Fast triage of a live SFCC problem - correlates error signatures, quota events, jobs and the code that throws in a given time window, and proposes the probable cause and immediate actions. Use when the user says "abbiamo un problema in produzione", "il checkout non funziona", "errori da stamattina", "incident", "triage", or pastes an error message from SFCC.
+description: Fast triage of a live SFCC problem - correlates error signatures, quota events, jobs and the code that throws in a given time window, and proposes the probable cause and immediate actions. Use when the user says "we have a problem in production", "checkout is not working", "errors since this morning", "incident", "triage", or pastes an error message from SFCC.
 ---
 
 # Incident triage
@@ -11,7 +11,7 @@ tool calls, then deepen.
 ## Inputs
 
 - Instance (production by default only if the user says so; otherwise ask).
-- Symptom in the user's words (e.g. "checkout fallisce", "PDP lente", an error text).
+- Symptom in the user's words (e.g. "checkout fails", "PDPs are slow", an error text).
 - Time window: default last 2 hours.
 
 ## Steps
@@ -33,10 +33,10 @@ tool calls, then deepen.
 
 Report as in conventions, plus at the top:
 
-- **Stato:** in corso / rientrato (from step 3).
+- **Status:** ongoing / resolved (from step 3).
 - **Timeline** (max 8 lines).
-- **Causa probabile** labelled "Ipotesi:" unless proven by evidence, with the confidence (alta/media/bassa) and why.
-- **Azioni immediate** (rollback code version, disable promotion, stop job, contact PSP) separated from the
-  **fix definitivo**.
+- **Probable cause** labelled "Hypothesis:" unless proven by evidence, with the confidence (high/medium/low) and why.
+- **Immediate actions** (roll back the code version, disable a promotion, stop a job, contact the PSP) separated from the
+  **permanent fix**.
 
 Never perform the actions yourself: list them for the user.

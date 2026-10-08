@@ -22,9 +22,9 @@ export async function loadCode(
   }
   const {instance, hostname} = instanceFactory();
   const codeVersion = opts.codeVersion ?? (await getActiveCodeVersionId(instance));
-  if (!codeVersion) throw new Error('Nessuna code version attiva trovata: indicare --code-version.');
+  if (!codeVersion) throw new Error('No active code version found: pass --code-version.');
   const res = await fetchCodeVersion(instance, hostname, {codeVersion, cartridges: opts.cartridges});
-  const notes = [`Code version ${codeVersion}: ${res.files.length} file analizzati in ${res.cartridges.length} cartridge (${res.fromCache} dalla cache).`];
-  if (res.files.length === 0) notes.push('Nessun file letto: verificare i permessi WebDAV in lettura su /Cartridges.');
+  const notes = [`Code version ${codeVersion}: ${res.files.length} files analyzed in ${res.cartridges.length} cartridges (${res.fromCache} from cache).`];
+  if (res.files.length === 0) notes.push('No files read: check WebDAV read permissions on /Cartridges.');
   return {origin: 'instance', codeVersion, files: res.files, notes};
 }

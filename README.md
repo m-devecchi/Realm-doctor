@@ -25,7 +25,7 @@ In Claude Code, ask in plain language or call a skill by name:
 | `hyperforce-readiness` | Before a migration | "are we ready for Hyperforce?" |
 | `promo-audit` | Promotions that do not work | "the AUTUMN20 promotion does not fire, check it" |
 
-Every report has the same structure: instance and period, summary, findings (severity, rule, evidence, impact, fix, estimate), analysis limits and next actions. Reports are written in Italian by default, or in the language the user writes in. The conventions are in [`plugins/realm-doctor/reference/conventions.md`](plugins/realm-doctor/reference/conventions.md).
+Every report has the same structure: instance and period, summary, findings (severity, rule, evidence, impact, fix, estimate), analysis limits and next actions. Reports are written in English. The conventions are in [`plugins/realm-doctor/reference/conventions.md`](plugins/realm-doctor/reference/conventions.md).
 
 The commands also work from a terminal:
 

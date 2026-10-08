@@ -1,6 +1,6 @@
 ---
 name: realm-weekly-review
-description: Weekly health review of an SFCC realm combining errors, quota, jobs, slow or failing APIs and promotions into one report with the top 5 problems and actions. Use when the user asks "review settimanale", "weekly review", "come sta il realm", "stato di salute dell'istanza", "report della settimana".
+description: Weekly health review of an SFCC realm combining errors, quota, jobs, slow or failing APIs and promotions into one report with the top 5 problems and actions. Use when the user asks "weekly review", "how is the realm doing", "instance health", "weekly report".
 ---
 
 # Realm weekly review
@@ -29,14 +29,14 @@ the commands below, do not re-run the full sub-skills.
 
 ## Output
 
-Report as in conventions, with this Sintesi structure:
+Report as in conventions, with this Summary structure:
 
-- **Verdetto:** stabile / da monitorare / critico, in one sentence.
-- **Top 5 problemi** (one line each with severity and rule id).
-- **Rispetto alla settimana scorsa:** only if the user provides last week's report or the data covers it; otherwise omit.
+- **Verdict:** stable / to monitor / critical, in one sentence.
+- **Top 5 problems** (one line each with severity and rule id).
+- **Compared with last week:** only if the user provides last week's report or the data covers it; otherwise omit.
 
-Then a short section per area (Errori, Quota, Job, API, Promozioni) with at most 3 findings each, and the full list of
+Then a short section per area (Errors, Quota, Jobs, APIs, Promotions) with at most 3 findings each, and the full list of
 remaining findings in an appendix table:
 
-| Severità | Regola | Titolo | Evidenza |
+| Severity | Rule | Title | Evidence |
 | --- | --- | --- | --- |

@@ -33,7 +33,7 @@ export default class AuditQuota extends InstanceCommand<typeof AuditQuota> {
       .map(parseQuotaEvent)
       .filter((e): e is QuotaEvent => e !== undefined);
     const summaries = aggregateQuota(events);
-    const notes = files.length === 0 ? ['Nessun file di quota nel periodo: nessuna violazione registrata o permessi WebDAV mancanti su /Logs.'] : [];
+    const notes = files.length === 0 ? ['No quota log files in the period: no violations recorded, or missing WebDAV permissions on /Logs.'] : [];
     const report = buildReport('audit quota', {hostname, since: since.toISOString()}, quotaFindings(summaries), {files: files.length, events: events.length, quotas: summaries}, notes);
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

@@ -24,10 +24,10 @@ export function analyzeHyperforce(file: SourceFile): Finding[] {
       rule: 'HF-001',
       category: 'hyperforce',
       severity: 'medium',
-      title: `Indirizzo IP hardcoded: ${ip}`,
+      title: `Hardcoded IP address: ${ip}`,
       evidence: [{location: `${file.path}:${lineOf(c, i)}`, excerpt: line}],
-      impact: 'Allowlist o endpoint basati su IP smettono di funzionare quando cambiano gli IP di uscita o di ingresso.',
-      fix: 'Usare hostname e configurazione esterna; aggiornare le allowlist dei sistemi esterni con gli IP Hyperforce.',
+      impact: 'IP-based allowlists or endpoints stop working when outbound or inbound IPs change.',
+      fix: 'Use hostnames and external configuration; update the allowlists of external systems with the Hyperforce IPs.',
     });
   }
 
@@ -37,10 +37,10 @@ export function analyzeHyperforce(file: SourceFile): Finding[] {
       rule: 'HF-002',
       category: 'hyperforce',
       severity: 'medium',
-      title: `Hostname di istanza hardcoded: ${m[1]}`,
+      title: `Hardcoded instance hostname: ${m[1]}`,
       evidence: [{location: `${file.path}:${lineOf(c, i)}`, excerpt: lineText(c, lineOf(c, i))}],
-      impact: "Dopo la migrazione l'hostname dell'istanza può cambiare: link, callback e integrazioni puntano al vecchio host.",
-      fix: 'Ricavare host e URL a runtime (URLUtils, Site, System) o da una site preference.',
+      impact: "After the migration the instance hostname can change: links, callbacks and integrations point to the old host.",
+      fix: 'Derive hosts and URLs at runtime (URLUtils, Site, System) or from a site preference.',
     });
   }
   return findings;

@@ -99,7 +99,7 @@ describe('aggregateErrors + errorFindings (fixtures: 3 days of error logs)', () 
     expect(byRule['ERR-001'].title).toContain('Payment authorization failed');
     expect(byRule['ERR-001'].severity).toBe('high');
     expect(byRule['ERR-002'].title).toContain('Product <N> not found');
-    expect(byRule['ERR-002'].impact).toContain('40 occorrenze');
+    expect(byRule['ERR-002'].impact).toContain('40 occurrences');
   });
 
   it('reports recurring errors (ERR-003) when there is no trend', () => {

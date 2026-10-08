@@ -1,6 +1,6 @@
 ---
 name: hyperforce-readiness
-description: Readiness check before migrating an SFCC realm from a POD to Hyperforce - hardcoded IPs and hostnames in cartridges, integrations to verify, and a migration checklist. Use when the user mentions "Hyperforce", "migrazione POD", "readiness", "cambio IP", "migrazione realm".
+description: Readiness check before migrating an SFCC realm from a POD to Hyperforce - hardcoded IPs and hostnames in cartridges, integrations to verify, and a migration checklist. Use when the user mentions "Hyperforce", "POD migration", "readiness", "IP change", "realm migration".
 ---
 
 # Hyperforce readiness
@@ -25,8 +25,8 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 
 Report as in conventions plus the migration checklist:
 
-| Voce | Esito | Azione | Responsabile |
+| Item | Result | Action | Owner |
 | --- | --- | --- | --- |
 
-Esito OK / KO / DA VERIFICARE. Items that cannot be checked from code (allowlists at partners, inbound integrations,
-mTLS certificates) are always DA VERIFICARE with the person to ask.
+Result: OK / FAIL / TO CHECK. Items that cannot be checked from code (allowlists at partners, inbound integrations,
+mTLS certificates) are always TO CHECK, with the person to ask.

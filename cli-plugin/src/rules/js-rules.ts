@@ -43,10 +43,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-001',
           category: 'code',
           severity: 'high',
-          title: `Chiamata costosa dentro un ciclo: ${name ?? method}`,
+          title: `Expensive call inside a loop: ${name ?? method}`,
           evidence: [{location: at(node), excerpt: excerpt(node)}],
-          impact: 'Moltiplica accessi al database e tempo di risposta per ogni elemento; tipica causa di quota e pagine lente.',
-          fix: 'Spostare la chiamata fuori dal ciclo, caricare i dati una volta (search model, mappa per id) o usare la cache.',
+          impact: 'Multiplies database access and response time by the number of items; a typical cause of quota violations and slow pages.',
+          fix: 'Move the call out of the loop, load the data once (search model, map by id) or use a cache.',
         });
       }
 
@@ -56,10 +56,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-003',
           category: 'code',
           severity: 'medium',
-          title: 'Transazione che contiene un ciclo',
+          title: 'Transaction containing a loop',
           evidence: [{location: at(node), excerpt: excerpt(node)}],
-          impact: 'Transazioni lunghe tengono lock e possono superare la quota di oggetti modificati per transazione.',
-          fix: 'Spezzare in transazioni più piccole (batch) o spostare il ciclo fuori dalla transazione.',
+          impact: 'Long transactions hold locks and can exceed the quota of objects changed per transaction.',
+          fix: 'Split into smaller transactions (batches) or move the loop out of the transaction.',
         });
       }
 
@@ -69,10 +69,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-006',
           category: 'code',
           severity: 'low',
-          title: `API legacy: ${name}`,
+          title: `Legacy API: ${name}`,
           evidence: [{location: at(node), excerpt: excerpt(node)}],
-          impact: 'Codice legacy, più difficile da mantenere e ottimizzare.',
-          fix: 'Sostituire con require() dei moduli dw.* o dei moduli di cartridge.',
+          impact: 'Legacy code, harder to maintain and optimize.',
+          fix: 'Replace with require() of dw.* modules or cartridge modules.',
         });
       }
 
@@ -82,10 +82,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-007',
           category: 'code',
           severity: 'high',
-          title: `Ricerca ordini da un controller storefront: ${name}`,
+          title: `Order search from a storefront controller: ${name}`,
           evidence: [{location: at(node), excerpt: excerpt(node)}],
-          impact: 'Query sugli ordini nel percorso della richiesta del cliente: lente e soggette a quota.',
-          fix: 'Usare customer.getOrderHistory() per lo storico cliente o spostare la logica in un job.',
+          impact: 'Order queries in the shopper request path: slow and subject to quota.',
+          fix: 'Use customer.getOrderHistory() for the customer history or move the logic to a job.',
         });
       }
     }
@@ -98,10 +98,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-004',
           category: 'code',
           severity: 'medium',
-          title: 'Chiamata HTTP diretta con HTTPClient',
+          title: 'Direct HTTP call with HTTPClient',
           evidence: [{location: at(node), excerpt: excerpt(node)}],
-          impact: 'Fuori dal service framework: niente timeout centralizzato, circuit breaker, mock né monitoraggio dei servizi.',
-          fix: 'Usare LocalServiceRegistry.createService con un servizio configurato in Business Manager.',
+          impact: 'Outside the service framework: no central timeout, circuit breaker, mocking or service monitoring.',
+          fix: 'Use LocalServiceRegistry.createService with a service configured in Business Manager.',
         });
       }
     }
@@ -113,10 +113,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
         rule: 'JS-005',
         category: 'code',
         severity: 'high',
-        title: `Possibile credenziale nel codice: ${secret}`,
-        evidence: [{location: at(node), excerpt: '<valore nascosto>'}],
-        impact: 'Credenziali nel codice deployato sono visibili a chiunque abbia accesso alle cartridge e ai repository.',
-        fix: 'Spostare il valore in una credenziale di servizio o in una site preference protetta (password).',
+        title: `Possible credential in code: ${secret}`,
+        evidence: [{location: at(node), excerpt: '<value hidden>'}],
+        impact: 'Credentials in deployed code are visible to anyone with access to the cartridges and repositories.',
+        fix: 'Move the value to a service credential or a protected (password) site preference.',
       });
     }
 
@@ -126,10 +126,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
         rule: 'JS-009',
         category: 'code',
         severity: 'low',
-        title: 'Blocco catch vuoto',
+        title: 'Empty catch block',
         evidence: [{location: at(node), excerpt: excerpt(node)}],
-        impact: "Gli errori vengono ignorati senza log: i problemi diventano invisibili.",
-        fix: 'Loggare almeno con Logger.error e gestire il caso di errore.',
+        impact: "Errors are swallowed without logging: problems become invisible.",
+        fix: 'At least log with Logger.error and handle the error case.',
       });
     }
   });
@@ -156,10 +156,10 @@ export function analyzeJs(file: SourceFile): Finding[] {
           rule: 'JS-002',
           category: 'code',
           severity: 'high',
-          title: `SeekableIterator mai chiuso: ${a.name} (${a.api})`,
+          title: `SeekableIterator never closed: ${a.name} (${a.api})`,
           evidence: [{location: at(a.node), excerpt: excerpt(a.node)}],
-          impact: 'Iteratori non chiusi tengono risorse aperte e generano warning di quota.',
-          fix: `Chiamare ${a.name}.close() in un blocco finally dopo l'iterazione.`,
+          impact: 'Unclosed iterators keep resources open and trigger quota warnings.',
+          fix: `Call ${a.name}.close() in a finally block after iterating.`,
         });
       }
     }

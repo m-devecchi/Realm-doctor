@@ -108,20 +108,20 @@ export function quotaFindings(summaries: QuotaSummary[]): Finding[] {
         rule: 'QUOTA-001',
         category: 'quota',
         severity: 'critical',
-        title: `Limite di quota superato (enforced): ${s.quota}`,
+        title: `Quota limit exceeded (enforced): ${s.quota}`,
         evidence,
-        impact: `La piattaforma ha bloccato l'operazione ${s.limitExceeded} volte: le richieste coinvolte falliscono.`,
-        fix: 'Ridurre il consumo nel punto indicato (paginazione, cache, meno oggetti in memoria); non chiedere un override come prima scelta.',
+        impact: `The platform blocked the operation ${s.limitExceeded} times: the affected requests fail.`,
+        fix: 'Reduce consumption at the reported location (paging, caching, fewer objects in memory); do not ask for an override as the first option.',
       });
     } else if (s.limitExceeded > 0) {
       findings.push({
         rule: 'QUOTA-002',
         category: 'quota',
         severity: 'high',
-        title: `Limite di quota superato (non ancora enforced): ${s.quota}`,
+        title: `Quota limit exceeded (not enforced yet): ${s.quota}`,
         evidence,
-        impact: 'Oggi non blocca, ma diventerà un errore bloccante quando la quota sarà enforced.',
-        fix: 'Correggere il codice nel punto indicato prima che la quota diventi enforced.',
+        impact: 'It does not block today, but it becomes a blocking error once the quota is enforced.',
+        fix: 'Fix the code at the reported location before the quota becomes enforced.',
       });
     } else if (s.warnExceeded > 0) {
       const near = s.limitRatio !== undefined && s.limitRatio >= 0.8;
@@ -129,10 +129,10 @@ export function quotaFindings(summaries: QuotaSummary[]): Finding[] {
         rule: 'QUOTA-003',
         category: 'quota',
         severity: near ? 'high' : 'medium',
-        title: `Soglia di warning superata: ${s.quota}${near ? ` (al ${Math.round((s.limitRatio ?? 0) * 100)}% del limite)` : ''}`,
+        title: `Warning threshold exceeded: ${s.quota}${near ? ` (at ${Math.round((s.limitRatio ?? 0) * 100)}% of the limit)` : ''}`,
         evidence,
-        impact: `Superata ${s.warnExceeded} volte. Segnale di codice inefficiente che con più traffico o dati raggiunge il limite.`,
-        fix: 'Analizzare il punto indicato e ridurre il consumo.',
+        impact: `Exceeded ${s.warnExceeded} times. A sign of inefficient code that reaches the limit with more traffic or data.`,
+        fix: 'Analyze the reported location and reduce consumption.',
       });
     }
   }

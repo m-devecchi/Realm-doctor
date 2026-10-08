@@ -1,6 +1,6 @@
 ---
 name: realm-doctor-setup
-description: Checks that the realm-doctor kit is ready on this machine for an SFCC instance - b2c CLI, realm-doctor CLI plugin, official B2C MCP, dw.json instances, credentials and read-only Safety Mode. Use when the user says "setup realm doctor", "verifica il kit", "configura l'istanza X per realm doctor", or when another realm-doctor skill fails for configuration reasons.
+description: Checks that the realm-doctor kit is ready on this machine for an SFCC instance - b2c CLI, realm-doctor CLI plugin, official B2C MCP, dw.json instances, credentials and read-only Safety Mode. Use when the user says "set up realm doctor", "check the kit", "configure instance X for realm doctor", or when another realm-doctor skill fails for configuration reasons.
 ---
 
 # Realm Doctor setup check
@@ -30,7 +30,7 @@ explicit confirmation of the exact change.
 
 A checklist table:
 
-| Controllo | Esito | Nota / azione |
+| Check | Result | Note / action |
 | --- | --- | --- |
 
-Esito: OK, KO, DA VERIFICARE. End with the single next action needed, if any.
+Result: OK, FAIL, TO CHECK. End with the single next action needed, if any.
