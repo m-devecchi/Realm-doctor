@@ -27,7 +27,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "github:m-devecchi/Realm-doctor#v0.3.0",
+        "github:m-devecchi/Realm-doctor#main",
         "mcp"
       ],
       "env": {

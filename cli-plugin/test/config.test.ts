@@ -110,10 +110,10 @@ describe('distribution (npx, Claude Code plugin, Copilot)', () => {
     expect(pkg.dependencies).toEqual(cli.dependencies);
   });
 
-  it('versions match and the plugin pins the MCP servers', () => {
+  it('versions match and the plugin points the MCP servers at main and a pinned official server', () => {
     expect(cli.version).toBe(pkg.version);
     expect(plugin.version).toBe(pkg.version);
-    expect(plugin.mcpServers['realm-doctor'].args).toEqual(['-y', `github:m-devecchi/Realm-doctor#v${pkg.version}`, 'mcp']);
+    expect(plugin.mcpServers['realm-doctor'].args).toEqual(['-y', "github:m-devecchi/Realm-doctor#main", 'mcp']);
     expect(plugin.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', `@salesforce/b2c-dx-mcp@${pkg.devDependencies['@salesforce/b2c-dx-mcp']}`, '--config', '${user_config.dw_json}']);
     expect(plugin.mcpServers['realm-doctor'].env.SFCC_CONFIG).toBe('${user_config.dw_json}');
     for (const s of Object.values(plugin.mcpServers) as Array<{env: Record<string, string>}>) expect(s.env.SFCC_DISABLE_TELEMETRY).toBe('true');

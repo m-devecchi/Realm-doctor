@@ -11,12 +11,12 @@ export const VERSION = (JSON.parse(readFileSync(join(CLI_ROOT, 'package.json'), 
 export const REPO_SPEC = 'github:m-devecchi/Realm-doctor';
 export const OFFICIAL_MCP = '@salesforce/b2c-dx-mcp@3.5.0';
 
-/** MCP server entries for a client config, pinned to this version's git tag. */
+/** MCP server entries for a client config, from the main branch (the session cannot push tags). */
 export function mcpServers(dwJson: string): Record<string, {command: string; args: string[]; env: Record<string, string>}> {
   return {
     'realm-doctor': {
       command: 'npx',
-      args: ['-y', `${REPO_SPEC}#v${VERSION}`, 'mcp'],
+      args: ['-y', `${REPO_SPEC}#main`, 'mcp'],
       env: {SFCC_CONFIG: dwJson, SFCC_DISABLE_TELEMETRY: 'true'},
     },
     'b2c-dx-mcp': {
