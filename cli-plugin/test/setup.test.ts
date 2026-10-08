@@ -4,7 +4,7 @@
  * the real repository files.
  */
 import {spawnSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
+import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {beforeEach, describe, expect, it} from 'vitest';
@@ -112,22 +112,19 @@ describe('postinstall', () => {
   function fakeInstallRoot(): string {
     const dir = mkdtempSync(join(tmpdir(), 'rd-post-'));
     mkdirSync(join(dir, 'scripts'));
+    mkdirSync(join(dir, '.git'));
     cpSync(join(REPO, 'scripts', 'postinstall.mjs'), join(dir, 'scripts', 'postinstall.mjs'));
     cpSync(join(REPO, 'config'), join(dir, 'config'), {recursive: true});
     writeFileSync(join(dir, 'package.json'), JSON.stringify({name: 'x', private: true, workspaces: ['cli-plugin']}));
-    mkdirSync(join(dir, 'cli-plugin'));
-    // the build only leaves a marker: we test the script, not tsc
-    writeFileSync(join(dir, 'cli-plugin', 'package.json'), JSON.stringify({name: 'cli', version: '0.0.0', scripts: {build: 'node -e "require(\'fs\').writeFileSync(\'built\',\'1\')"'}}));
     return dir;
   }
   const run = (dir: string, env: Record<string, string> = {}) =>
     spawnSync(process.execPath, [join(dir, 'scripts', 'postinstall.mjs')], {cwd: dir, encoding: 'utf8', env: {...process.env, ...env}});
 
-  it('builds the commands and creates dw.json from the example', () => {
+  it('in a clone: creates dw.json and .env from the examples (the build runs in prepare)', () => {
     const dir = fakeInstallRoot();
     const res = run(dir);
     expect(res.status, res.stderr).toBe(0);
-    expect(existsSync(join(dir, 'cli-plugin', 'built'))).toBe(true);
     expect(readFileSync(join(dir, 'dw.json'), 'utf8')).toBe(readFileSync(join(REPO, 'config', 'dw.example.json'), 'utf8'));
     expect(readFileSync(join(dir, '.env'), 'utf8')).toMatch(/^SFCC_DISABLE_TELEMETRY=true$/m);
     expect(res.stdout).toContain('npx realm-doctor');
@@ -149,6 +146,14 @@ describe('postinstall', () => {
     expect(res.status).toBe(0);
     expect(existsSync(join(dir, 'dw.json'))).toBe(false);
     expect(existsSync(join(dir, '.env'))).toBe(false);
-    expect(existsSync(join(dir, 'cli-plugin', 'built'))).toBe(false);
+  });
+
+  it('installed by npx or as a dependency (no .git): creates nothing, prints nothing', () => {
+    const dir = fakeInstallRoot();
+    rmSync(join(dir, '.git'), {recursive: true});
+    const res = run(dir);
+    expect(res.status).toBe(0);
+    expect(res.stdout).toBe('');
+    expect(existsSync(join(dir, 'dw.json'))).toBe(false);
   });
 });

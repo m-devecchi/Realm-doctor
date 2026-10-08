@@ -1,6 +1,6 @@
 {
   "name": "@realm-doctor/b2c-plugin-audit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "B2C CLI plugin: read-only audit commands for Salesforce Commerce Cloud realms (errors, quota, code, Hyperforce, promotions, frontend).",
   "private": true,
   "type": "module",
@@ -28,13 +28,18 @@
     "topics": {
       "audit": {
         "description": "Read-only audits of a B2C Commerce instance (realm-doctor)"
+      },
+      "install": {
+        "description": "Install realm-doctor in an AI assistant (GitHub Copilot)"
       }
     }
   },
   "dependencies": {
     "@babel/parser": "^7.26.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@oclif/core": "^4",
-    "@salesforce/b2c-tooling-sdk": "2.6.0"
+    "@salesforce/b2c-tooling-sdk": "2.6.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

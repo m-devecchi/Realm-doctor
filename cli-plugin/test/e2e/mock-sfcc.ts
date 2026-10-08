@@ -49,6 +49,8 @@ export interface MockOptions {
   codeVersion: string;
   /** promo bundle served by the OCAPI *_search endpoints for this site */
   promoBundle: {site: string; promotions: unknown[]; campaigns: unknown[]; assignments: unknown[]; coupons: unknown[]; customerGroups: unknown[]};
+  /** executions served by job_execution_search */
+  jobs?: unknown[];
   /** page size forced by the server, to exercise paging */
   maxPage?: number;
 }
@@ -137,6 +139,12 @@ export async function startMockSfcc(opts: MockOptions): Promise<MockSfcc> {
         const p = ocapi[1];
         if (p === '/code_versions' && req.method === 'GET') {
           return send(200, JSON.stringify({count: 2, data: [{id: 'old_version', active: false}, {id: opts.codeVersion, active: true}], total: 2}));
+        }
+        if (p === '/job_execution_search' && req.method === 'POST') {
+          const q = JSON.parse(body || '{}') as {count?: number; query?: {term_query?: {values?: string[]}}};
+          const only = q.query?.term_query?.values?.[0];
+          const hits = (opts.jobs ?? []).filter((j) => !only || (j as {job_id?: string}).job_id === only).slice(0, q.count ?? 25);
+          return send(200, JSON.stringify({count: hits.length, hits, start: 0, total: hits.length}));
         }
         const search = /^\/sites\/([^/]+)\/(\w+_search)$/.exec(p);
         if (search && req.method === 'POST') {

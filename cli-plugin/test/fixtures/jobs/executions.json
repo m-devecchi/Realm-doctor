@@ -1,0 +1,10 @@
+[
+  {"id": "e-101", "job_id": "ExportOrders", "execution_status": "finished", "exit_status": {"code": "ERROR", "status": "error", "message": "Step ExportOrdersToERP failed"}, "start_time": "2026-10-08T02:00:00.000Z", "end_time": "2026-10-08T02:03:10.000Z", "duration": 190000, "log_file_path": "Logs/jobs/ExportOrders/Job-ExportOrders-20261008.log", "step_executions": [{"step_id": "ExportOrdersToERP", "exit_status": {"code": "ERROR", "status": "error"}}]},
+  {"id": "e-100", "job_id": "ExportOrders", "execution_status": "finished", "exit_status": {"code": "ERROR", "status": "error"}, "start_time": "2026-10-07T02:00:00.000Z", "end_time": "2026-10-07T02:02:55.000Z", "duration": 175000, "step_executions": [{"step_id": "ExportOrdersToERP", "exit_status": {"code": "ERROR", "status": "error"}}]},
+  {"id": "e-099", "job_id": "ExportOrders", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-06T02:00:00.000Z", "end_time": "2026-10-06T02:04:00.000Z", "duration": 240000},
+  {"id": "e-201", "job_id": "ReindexSearch", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-08T01:00:00.000Z", "end_time": "2026-10-08T01:40:00.000Z", "duration": 2400000},
+  {"id": "e-200", "job_id": "ReindexSearch", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-07T01:00:00.000Z", "end_time": "2026-10-07T01:15:00.000Z", "duration": 900000},
+  {"id": "e-199", "job_id": "ReindexSearch", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-06T01:00:00.000Z", "end_time": "2026-10-06T01:16:00.000Z", "duration": 960000},
+  {"id": "e-301", "job_id": "CleanupBaskets", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-08T03:00:00.000Z", "end_time": "2026-10-08T03:01:00.000Z", "duration": 60000},
+  {"id": "e-300", "job_id": "CleanupBaskets", "execution_status": "finished", "exit_status": {"code": "OK", "status": "ok"}, "start_time": "2026-10-07T03:00:00.000Z", "end_time": "2026-10-07T03:01:00.000Z", "duration": 60000}
+]

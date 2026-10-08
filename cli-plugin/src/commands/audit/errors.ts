@@ -1,17 +1,15 @@
 import {Flags, ux} from '@oclif/core';
 import {InstanceCommand} from '@salesforce/b2c-tooling-sdk/cli';
-import {parseSinceTime} from '@salesforce/b2c-tooling-sdk/operations/logs';
-import {aggregateErrors, errorFindings} from '../../lib/errors.js';
-import {buildReport, formatReport} from '../../lib/report.js';
-import {fetchLogEntries} from '../../lib/sfcc.js';
+import {auditErrors} from '../../lib/audits.js';
+import {formatReport} from '../../lib/report.js';
 
 export default class AuditErrors extends InstanceCommand<typeof AuditErrors> {
   static description =
     'Downloads error logs (read-only), groups entries by signature and reports new errors, spikes and top recurring errors. Personal data is masked before caching or output.';
   static enableJsonFlag = true;
   static examples = [
-    '<%= config.bin %> <%= command.id %> --since 7d --json',
-    '<%= config.bin %> <%= command.id %> --since 2026-10-01T00:00:00Z --prefix error --prefix customerror',
+    '<%= config.bin %> <%= command.id %> -i acme-prd --since 7d --json',
+    '<%= config.bin %> <%= command.id %> -i acme-prd --since 2026-10-01T00:00:00Z --prefix error --prefix customerror',
   ];
   static flags = {
     ...InstanceCommand.baseFlags,
@@ -26,28 +24,9 @@ export default class AuditErrors extends InstanceCommand<typeof AuditErrors> {
   async run() {
     this.requireServer();
     this.requireWebDavCredentials();
-    const hostname = this.resolvedConfig.values.hostname!;
-    const since = parseSinceTime(this.flags.since);
-
-    const {entries, files} = await fetchLogEntries(this.instance, hostname, {
-      prefixes: this.flags.prefix,
-      since,
-      maxFiles: this.flags['max-files'],
-      maxBytesPerFile: this.flags['max-kb'] * 1024,
-    });
-    const signatures = aggregateErrors(entries, {since: since.toISOString()});
-    const findings = errorFindings(signatures, {day: this.flags.day});
-    const notes: string[] = [];
-    if (files.length === 0) notes.push('No log files in the period for the given prefixes.');
-    const truncated = files.filter((f) => f.truncated).length;
-    if (truncated) notes.push(`${truncated} file(s) read from the tail only (larger than ${this.flags['max-kb']} KB).`);
-
-    const report = buildReport(
-      'audit errors',
-      {hostname, since: since.toISOString(), prefixes: this.flags.prefix},
-      findings,
-      {files: files.length, entries: entries.length, signatures: signatures.slice(0, this.flags.top)},
-      notes,
+    const report = await auditErrors(
+      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!},
+      {since: this.flags.since, prefixes: this.flags.prefix, day: this.flags.day, top: this.flags.top, maxFiles: this.flags['max-files'], maxKb: this.flags['max-kb']},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

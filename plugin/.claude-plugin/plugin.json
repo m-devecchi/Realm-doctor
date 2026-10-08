@@ -1,0 +1,52 @@
+{
+  "name": "realm-doctor",
+  "displayName": "Realm Doctor",
+  "version": "0.3.0",
+  "description": "Read-only audits of Salesforce B2C Commerce instances: error logs, quota, jobs, deployed cartridge code, Hyperforce readiness, promotions and frontend, with standard reports.",
+  "author": {
+    "name": "m-devecchi"
+  },
+  "repository": "https://github.com/m-devecchi/Realm-doctor",
+  "license": "UNLICENSED",
+  "keywords": [
+    "salesforce",
+    "b2c-commerce",
+    "sfcc",
+    "audit"
+  ],
+  "userConfig": {
+    "dw_json": {
+      "type": "file",
+      "title": "dw.json with your instances",
+      "description": "Full path to the dw.json that lists every instance (name, hostname, client-id, client-secret, safety). Start from config/dw.example.json in the repository.",
+      "required": true
+    }
+  },
+  "mcpServers": {
+    "realm-doctor": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "github:m-devecchi/Realm-doctor#v0.3.0",
+        "mcp"
+      ],
+      "env": {
+        "SFCC_CONFIG": "${user_config.dw_json}",
+        "REALM_DOCTOR_CACHE": "${CLAUDE_PLUGIN_DATA}/cache",
+        "SFCC_DISABLE_TELEMETRY": "true"
+      }
+    },
+    "b2c-dx-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@salesforce/b2c-dx-mcp@3.5.0",
+        "--config",
+        "${user_config.dw_json}"
+      ],
+      "env": {
+        "SFCC_DISABLE_TELEMETRY": "true"
+      }
+    }
+  }
+}

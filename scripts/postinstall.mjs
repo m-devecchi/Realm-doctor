@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-// Runs after `npm install` in the repository root. Everything stays inside this folder:
-// builds the realm-doctor commands and creates local dw.json and .env from the examples if missing.
-// Nothing is installed globally and nothing outside the repository is changed.
-import {spawnSync} from 'node:child_process';
+// Runs after `npm install`. In a clone of the repository it creates local dw.json and .env from the
+// examples if they are missing (the build runs in `prepare`). When the package is installed by npx or
+// as a dependency it does nothing. Nothing is installed globally and nothing outside the folder changes.
 import {copyFileSync, existsSync} from 'node:fs';
-import {dirname, join} from 'node:path';
+import {dirname, join, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -13,13 +12,9 @@ if (process.env.REALM_DOCTOR_SKIP_POSTINSTALL) {
   console.log('realm-doctor: postinstall skipped (REALM_DOCTOR_SKIP_POSTINSTALL is set).');
   process.exit(0);
 }
-
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const build = spawnSync(npm, ['run', 'build', '-w', 'cli-plugin'], {cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32'});
-if (build.status !== 0) {
-  console.error('realm-doctor: build failed. Run `npm run build` to see the error.');
-  process.exit(build.status ?? 1);
-}
+// installed by npx, as a dependency, or prepared by npm from git: not a working copy
+const inClone = existsSync(join(ROOT, '.git')) && !ROOT.split(sep).includes('node_modules') && !/[\\/]_cacache[\\/]/.test(ROOT);
+if (!inClone) process.exit(0);
 
 const dw = join(ROOT, 'dw.json');
 let created = false;

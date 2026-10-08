@@ -71,13 +71,20 @@ beforeAll(async () => {
   // The safety policy recommended in config/safety.example.json
   writeFileSync(
     join(work, 'safety.json'),
-    JSON.stringify({level: 'READ_ONLY', rules: [{method: 'POST', path: '/s/-/dw/data/*/sites/*/*_search', action: 'allow'}]}),
+    JSON.stringify({
+      level: 'READ_ONLY',
+      rules: [
+        {method: 'POST', path: '/s/-/dw/data/*/sites/*/*_search', action: 'allow'},
+        {method: 'POST', path: '/s/-/dw/data/*/job_execution_search', action: 'allow'},
+      ],
+    }),
   );
   sfcc = await startMockSfcc({
     logsDir: join(FIX, 'logs'),
     cartridgesDir: join(FIX, 'cartridges'),
     codeVersion: 'v1',
     promoBundle: bundle,
+    jobs: JSON.parse(readFileSync(join(FIX, 'jobs', 'executions.json'), 'utf8')),
     maxPage: 5,
   });
 });
@@ -153,6 +160,13 @@ describe('audit commands against a fake instance (READ_ONLY safety)', () => {
     expect(ruleIds(offline.report)).toEqual(ruleIds(report));
   });
 
+  it('audit jobs: failing and slow jobs', async () => {
+    const {status, report, stderr} = await run(['audit', 'jobs', ...instanceArgs()]);
+    expect(status, stderr).toBe(0);
+    expect(report!.findings.map((f) => `${f.rule}:${f.severity}:${f.evidence[0].ref}`)).toEqual(['JOB-001:critical:job:ExportOrders', 'JOB-002:medium:job:ReindexSearch']);
+    expect(report!.findings[0].evidence[0].location).toBe('Logs/jobs/ExportOrders/Job-ExportOrders-20261008.log');
+  });
+
   it('audit promotions: unknown site fails with a clear error', async () => {
     const {status, stderr, stdout} = await run(['audit', 'promotions', '--site', 'Nope', ...instanceArgs()]);
     expect(status).not.toBe(0);
@@ -182,7 +196,7 @@ describe('commands that do not need an instance', () => {
   it('audit rules lists every rule', async () => {
     const {status, report} = await run(['audit', 'rules', '--json']);
     expect(status).toBe(0);
-    expect((report as unknown as {rules: unknown[]}).rules).toHaveLength(36);
+    expect((report as unknown as {rules: unknown[]}).rules).toHaveLength(40);
   });
 
   it('audit frontend with a saved PageSpeed response', async () => {

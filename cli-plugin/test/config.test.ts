@@ -56,7 +56,8 @@ describe('example configuration', () => {
 describe('project-level setup (no global installs)', () => {
   it('Salesforce tools are local dependencies of the repository', () => {
     const pkg = read('package.json');
-    expect(Object.keys(pkg.dependencies)).toEqual(expect.arrayContaining(['@salesforce/b2c-cli', '@salesforce/b2c-dx-mcp']));
+    // dev dependencies: installed by `npm install` in a clone, not by npx (the plugin runs the official MCP on its own)
+    expect(Object.keys(pkg.devDependencies)).toEqual(expect.arrayContaining(['@salesforce/b2c-cli', '@salesforce/b2c-dx-mcp']));
     expect(pkg.workspaces).toEqual(['cli-plugin']);
     expect(pkg.scripts.postinstall).toBe('node scripts/postinstall.mjs');
     expect(read('cli-plugin/package.json').bin).toEqual({'realm-doctor': 'bin/run.js'});
@@ -93,6 +94,46 @@ describe('project-level setup (no global installs)', () => {
         .filter((l) => /npm (install|i) -g|--global/.test(l) && !/never/i.test(l));
       expect(offending, f).toEqual([]);
     }
+  });
+});
+
+describe('distribution (npx, Claude Code plugin, Copilot)', () => {
+  const pkg = read('package.json');
+  const cli = read('cli-plugin/package.json');
+  const plugin = read('plugin/.claude-plugin/plugin.json');
+
+  it('the root package runs with npx: bin, build on prepare, runtime dependencies at the root', () => {
+    expect(pkg.bin).toEqual({'realm-doctor': 'cli-plugin/bin/run.js'});
+    expect(pkg.scripts.prepare).toBe('npm run build');
+    expect(pkg.files).toEqual(expect.arrayContaining(['cli-plugin/bin/', 'cli-plugin/dist/', 'cli-plugin/package.json', '.claude/skills/', '.claude/reference/']));
+    // the installed package resolves the commands' dependencies from the root
+    expect(pkg.dependencies).toEqual(cli.dependencies);
+  });
+
+  it('versions match and the plugin pins the MCP servers', () => {
+    expect(cli.version).toBe(pkg.version);
+    expect(plugin.version).toBe(pkg.version);
+    expect(plugin.mcpServers['realm-doctor'].args).toEqual(['-y', `github:m-devecchi/Realm-doctor#v${pkg.version}`, 'mcp']);
+    expect(plugin.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', `@salesforce/b2c-dx-mcp@${pkg.devDependencies['@salesforce/b2c-dx-mcp']}`, '--config', '${user_config.dw_json}']);
+    expect(plugin.mcpServers['realm-doctor'].env.SFCC_CONFIG).toBe('${user_config.dw_json}');
+    for (const s of Object.values(plugin.mcpServers) as Array<{env: Record<string, string>}>) expect(s.env.SFCC_DISABLE_TELEMETRY).toBe('true');
+    expect(plugin.userConfig.dw_json).toMatchObject({type: 'file', required: true});
+    expect(read('.claude-plugin/marketplace.json').plugins).toEqual([expect.objectContaining({name: 'realm-doctor', source: './plugin'})]);
+  });
+
+  it('plugin skills and reference are an exact copy of .claude/ (run `npm run sync-plugin`)', () => {
+    const list = (dir: string): string[] =>
+      readdirSync(dir, {withFileTypes: true}).flatMap((d) => (d.isDirectory() ? list(join(dir, d.name)).map((f) => `${d.name}/${f}`) : [d.name]));
+    for (const dir of ['skills', 'reference']) {
+      const src = join(REPO, '.claude', dir);
+      const dst = join(REPO, 'plugin', dir);
+      expect(list(dst).sort(), dir).toEqual(list(src).sort());
+      for (const f of list(src)) expect(readFileSync(join(dst, f), 'utf8'), f).toBe(readFileSync(join(src, f), 'utf8'));
+    }
+  });
+
+  it('the plugin has no top-level bin/ folder (claude.ai and Cowork refuse those)', () => {
+    expect(existsSync(join(REPO, 'plugin', 'bin'))).toBe(false);
   });
 });
 

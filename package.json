@@ -1,23 +1,49 @@
 {
   "name": "realm-doctor",
-  "version": "0.2.0",
-  "description": "Read-only Salesforce B2C Commerce audit kit for Claude Code and GitHub Copilot. Everything installs locally in this folder.",
+  "version": "0.3.0",
+  "description": "Read-only Salesforce B2C Commerce audit kit for Claude Code and GitHub Copilot: skills, CLI and MCP server.",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-devecchi/Realm-doctor.git"
+  },
   "engines": {
     "node": ">=22"
   },
+  "bin": {
+    "realm-doctor": "cli-plugin/bin/run.js"
+  },
+  "files": [
+    "cli-plugin/bin/",
+    "cli-plugin/dist/",
+    "cli-plugin/package.json",
+    ".claude/skills/",
+    ".claude/reference/",
+    "config/",
+    "scripts/postinstall.mjs",
+    "AGENTS.md"
+  ],
   "workspaces": [
     "cli-plugin"
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
+    "prepare": "npm run build",
     "build": "npm run build -w cli-plugin",
     "test": "npm test -w cli-plugin",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "sync-plugin": "node scripts/sync-plugin.mjs"
   },
   "dependencies": {
+    "@babel/parser": "^7.26.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@oclif/core": "^4",
+    "@salesforce/b2c-tooling-sdk": "2.6.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
     "@salesforce/b2c-cli": "2.5.1",
     "@salesforce/b2c-dx-mcp": "3.5.0"
   }

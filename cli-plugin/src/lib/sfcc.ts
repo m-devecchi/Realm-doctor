@@ -165,6 +165,59 @@ export async function getActiveCodeVersionId(instance: B2CInstance): Promise<str
   return (data?.data ?? []).find((v) => v.active)?.id;
 }
 
+export interface CodeVersionInfo {
+  id?: string;
+  active?: boolean;
+  last_modification_time?: string;
+  activation_time?: string;
+  cartridges?: string[];
+}
+
+export async function listCodeVersions(instance: B2CInstance): Promise<CodeVersionInfo[]> {
+  const {data, error} = await instance.ocapi.GET('/code_versions', {});
+  if (error) throw new Error(`OCAPI GET /code_versions failed: ${JSON.stringify(error)}`);
+  return (data?.data ?? []) as CodeVersionInfo[];
+}
+
+/** Job executions, newest first, through the read-only OCAPI job_execution_search. */
+export async function fetchJobExecutions(instance: B2CInstance, opts: {jobId?: string; count?: number} = {}): Promise<import('./jobs.js').JobExecution[]> {
+  const query = opts.jobId
+    ? {term_query: {fields: ['job_id'], operator: 'is', values: [opts.jobId]}}
+    : {match_all_query: {}};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const post = instance.ocapi.POST as any;
+  const {data, error} = await post('/job_execution_search', {
+    body: {query, select: '(**)', count: Math.min(opts.count ?? 100, 200), sorts: [{field: 'start_time', sort_order: 'desc'}]},
+  });
+  if (error) throw new Error(`OCAPI POST /job_execution_search failed: ${JSON.stringify(error)}`);
+  return (data?.hits ?? []) as import('./jobs.js').JobExecution[];
+}
+
+/** Reads a file under Logs/ or Cartridges/ (tail only for large files). Log text is masked. */
+export async function readInstanceFile(instance: B2CInstance, path: string, tailKb = 256): Promise<{path: string; size?: number; truncated: boolean; content: string}> {
+  const clean = path.replace(/^\/+/, '');
+  if (!/^(Logs|Cartridges)\//.test(clean) || clean.split('/').includes('..')) {
+    throw new Error('Only paths under Logs/ or Cartridges/ can be read.');
+  }
+  const parent = clean.slice(0, clean.lastIndexOf('/'));
+  const name = clean.slice(clean.lastIndexOf('/') + 1);
+  const entry = (await listChildren(instance, parent)).find((c) => c.name === name);
+  if (!entry || entry.isCollection) throw new Error(`File not found: ${clean}`);
+  const max = tailKb * 1024;
+  const size = entry.contentLength;
+  let text: string;
+  let truncated = false;
+  if (size !== undefined && size > max) {
+    truncated = true;
+    const res = await instance.webdav.request(clean, {method: 'GET', headers: {Range: `bytes=${size - max}-`}});
+    if (!res.ok && res.status !== 206) throw new Error(`WebDAV GET ${clean} failed: ${res.status}`);
+    text = await res.text();
+  } else {
+    text = new TextDecoder().decode(await instance.webdav.get(clean));
+  }
+  return {path: clean, size, truncated, content: clean.startsWith('Logs/') ? maskPII(text) : text};
+}
+
 type SearchPath =
   | '/sites/{site_id}/promotion_search'
   | '/sites/{site_id}/campaign_search'

@@ -1,0 +1,16 @@
+{
+  "name": "realm-doctor",
+  "owner": {
+    "name": "m-devecchi"
+  },
+  "metadata": {
+    "description": "Realm Doctor for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "realm-doctor",
+      "source": "./plugin",
+      "description": "Read-only audits of Salesforce B2C Commerce instances: error logs, quota, jobs, deployed cartridge code, Hyperforce readiness, promotions and frontend, with standard reports."
+    }
+  ]
+}

@@ -1,17 +1,17 @@
 import {Flags, ux} from '@oclif/core';
 import {InstanceCommand} from '@salesforce/b2c-tooling-sdk/cli';
 import {readFile, writeFile} from 'node:fs/promises';
-import {buildReport, formatReport} from '../../lib/report.js';
-import {fetchPromoBundle} from '../../lib/sfcc.js';
-import {analyzePromotions, type PromoBundle} from '../../rules/promo-rules.js';
+import {auditPromotions} from '../../lib/audits.js';
+import {formatReport} from '../../lib/report.js';
+import type {PromoBundle} from '../../rules/promo-rules.js';
 
 export default class AuditPromotions extends InstanceCommand<typeof AuditPromotions> {
   static description =
     'Reads promotions, campaigns, assignments, coupons and customer groups of a site through OCAPI (read-only searches) and reports promotions that can never fire, conflicts and broken qualifiers.';
   static enableJsonFlag = true;
   static examples = [
-    '<%= config.bin %> <%= command.id %> --site RefArch --currency EUR --json',
-    '<%= config.bin %> <%= command.id %> --site RefArch --save promo-bundle.json',
+    '<%= config.bin %> <%= command.id %> -i acme-prd --site RefArch --currency EUR --json',
+    '<%= config.bin %> <%= command.id %> -i acme-prd --site RefArch --save promo-bundle.json',
     '<%= config.bin %> <%= command.id %> --input promo-bundle.json --json',
   ];
   static flags = {
@@ -24,38 +24,16 @@ export default class AuditPromotions extends InstanceCommand<typeof AuditPromoti
   };
 
   async run() {
-    let bundle: PromoBundle;
-    if (this.flags.input) {
-      bundle = JSON.parse(await readFile(this.flags.input, 'utf8')) as PromoBundle;
-    } else {
-      if (!this.flags.site) this.error('Pass --site or --input.');
-      this.requireServer();
-      bundle = await fetchPromoBundle(this.instance, this.flags.site, this.flags.currency);
-      if (this.flags.save) await writeFile(this.flags.save, JSON.stringify(bundle, null, 2), {mode: 0o600});
-    }
-    if (this.flags.now) bundle.now = this.flags.now;
-    if (this.flags.currency?.length) bundle.currencies = this.flags.currency;
-
-    const findings = analyzePromotions(bundle);
-    const notes = [
-      'Product qualifiers and discount rules are not exposed by the APIs: verify them with test baskets (promo-audit skill).',
-    ];
-    if (!bundle.currencies?.length) notes.push('Currency check skipped: pass --currency.');
-    const report = buildReport(
-      'audit promotions',
-      {site: bundle.site, now: bundle.now},
-      findings,
-      {
-        counts: {
-          promotions: bundle.promotions.length,
-          campaigns: bundle.campaigns.length,
-          assignments: bundle.assignments.length,
-          coupons: bundle.coupons.length,
-          customerGroups: bundle.customerGroups.length,
-        },
+    if (!this.flags.input && !this.flags.site) this.error('Pass --site or --input.');
+    const input = this.flags.input ? (JSON.parse(await readFile(this.flags.input, 'utf8')) as PromoBundle) : undefined;
+    const {report, bundle} = await auditPromotions(
+      () => {
+        this.requireServer();
+        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!};
       },
-      notes,
+      {site: this.flags.site, currencies: this.flags.currency, now: this.flags.now, bundle: input},
     );
+    if (this.flags.save && !input) await writeFile(this.flags.save, JSON.stringify(bundle, null, 2), {mode: 0o600});
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;
   }

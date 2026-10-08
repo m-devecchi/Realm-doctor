@@ -1,14 +1,12 @@
 import {Flags, ux} from '@oclif/core';
 import {InstanceCommand} from '@salesforce/b2c-tooling-sdk/cli';
-import {parseSinceTime} from '@salesforce/b2c-tooling-sdk/operations/logs';
-import {aggregateQuota, parseQuotaEvent, quotaFindings, type QuotaEvent} from '../../lib/quota.js';
-import {buildReport, formatReport} from '../../lib/report.js';
-import {fetchLogEntries} from '../../lib/sfcc.js';
+import {auditQuota} from '../../lib/audits.js';
+import {formatReport} from '../../lib/report.js';
 
 export default class AuditQuota extends InstanceCommand<typeof AuditQuota> {
   static description = 'Reads quota logs (read-only) and reports quota limits and warning thresholds exceeded, per quota and code location.';
   static enableJsonFlag = true;
-  static examples = ['<%= config.bin %> <%= command.id %> --since 7d --json'];
+  static examples = ['<%= config.bin %> <%= command.id %> -i acme-prd --since 7d --json'];
   static flags = {
     ...InstanceCommand.baseFlags,
     since: Flags.string({description: 'Period start: 24h, 7d or ISO date-time', default: '7d'}),
@@ -20,21 +18,10 @@ export default class AuditQuota extends InstanceCommand<typeof AuditQuota> {
   async run() {
     this.requireServer();
     this.requireWebDavCredentials();
-    const hostname = this.resolvedConfig.values.hostname!;
-    const since = parseSinceTime(this.flags.since);
-    const {entries, files} = await fetchLogEntries(this.instance, hostname, {
-      prefixes: this.flags.prefix,
-      since,
-      maxFiles: this.flags['max-files'],
-      maxBytesPerFile: this.flags['max-kb'] * 1024,
-    });
-    const events = entries
-      .filter((e) => !e.timestamp || Date.parse(e.timestamp) >= since.getTime())
-      .map(parseQuotaEvent)
-      .filter((e): e is QuotaEvent => e !== undefined);
-    const summaries = aggregateQuota(events);
-    const notes = files.length === 0 ? ['No quota log files in the period: no violations recorded, or missing WebDAV permissions on /Logs.'] : [];
-    const report = buildReport('audit quota', {hostname, since: since.toISOString()}, quotaFindings(summaries), {files: files.length, events: events.length, quotas: summaries}, notes);
+    const report = await auditQuota(
+      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!},
+      {since: this.flags.since, prefixes: this.flags.prefix, maxFiles: this.flags['max-files'], maxKb: this.flags['max-kb']},
+    );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;
   }

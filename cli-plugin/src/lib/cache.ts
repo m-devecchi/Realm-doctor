@@ -1,17 +1,24 @@
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, rm, stat, writeFile, readdir} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {homedir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 /**
- * Local cache inside the repository: <repo>/.cache/realm-doctor/<host>/ (override with REALM_DOCTOR_CACHE).
- * Nothing is written outside the repository folder.
+ * Cache location:
+ * - REALM_DOCTOR_CACHE when set;
+ * - in a clone of the repository: <repo>/.cache/realm-doctor (nothing is written outside the folder);
+ * - installed by npx or as a plugin: ${CLAUDE_PLUGIN_DATA}/cache, else ~/.cache/realm-doctor.
  * Only masked log text and code snapshots are stored. Files are user-readable only.
  */
-export function cacheRoot(): string {
-  // this file lives in <repo>/cli-plugin/{src,dist}/lib/
-  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-  return process.env.REALM_DOCTOR_CACHE ?? join(repoRoot, '.cache', 'realm-doctor');
+export function cacheRoot(env: NodeJS.ProcessEnv = process.env): string {
+  if (env.REALM_DOCTOR_CACHE) return env.REALM_DOCTOR_CACHE;
+  // this file lives in <package>/cli-plugin/{src,dist}/lib/
+  const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+  if (existsSync(join(packageRoot, '.git'))) return join(packageRoot, '.cache', 'realm-doctor');
+  if (env.CLAUDE_PLUGIN_DATA) return join(env.CLAUDE_PLUGIN_DATA, 'cache');
+  return join(env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'realm-doctor');
 }
 
 export function hostDir(hostname: string): string {
