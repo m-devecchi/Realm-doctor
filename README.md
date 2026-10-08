@@ -1,62 +1,62 @@
 # Realm Doctor
 
-Kit di audit **in sola lettura** per Salesforce B2C Commerce (SFCC), da usare con Claude Code.
+A **read-only** audit kit for Salesforce B2C Commerce (SFCC), built for Claude Code.
 
-- I **dati** arrivano dal toolkit ufficiale di Salesforce: MCP `b2c-dx-mcp` e CLI `b2c`.
-- Un **plugin della CLI** (`cli-plugin/`) aggiunge le analisi che il toolkit non fa: errori raggruppati per firma, quota, regole sul codice delle cartridge, readiness Hyperforce, promozioni configurate male, frontend.
-- Un **plugin di Claude Code** (`plugins/realm-doctor/`) contiene 10 skill con metodo e formato di output fissi: chiunque le lanci ottiene lo stesso report.
+- **Data** comes from Salesforce's official toolkit: the `b2c-dx-mcp` MCP server and the `b2c` CLI.
+- A **CLI plugin** (`cli-plugin/`) adds the analyses the toolkit does not provide: errors grouped by signature, quota, cartridge code rules, Hyperforce readiness, misconfigured promotions and frontend checks.
+- A **Claude Code plugin** (`plugins/realm-doctor/`) ships 10 skills with a fixed method and output format, so everyone running them gets the same report.
 
-Nessun database, nessun server: tutto gira in locale. Nessun comando scrive sull'istanza (verificato dai test end-to-end).
+No database and no server: everything runs locally. No command writes to the instance, and the end-to-end tests enforce it.
 
-## Come si usa
+## Usage
 
-In Claude Code, chiedi in linguaggio naturale oppure richiama la skill per nome:
+In Claude Code, ask in plain language or call a skill by name:
 
-| Skill | Quando | Esempio |
+| Skill | When | Example |
 | --- | --- | --- |
-| `realm-doctor-setup` | Prima volta o se qualcosa non funziona | "verifica il kit per l'istanza acme-stg" |
-| `realm-weekly-review` | Stato di salute settimanale | "review settimanale di acme-prd, sito RefArch, EUR" |
-| `incident-triage` | Problema in corso | "il checkout fallisce da stamattina su acme-prd" |
-| `post-deploy-check` | Dopo un rilascio | "abbiamo rilasciato alle 14, com'è andata?" |
-| `quota-audit` | Quote superate, prima dei picchi | "controlla le quota dell'ultima settimana" |
-| `job-health` | Job falliti o lenti | "come sono andati i job stanotte?" |
-| `cartridge-code-review` | Revisione del codice | "review della cartridge app_custom" |
-| `frontend-check` | Sito lento, Core Web Vitals | "controlla home, PLP e PDP di www.acme.it" |
-| `hyperforce-readiness` | Prima della migrazione | "siamo pronti per Hyperforce?" |
-| `promo-audit` | Promo che non funzionano | "la promo AUTUMN20 non scatta, controlla" |
+| `realm-doctor-setup` | First run, or when something does not work | "check the kit for instance acme-stg" |
+| `realm-weekly-review` | Weekly health check | "weekly review of acme-prd, site RefArch, EUR" |
+| `incident-triage` | Live problem | "checkout has been failing since this morning on acme-prd" |
+| `post-deploy-check` | After a release | "we released at 2 pm, how did it go?" |
+| `quota-audit` | Quota violations, before traffic peaks | "check last week's quota" |
+| `job-health` | Failed or slow jobs | "how did last night's jobs go?" |
+| `cartridge-code-review` | Code review | "review the app_custom cartridge" |
+| `frontend-check` | Slow site, Core Web Vitals | "check home, PLP and PDP of www.acme.com" |
+| `hyperforce-readiness` | Before a migration | "are we ready for Hyperforce?" |
+| `promo-audit` | Promotions that do not work | "the AUTUMN20 promotion does not fire, check it" |
 
-Ogni report ha la stessa struttura: istanza e periodo, sintesi, finding (severità, regola, evidenza, impatto, fix, stima), limiti dell'analisi, prossime azioni. Le convenzioni sono in [`plugins/realm-doctor/reference/conventions.md`](plugins/realm-doctor/reference/conventions.md).
+Every report has the same structure: instance and period, summary, findings (severity, rule, evidence, impact, fix, estimate), analysis limits and next actions. Reports are written in Italian by default, or in the language the user writes in. The conventions are in [`plugins/realm-doctor/reference/conventions.md`](plugins/realm-doctor/reference/conventions.md).
 
-I comandi si possono usare anche da terminale:
+The commands also work from a terminal:
 
 ```bash
 b2c audit errors -i acme-prd --since 7d
 b2c audit quota -i acme-prd --since 7d
 b2c audit code -i acme-prd --cartridge app_custom
-b2c audit code --dir ./cartridges            # repo locale, senza istanza
+b2c audit code --dir ./cartridges            # local repository, no instance needed
 b2c audit hyperforce -i acme-prd
 b2c audit promotions -i acme-prd --site RefArch --currency EUR
-b2c audit frontend --url https://www.acme.it/ --url https://www.acme.it/scarpe/
-b2c audit rules                              # elenco delle regole
+b2c audit frontend --url https://www.acme.com/ --url https://www.acme.com/shoes/
+b2c audit rules                              # list of rules
 ```
 
-Aggiungi `--json` per l'output strutturato, che è quello che usano le skill. Elenco completo delle regole: [`docs/regole.md`](docs/regole.md).
+Add `--json` for structured output; this is what the skills use. Full rule list: [`docs/rules.md`](docs/rules.md).
 
-## Installazione
+## Installation
 
-Prerequisiti: Node.js 22+, Claude Code, un API Client di Account Manager per ogni istanza.
+Prerequisites: Node.js 22+, Claude Code, and an Account Manager API client for each instance.
 
-### 1. CLI ufficiale B2C
+### 1. Official B2C CLI
 
 ```bash
 npm install -g @salesforce/b2c-cli
 b2c --version
 ```
 
-### 2. Plugin CLI realm-doctor
+### 2. realm-doctor CLI plugin
 
 ```bash
-git clone git@github.com:m-devecchi/realm-doctor.git
+git clone git@github.com:m-devecchi/Realm-doctor.git realm-doctor
 cd realm-doctor/cli-plugin
 npm ci
 npm run build
@@ -64,70 +64,70 @@ b2c plugins link .
 b2c audit rules
 ```
 
-L'avviso "linked ESM module cannot be auto-transpiled" è normale: la CLI usa il codice già compilato in `dist/`. Dopo ogni modifica al codice esegui `npm run build`.
+The warning "linked ESM module cannot be auto-transpiled" is expected: the CLI uses the compiled code in `dist/`. Run `npm run build` after every code change.
 
-### 3. MCP ufficiale Salesforce (in Claude Code)
+### 3. Official Salesforce MCP (in Claude Code)
 
 ```bash
 claude plugin marketplace add SalesforceCommerceCloud/b2c-developer-tooling
 claude plugin install b2c-dx-mcp@b2c-developer-tooling
 ```
 
-### 4. Skill realm-doctor (in Claude Code)
+### 4. realm-doctor skills (in Claude Code)
 
 ```bash
-claude plugin marketplace add m-devecchi/realm-doctor
+claude plugin marketplace add m-devecchi/Realm-doctor
 claude plugin install realm-doctor@realm-doctor
 ```
 
-Il repo è privato: serve l'accesso Git a GitHub dalla macchina. In alternativa, da una copia locale: `claude plugin marketplace add /percorso/realm-doctor`.
+The repository is private, so the machine needs Git access to GitHub. Alternatively, from a local copy: `claude plugin marketplace add /path/to/realm-doctor`.
 
-### 5. Istanze e credenziali
+### 5. Instances and credentials
 
-Parti da [`config/dw.example.json`](config/dw.example.json) e crea il tuo `dw.json` nella cartella da cui lavori (è in `.gitignore`). Ogni istanza ha già Safety Mode `READ_ONLY` con le sole eccezioni necessarie.
+Start from [`config/dw.example.json`](config/dw.example.json) and create your own `dw.json` in the folder you work from (it is in `.gitignore`). Every instance already has Safety Mode `READ_ONLY` with only the exceptions the audits need.
 
-Il client secret non va nel file: passalo con la variabile d'ambiente `SFCC_CLIENT_SECRET`, oppure salvalo con `b2c setup instance` se il tuo ambiente ha un credential store.
+Do not put the client secret in the file: pass it through the `SFCC_CLIENT_SECRET` environment variable, or store it with `b2c setup instance` if your environment has a credential store.
 
-Permessi dell'API Client:
+API client permissions:
 
-| Dato | Configurazione | Serve per |
+| Data | Configuration | Used by |
 | --- | --- | --- |
-| Log | Business Manager > Administration > Organization > WebDAV Client Permissions: lettura su `/Logs` | errori, quota |
-| Codice | WebDAV Client Permissions: lettura su `/Cartridges` | code, hyperforce |
-| Code version, job, promozioni | OCAPI Data API (Global): `GET /code_versions`, `POST /job_execution_search`, `POST /sites/*/promotion_search`, `campaign_search`, `promotion_campaign_assignment_search`, `coupon_search`, `customer_group_search` | code, job, promotions |
-| Carrelli di prova | SLAS client e Shopper API, **solo sandbox** | promo-audit parte 2 |
+| Logs | Business Manager > Administration > Organization > WebDAV Client Permissions: read on `/Logs` | errors, quota |
+| Code | WebDAV Client Permissions: read on `/Cartridges` | code, hyperforce |
+| Code versions, jobs, promotions | OCAPI Data API (Global): `GET /code_versions`, `POST /job_execution_search`, `POST /sites/*/promotion_search`, `campaign_search`, `promotion_campaign_assignment_search`, `coupon_search`, `customer_group_search` | code, jobs, promotions |
+| Test baskets | SLAS client and Shopper APIs, **sandbox only** | promo-audit part 2 |
 
-Infine, in Claude Code: "verifica il kit per l'istanza acme-stg" (skill `realm-doctor-setup`).
+Finally, in Claude Code: "check the kit for instance acme-stg" (the `realm-doctor-setup` skill).
 
-## Sicurezza e dati
+## Security and data
 
-- **Sola lettura.** I comandi usano solo `GET` e `PROPFIND` su WebDAV, `GET` e le `POST` di ricerca su OCAPI. I test end-to-end contano le richieste verso un'istanza finta e falliscono se ne compare una di scrittura. I file grandi si leggono solo in coda, con `--max-kb` e header Range.
-- **Safety Mode** `READ_ONLY` è il secondo livello di protezione. I test verificano che, senza le eccezioni previste, le ricerche vengano bloccate prima di arrivare all'istanza.
-- **Dati personali.** Email, IP, telefoni, numeri di carta, numeri d'ordine e cliente, token e segreti vengono mascherati prima di salvare in cache o stampare. Il mascheramento è basato su pattern: nomi e indirizzi in testo libero non sono garantiti.
-- **Cache locale** in `~/.realm-doctor/cache` (oppure in `REALM_DOCTOR_CACHE`), con permessi solo utente. Contiene log mascherati e la copia del codice per code version.
-- **Mai in produzione:** debugger (`debug_*`), deploy, carrelli di prova.
+- **Read-only.** Commands only use `GET` and `PROPFIND` on WebDAV, and `GET` plus search `POST`s on OCAPI. The end-to-end tests record every request to a fake instance and fail if any write appears. Large log files are read from the tail only, with `--max-kb` and an HTTP Range header.
+- **Safety Mode** `READ_ONLY` is a second layer of protection. The tests check that, without the expected exceptions, searches are blocked before they reach the instance.
+- **Personal data.** Emails, IPs, phone numbers, card numbers, order and customer numbers, tokens and secrets are masked before caching or printing. Masking is pattern-based: free-text names and addresses are not guaranteed to be removed.
+- **Local cache** in `~/.realm-doctor/cache` (or `REALM_DOCTOR_CACHE`), readable by the user only. It holds masked logs and a copy of the code per code version.
+- **Never on production:** the debugger (`debug_*`), deployments and test baskets.
 
-## Sviluppo
+## Development
 
 ```bash
 cd cli-plugin
-npm test            # build + 55 test: unitari ed end-to-end
-npm run test:unit   # solo unitari, veloci
-node bin/run.js audit code --dir test/fixtures/cartridges   # esegue i comandi senza la CLI b2c
+npm test            # build + 55 tests: unit, configuration and end-to-end
+npm run test:unit   # unit tests only, fast
+node bin/run.js audit code --dir test/fixtures/cartridges   # runs the commands without the b2c CLI
 ```
 
-I test end-to-end avviano un'istanza SFCC finta in HTTPS (token Account Manager, WebDAV, OCAPI) ed eseguono i comandi veri attraverso l'SDK ufficiale. Richiedono `openssl`.
+The end-to-end tests start a fake SFCC instance over HTTPS (Account Manager token, WebDAV, OCAPI) and run the real commands through the official SDK. They require `openssl`.
 
-Struttura:
+Layout:
 
 ```
-.claude-plugin/marketplace.json     marketplace di Claude Code
-plugins/realm-doctor/               plugin di Claude Code: skill e convenzioni
-cli-plugin/                         plugin della CLI b2c: comandi audit, regole, test
-config/                             dw.json e Safety Mode di esempio
-docs/                               architettura e regole
+.claude-plugin/marketplace.json     Claude Code marketplace
+plugins/realm-doctor/               Claude Code plugin: skills and conventions
+cli-plugin/                         b2c CLI plugin: audit commands, rules, tests
+config/                             example dw.json and Safety Mode policy
+docs/                               architecture and rules
 ```
 
-Per aggiungere una regola: scrivila in `cli-plugin/src/rules/`, aggiungila a `RULES` in `src/rules/index.ts`, aggiungi un caso nelle fixture e un test, poi rigenera `docs/regole.md`.
+To add a rule: write it in `cli-plugin/src/rules/`, add it to `RULES` in `src/rules/index.ts`, add a case to the fixtures and a test, then regenerate `docs/rules.md` (see `CLAUDE.md`).
 
-Dettagli di design in [`docs/architettura.md`](docs/architettura.md).
+Design details: [`docs/architecture.md`](docs/architecture.md).

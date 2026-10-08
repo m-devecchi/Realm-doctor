@@ -1,8 +1,8 @@
-# Realm Doctor: istruzioni per lavorare su questo repo
+# Realm Doctor: working on this repository
 
-- Rispondi in italiano; codice, nomi di regole, commenti nel codice e SKILL.md in inglese, testi dei finding in italiano.
-- Il kit è **in sola lettura** verso SFCC. Ogni nuovo accesso all'istanza deve usare solo GET/PROPFIND su WebDAV e GET o `*_search` su OCAPI. Il test e2e "never writes to the instance" deve restare verde.
-- I dati personali vanno mascherati con `maskPII` prima di cache e output.
-- Ogni regola nuova: file in `cli-plugin/src/rules/`, voce in `RULES` (`src/rules/index.ts`), caso nelle fixture, test positivo e verifica di assenza di falsi positivi su `app_clean`. Poi rigenera `docs/regole.md` (vedi README).
-- Ogni skill nuova: cartella in `plugins/realm-doctor/skills/<nome>/SKILL.md` con `name` uguale alla cartella, riferimento a `../../reference/conventions.md`, comandi `b2c audit` esistenti. `npm test` lo verifica.
-- Prima di consegnare: `cd cli-plugin && npm test` e `claude plugin validate . --strict` dalla root.
+- Reply to the user in Italian. Code, rule ids, code comments, docs and SKILL.md files are in English; finding texts (title, impact, fix) produced by the commands are in Italian.
+- The kit is **read-only** towards SFCC. Any new instance access must use only GET/PROPFIND on WebDAV and GET or `*_search` on OCAPI. The e2e test "never writes to the instance" must stay green.
+- Personal data must be masked with `maskPII` before caching and output.
+- Every new rule: a file in `cli-plugin/src/rules/`, an entry in `RULES` (`src/rules/index.ts`), a case in the fixtures, a positive test, and a check that `app_clean` stays free of findings. Then regenerate `docs/rules.md` from `node bin/run.js audit rules --json` (keep its current layout).
+- Every new skill: a folder `plugins/realm-doctor/skills/<name>/SKILL.md` with `name` equal to the folder, a reference to `../../reference/conventions.md`, and only existing `b2c audit` commands. `npm test` checks this.
+- Before delivering: `cd cli-plugin && npm test`, and `claude plugin validate . --strict` from the repository root.
