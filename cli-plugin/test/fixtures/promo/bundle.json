@@ -1,0 +1,54 @@
+{
+  "site": "RefArch",
+  "now": "2026-10-08T12:00:00Z",
+  "currencies": ["EUR"],
+  "promotions": [
+    {"id": "P_OK", "enabled": true, "promotion_class": "product", "exclusivity": "no"},
+    {"id": "P_EXPIRED", "enabled": true, "promotion_class": "product", "exclusivity": "no"},
+    {"id": "P_UNASSIGNED", "enabled": true, "promotion_class": "order", "exclusivity": "no"},
+    {"id": "P_DISABLED", "enabled": false, "promotion_class": "order", "exclusivity": "no"},
+    {"id": "P_DATES", "enabled": true, "promotion_class": "product", "exclusivity": "no"},
+    {"id": "P_GROUP", "enabled": true, "promotion_class": "order", "exclusivity": "no"},
+    {"id": "P_COUPON", "enabled": true, "promotion_class": "order", "exclusivity": "no"},
+    {"id": "P_COUPON2", "enabled": true, "promotion_class": "shipping", "exclusivity": "no"},
+    {"id": "P_USD", "enabled": true, "promotion_class": "order", "exclusivity": "no", "currency_code": "USD"},
+    {"id": "P_GLOBAL", "enabled": true, "promotion_class": "product", "exclusivity": "global"},
+    {"id": "P_EXCL_A", "enabled": true, "promotion_class": "order", "exclusivity": "class"},
+    {"id": "P_EXCL_B", "enabled": true, "promotion_class": "order", "exclusivity": "class"},
+    {"id": "P_EXCL_C", "enabled": true, "promotion_class": "order", "exclusivity": "class"},
+    {"id": "P_MULTI", "enabled": true, "promotion_class": "product", "exclusivity": "no"}
+  ],
+  "campaigns": [
+    {"campaign_id": "C_LIVE", "enabled": true, "start_date": "2026-10-01T00:00:00Z", "end_date": "2026-11-30T23:59:59Z"},
+    {"campaign_id": "C_LIVE2", "enabled": true, "start_date": "2026-10-05T00:00:00Z"},
+    {"campaign_id": "C_OLD", "enabled": true, "start_date": "2026-09-01T00:00:00Z", "end_date": "2026-09-30T23:59:59Z"},
+    {"campaign_id": "C_VIP", "enabled": true, "customer_groups": ["VIP_STATIC", "GHOST_GROUP"]},
+    {"campaign_id": "C_COUPON", "enabled": true, "coupons": ["CPN_DISABLED", "CPN_MISSING", "CPN_EMPTY", "CPN_USED", "CPN_OK"]}
+  ],
+  "assignments": [
+    {"promotion_id": "P_OK", "campaign_id": "C_LIVE", "enabled": true, "rank": 10},
+    {"promotion_id": "P_EXPIRED", "campaign_id": "C_OLD", "enabled": true},
+    {"promotion_id": "P_DATES", "campaign_id": "C_LIVE", "enabled": true, "schedule": {"start_date": "2026-12-01T00:00:00Z", "end_date": "2026-12-31T23:59:59Z"}},
+    {"promotion_id": "P_GROUP", "campaign_id": "C_VIP", "enabled": true, "customer_groups_based": true},
+    {"promotion_id": "P_COUPON", "campaign_id": "C_COUPON", "enabled": true, "coupons_based": true},
+    {"promotion_id": "P_COUPON2", "campaign_id": "C_LIVE", "enabled": true, "coupons_based": true},
+    {"promotion_id": "P_USD", "campaign_id": "C_LIVE", "enabled": true},
+    {"promotion_id": "P_GLOBAL", "campaign_id": "C_LIVE2", "enabled": true, "rank": 1},
+    {"promotion_id": "P_EXCL_A", "campaign_id": "C_LIVE", "enabled": true, "rank": 5},
+    {"promotion_id": "P_EXCL_B", "campaign_id": "C_LIVE2", "enabled": true, "rank": 5},
+    {"promotion_id": "P_EXCL_C", "campaign_id": "C_LIVE", "enabled": true},
+    {"promotion_id": "P_MULTI", "campaign_id": "C_LIVE", "enabled": true},
+    {"promotion_id": "P_MULTI", "campaign_id": "C_LIVE2", "enabled": true},
+    {"promotion_id": "P_GHOST", "campaign_id": "C_LIVE", "enabled": true}
+  ],
+  "coupons": [
+    {"coupon_id": "CPN_DISABLED", "enabled": false, "type": "single_code", "single_code": "WELCOME10"},
+    {"coupon_id": "CPN_EMPTY", "enabled": true, "type": "multiple_codes", "total_codes_count": 0},
+    {"coupon_id": "CPN_USED", "enabled": true, "type": "multiple_codes", "total_codes_count": 500, "redemption_count": 500},
+    {"coupon_id": "CPN_OK", "enabled": true, "type": "single_code", "single_code": "AUTUMN"}
+  ],
+  "customerGroups": [
+    {"id": "Everyone", "type": "system"},
+    {"id": "VIP_STATIC", "type": "static", "member_count": 0}
+  ]
+}

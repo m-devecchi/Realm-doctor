@@ -1,0 +1,8 @@
+{
+  "level": "READ_ONLY",
+  "rules": [
+    {"method": "POST", "path": "/s/-/dw/data/*/sites/*/*_search", "action": "allow"},
+    {"method": "POST", "path": "/s/-/dw/data/*/job_execution_search", "action": "allow"},
+    {"method": "POST", "path": "/operation/jobs/v1/organizations/*/job-execution-search", "action": "allow"}
+  ]
+}

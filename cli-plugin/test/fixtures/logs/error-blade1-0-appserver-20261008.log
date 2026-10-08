@@ -1,0 +1,100 @@
+[2026-10-08 08:00:00.000 GMT] ERROR PipelineCallServlet|100000|Sites-RefArch-Site|Product-Show|PipelineCall|aB334914346xYz custom []  - Product 98715 not found in catalog storefront-catalog-en
+[2026-10-08 09:01:07.001 GMT] ERROR PipelineCallServlet|100001|Sites-RefArch-Site|Product-Show|PipelineCall|aB411150634xYz custom []  - Product 70241 not found in catalog storefront-catalog-en
+[2026-10-08 10:02:14.002 GMT] ERROR PipelineCallServlet|100002|Sites-RefArch-Site|Product-Show|PipelineCall|aB546869806xYz custom []  - Product 12816 not found in catalog storefront-catalog-en
+[2026-10-08 11:03:21.003 GMT] ERROR PipelineCallServlet|100003|Sites-RefArch-Site|Product-Show|PipelineCall|aB789658324xYz custom []  - Product 82935 not found in catalog storefront-catalog-en
+[2026-10-08 12:04:28.004 GMT] ERROR PipelineCallServlet|100004|Sites-RefArch-Site|Product-Show|PipelineCall|aB299615329xYz custom []  - Product 23107 not found in catalog storefront-catalog-en
+[2026-10-08 13:05:35.005 GMT] ERROR PipelineCallServlet|100005|Sites-RefArch-Site|Product-Show|PipelineCall|aB877001467xYz custom []  - Product 92490 not found in catalog storefront-catalog-en
+[2026-10-08 14:06:42.006 GMT] ERROR PipelineCallServlet|100006|Sites-RefArch-Site|Product-Show|PipelineCall|aB229804604xYz custom []  - Product 48848 not found in catalog storefront-catalog-en
+[2026-10-08 15:07:49.007 GMT] ERROR PipelineCallServlet|100007|Sites-RefArch-Site|Product-Show|PipelineCall|aB874687978xYz custom []  - Product 53607 not found in catalog storefront-catalog-en
+[2026-10-08 16:08:56.008 GMT] ERROR PipelineCallServlet|100008|Sites-RefArch-Site|Product-Show|PipelineCall|aB553233942xYz custom []  - Product 75640 not found in catalog storefront-catalog-en
+[2026-10-08 17:09:03.009 GMT] ERROR PipelineCallServlet|100009|Sites-RefArch-Site|Product-Show|PipelineCall|aB991244035xYz custom []  - Product 76547 not found in catalog storefront-catalog-en
+[2026-10-08 08:10:10.010 GMT] ERROR PipelineCallServlet|100010|Sites-RefArch-Site|Product-Show|PipelineCall|aB303849597xYz custom []  - Product 97858 not found in catalog storefront-catalog-en
+[2026-10-08 09:11:17.011 GMT] ERROR PipelineCallServlet|100011|Sites-RefArch-Site|Product-Show|PipelineCall|aB405113796xYz custom []  - Product 49763 not found in catalog storefront-catalog-en
+[2026-10-08 10:12:24.012 GMT] ERROR PipelineCallServlet|100012|Sites-RefArch-Site|Product-Show|PipelineCall|aB636185925xYz custom []  - Product 87015 not found in catalog storefront-catalog-en
+[2026-10-08 11:13:31.013 GMT] ERROR PipelineCallServlet|100013|Sites-RefArch-Site|Product-Show|PipelineCall|aB522360239xYz custom []  - Product 76228 not found in catalog storefront-catalog-en
+[2026-10-08 12:14:38.014 GMT] ERROR PipelineCallServlet|100014|Sites-RefArch-Site|Product-Show|PipelineCall|aB137071829xYz custom []  - Product 87201 not found in catalog storefront-catalog-en
+[2026-10-08 13:15:45.015 GMT] ERROR PipelineCallServlet|100015|Sites-RefArch-Site|Product-Show|PipelineCall|aB360640056xYz custom []  - Product 72944 not found in catalog storefront-catalog-en
+[2026-10-08 14:16:52.016 GMT] ERROR PipelineCallServlet|100016|Sites-RefArch-Site|Product-Show|PipelineCall|aB544866269xYz custom []  - Product 62990 not found in catalog storefront-catalog-en
+[2026-10-08 15:17:59.017 GMT] ERROR PipelineCallServlet|100017|Sites-RefArch-Site|Product-Show|PipelineCall|aB285765286xYz custom []  - Product 97129 not found in catalog storefront-catalog-en
+[2026-10-08 16:18:06.018 GMT] ERROR PipelineCallServlet|100018|Sites-RefArch-Site|Product-Show|PipelineCall|aB689268179xYz custom []  - Product 58119 not found in catalog storefront-catalog-en
+[2026-10-08 17:19:13.019 GMT] ERROR PipelineCallServlet|100019|Sites-RefArch-Site|Product-Show|PipelineCall|aB892652820xYz custom []  - Product 98406 not found in catalog storefront-catalog-en
+[2026-10-08 08:20:20.020 GMT] ERROR PipelineCallServlet|100020|Sites-RefArch-Site|Product-Show|PipelineCall|aB192843870xYz custom []  - Product 59113 not found in catalog storefront-catalog-en
+[2026-10-08 09:21:27.021 GMT] ERROR PipelineCallServlet|100021|Sites-RefArch-Site|Product-Show|PipelineCall|aB812704513xYz custom []  - Product 67535 not found in catalog storefront-catalog-en
+[2026-10-08 10:22:34.022 GMT] ERROR PipelineCallServlet|100022|Sites-RefArch-Site|Product-Show|PipelineCall|aB215890309xYz custom []  - Product 76640 not found in catalog storefront-catalog-en
+[2026-10-08 11:23:41.023 GMT] ERROR PipelineCallServlet|100023|Sites-RefArch-Site|Product-Show|PipelineCall|aB659353361xYz custom []  - Product 31456 not found in catalog storefront-catalog-en
+[2026-10-08 12:24:48.024 GMT] ERROR PipelineCallServlet|100024|Sites-RefArch-Site|Product-Show|PipelineCall|aB497845686xYz custom []  - Product 61544 not found in catalog storefront-catalog-en
+[2026-10-08 13:25:55.025 GMT] ERROR PipelineCallServlet|100025|Sites-RefArch-Site|Product-Show|PipelineCall|aB886801296xYz custom []  - Product 74185 not found in catalog storefront-catalog-en
+[2026-10-08 14:26:02.026 GMT] ERROR PipelineCallServlet|100026|Sites-RefArch-Site|Product-Show|PipelineCall|aB603928666xYz custom []  - Product 13876 not found in catalog storefront-catalog-en
+[2026-10-08 15:27:09.027 GMT] ERROR PipelineCallServlet|100027|Sites-RefArch-Site|Product-Show|PipelineCall|aB431280949xYz custom []  - Product 15699 not found in catalog storefront-catalog-en
+[2026-10-08 16:28:16.028 GMT] ERROR PipelineCallServlet|100028|Sites-RefArch-Site|Product-Show|PipelineCall|aB736926179xYz custom []  - Product 90584 not found in catalog storefront-catalog-en
+[2026-10-08 17:29:23.029 GMT] ERROR PipelineCallServlet|100029|Sites-RefArch-Site|Product-Show|PipelineCall|aB522624440xYz custom []  - Product 85782 not found in catalog storefront-catalog-en
+[2026-10-08 08:30:30.030 GMT] ERROR PipelineCallServlet|100030|Sites-RefArch-Site|Product-Show|PipelineCall|aB282911059xYz custom []  - Product 94824 not found in catalog storefront-catalog-en
+[2026-10-08 09:31:37.031 GMT] ERROR PipelineCallServlet|100031|Sites-RefArch-Site|Product-Show|PipelineCall|aB639274549xYz custom []  - Product 32097 not found in catalog storefront-catalog-en
+[2026-10-08 10:32:44.032 GMT] ERROR PipelineCallServlet|100032|Sites-RefArch-Site|Product-Show|PipelineCall|aB113208723xYz custom []  - Product 39745 not found in catalog storefront-catalog-en
+[2026-10-08 11:33:51.033 GMT] ERROR PipelineCallServlet|100033|Sites-RefArch-Site|Product-Show|PipelineCall|aB679409818xYz custom []  - Product 36151 not found in catalog storefront-catalog-en
+[2026-10-08 12:34:58.034 GMT] ERROR PipelineCallServlet|100034|Sites-RefArch-Site|Product-Show|PipelineCall|aB349297217xYz custom []  - Product 81871 not found in catalog storefront-catalog-en
+[2026-10-08 13:35:05.035 GMT] ERROR PipelineCallServlet|100035|Sites-RefArch-Site|Product-Show|PipelineCall|aB651658122xYz custom []  - Product 63012 not found in catalog storefront-catalog-en
+[2026-10-08 14:36:12.036 GMT] ERROR PipelineCallServlet|100036|Sites-RefArch-Site|Product-Show|PipelineCall|aB720402451xYz custom []  - Product 55065 not found in catalog storefront-catalog-en
+[2026-10-08 15:37:19.037 GMT] ERROR PipelineCallServlet|100037|Sites-RefArch-Site|Product-Show|PipelineCall|aB592988938xYz custom []  - Product 56304 not found in catalog storefront-catalog-en
+[2026-10-08 16:38:26.038 GMT] ERROR PipelineCallServlet|100038|Sites-RefArch-Site|Product-Show|PipelineCall|aB807826512xYz custom []  - Product 45294 not found in catalog storefront-catalog-en
+[2026-10-08 17:39:33.039 GMT] ERROR PipelineCallServlet|100039|Sites-RefArch-Site|Product-Show|PipelineCall|aB753849522xYz custom []  - Product 81826 not found in catalog storefront-catalog-en
+[2026-10-08 08:00:00.000 GMT] ERROR PipelineCallServlet|100000|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB106130128xYz custom []  - Payment authorization failed for order 000864831 customer mario.rossi0@example.com from 93.184.216.0
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 09:01:07.001 GMT] ERROR PipelineCallServlet|100001|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB941443398xYz custom []  - Payment authorization failed for order 000502327 customer mario.rossi1@example.com from 93.184.216.1
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 10:02:14.002 GMT] ERROR PipelineCallServlet|100002|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB980990038xYz custom []  - Payment authorization failed for order 000998576 customer mario.rossi2@example.com from 93.184.216.2
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 11:03:21.003 GMT] ERROR PipelineCallServlet|100003|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB650292614xYz custom []  - Payment authorization failed for order 000876474 customer mario.rossi3@example.com from 93.184.216.3
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 12:04:28.004 GMT] ERROR PipelineCallServlet|100004|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB238780515xYz custom []  - Payment authorization failed for order 000948444 customer mario.rossi4@example.com from 93.184.216.4
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 13:05:35.005 GMT] ERROR PipelineCallServlet|100005|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB934723866xYz custom []  - Payment authorization failed for order 000643873 customer mario.rossi5@example.com from 93.184.216.5
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 14:06:42.006 GMT] ERROR PipelineCallServlet|100006|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB320638116xYz custom []  - Payment authorization failed for order 000688626 customer mario.rossi6@example.com from 93.184.216.6
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 15:07:49.007 GMT] ERROR PipelineCallServlet|100007|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB160261934xYz custom []  - Payment authorization failed for order 000546788 customer mario.rossi7@example.com from 93.184.216.7
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 16:08:56.008 GMT] ERROR PipelineCallServlet|100008|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB491632347xYz custom []  - Payment authorization failed for order 000604471 customer mario.rossi8@example.com from 93.184.216.8
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 17:09:03.009 GMT] ERROR PipelineCallServlet|100009|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB695283749xYz custom []  - Payment authorization failed for order 000697687 customer mario.rossi9@example.com from 93.184.216.9
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 08:10:10.010 GMT] ERROR PipelineCallServlet|100010|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB641939476xYz custom []  - Payment authorization failed for order 000309546 customer mario.rossi10@example.com from 93.184.216.10
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 09:11:17.011 GMT] ERROR PipelineCallServlet|100011|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB620684370xYz custom []  - Payment authorization failed for order 000533481 customer mario.rossi11@example.com from 93.184.216.11
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 10:12:24.012 GMT] ERROR PipelineCallServlet|100012|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB483100304xYz custom []  - Payment authorization failed for order 000952860 customer mario.rossi12@example.com from 93.184.216.12
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 11:13:31.013 GMT] ERROR PipelineCallServlet|100013|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB471598338xYz custom []  - Payment authorization failed for order 000534555 customer mario.rossi13@example.com from 93.184.216.13
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+
+[2026-10-08 12:14:38.014 GMT] ERROR PipelineCallServlet|100014|Sites-RefArch-Site|CheckoutServices-PlaceOrder|PipelineCall|aB678187200xYz custom []  - Payment authorization failed for order 000101661 customer mario.rossi14@example.com from 93.184.216.14
+	at app_custom/cartridge/scripts/payment/adyenAuthorize.js:142 (authorize)
+	at app_custom/cartridge/controllers/CheckoutServices.js:88
+

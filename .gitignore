@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+*.log.tmp
+.DS_Store
+
+# local SFCC configuration and secrets
+dw.json
+.env
+.env.*
+!config/*.example.json
+
+# cache and test output
+.realm-doctor/
+promo-bundle*.json

@@ -1,0 +1,35 @@
+{
+  "id": "https://www.example.com/",
+  "loadingExperience": {
+    "metrics": {
+      "LARGEST_CONTENTFUL_PAINT_MS": {"percentile": 4300, "category": "SLOW"},
+      "CUMULATIVE_LAYOUT_SHIFT_SCORE": {"percentile": 15, "category": "AVERAGE"},
+      "INTERACTION_TO_NEXT_PAINT": {"percentile": 180, "category": "FAST"}
+    },
+    "overall_category": "SLOW"
+  },
+  "lighthouseResult": {
+    "finalUrl": "https://www.example.com/",
+    "categories": {"performance": {"score": 0.41}},
+    "audits": {
+      "largest-contentful-paint": {"numericValue": 5200},
+      "cumulative-layout-shift": {"numericValue": 0.21},
+      "total-blocking-time": {"numericValue": 900},
+      "total-byte-weight": {"numericValue": 3600000},
+      "resource-summary": {"details": {"items": [
+        {"resourceType": "script", "transferSize": 900000},
+        {"resourceType": "script", "transferSize": 450000},
+        {"resourceType": "image", "transferSize": 1500000}
+      ]}},
+      "third-party-summary": {"details": {"items": [
+        {"entity": {"text": "Google Tag Manager"}, "blockingTime": 210, "transferSize": 120000},
+        {"entity": {"text": "Hotjar"}, "blockingTime": 140, "transferSize": 80000},
+        {"entity": "Facebook", "blockingTime": 30, "transferSize": 60000}
+      ]}},
+      "errors-in-console": {"details": {"items": [
+        {"description": "Uncaught TypeError: Cannot read properties of undefined (reading 'pid') at main.js:1:2345"},
+        {"description": "Failed to load resource: the server responded with a status of 404 ()"}
+      ]}}
+    }
+  }
+}

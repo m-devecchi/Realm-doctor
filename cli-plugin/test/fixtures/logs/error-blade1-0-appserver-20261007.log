@@ -1,0 +1,11 @@
+[2026-10-07 08:00:00.000 GMT] ERROR PipelineCallServlet|100000|Sites-RefArch-Site|Product-Show|PipelineCall|aB440837476xYz custom []  - Product 23399 not found in catalog storefront-catalog-en
+[2026-10-07 09:01:07.001 GMT] ERROR PipelineCallServlet|100001|Sites-RefArch-Site|Product-Show|PipelineCall|aB123968184xYz custom []  - Product 14009 not found in catalog storefront-catalog-en
+[2026-10-07 10:02:14.002 GMT] ERROR PipelineCallServlet|100002|Sites-RefArch-Site|Product-Show|PipelineCall|aB797444855xYz custom []  - Product 13335 not found in catalog storefront-catalog-en
+[2026-10-07 11:03:21.003 GMT] ERROR PipelineCallServlet|100003|Sites-RefArch-Site|Product-Show|PipelineCall|aB109883727xYz custom []  - Product 80964 not found in catalog storefront-catalog-en
+[2026-10-07 12:04:28.004 GMT] ERROR PipelineCallServlet|100004|Sites-RefArch-Site|Product-Show|PipelineCall|aB837106430xYz custom []  - Product 59965 not found in catalog storefront-catalog-en
+[2026-10-07 13:05:35.005 GMT] ERROR PipelineCallServlet|100005|Sites-RefArch-Site|Product-Show|PipelineCall|aB553244221xYz custom []  - Product 38390 not found in catalog storefront-catalog-en
+[2026-10-07 14:06:42.006 GMT] ERROR PipelineCallServlet|100006|Sites-RefArch-Site|Product-Show|PipelineCall|aB666537775xYz custom []  - Product 13806 not found in catalog storefront-catalog-en
+[2026-10-07 15:07:49.007 GMT] ERROR PipelineCallServlet|100007|Sites-RefArch-Site|Product-Show|PipelineCall|aB920017699xYz custom []  - Product 39057 not found in catalog storefront-catalog-en
+[2026-10-07 16:08:56.008 GMT] ERROR PipelineCallServlet|100008|Sites-RefArch-Site|Product-Show|PipelineCall|aB632374341xYz custom []  - Product 67394 not found in catalog storefront-catalog-en
+[2026-10-07 17:09:03.009 GMT] ERROR PipelineCallServlet|100009|Sites-RefArch-Site|Product-Show|PipelineCall|aB350272526xYz custom []  - Product 82464 not found in catalog storefront-catalog-en
+[2026-10-07 08:10:10.010 GMT] ERROR PipelineCallServlet|100010|Sites-RefArch-Site|Product-Show|PipelineCall|aB347891063xYz custom []  - Product 55311 not found in catalog storefront-catalog-en

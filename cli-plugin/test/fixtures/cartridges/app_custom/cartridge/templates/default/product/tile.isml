@@ -1,0 +1,8 @@
+<isset name="ProductMgr" value="${require('dw/catalog/ProductMgr')}" scope="page" />
+<div class="tiles">
+    <isloop items="${pdict.productIds}" var="productId">
+        <isset name="product" value="${ProductMgr.getProduct(productId)}" scope="page" />
+        <isprint value="${product.custom.badgeHtml}" encoding="off" />
+        <isinclude url="${URLUtils.url('Tile-Show', 'pid', productId)}" />
+    </isloop>
+</div>
