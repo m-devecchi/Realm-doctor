@@ -119,6 +119,9 @@ then restart the assistant:
 npx -y github:m-devecchi/Realm-doctor --version
 ```
 
+**If that command fails with `Cannot find module`**: a download was interrupted halfway. Delete the folder
+`~/.npm/_npx` (on Windows `%LocalAppData%\npm-cache\_npx`), run the command above again, then restart the assistant.
+
 ## Use it
 
 Ask in plain language, or name a skill:
