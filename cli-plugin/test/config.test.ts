@@ -45,7 +45,19 @@ describe('example configuration', () => {
       const paths = policy.rules.map((r: {path: string}) => r.path);
       expect(paths).toContain('/s/-/dw/data/*/sites/*/*_search');
       expect(paths).toContain('/s/-/dw/data/*/job_execution_search');
+      // SCAPI (instances without OCAPI): jobs and promotion searches
+      for (const p of [
+        '/operation/jobs/v1/organizations/*/job-execution-search',
+        '/pricing/promotions/v1/organizations/*/promotions',
+        '/pricing/campaigns/v1/organizations/*/campaigns',
+        '/pricing/coupons/v1/organizations/*/coupons',
+      ])
+        expect(paths).toContain(p);
     }
+  });
+
+  it('every instance has SCAPI coordinates (short-code, tenant-id)', () => {
+    for (const c of configs as Array<Record<string, unknown>>) expect([c['short-code'], c['tenant-id']], String(c.name)).not.toContain(undefined);
   });
 
   it('contains no secrets', () => {

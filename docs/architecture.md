@@ -10,7 +10,7 @@ GitHub Copilot or Claude Code (this folder opened as the project)
  ├─ .claude/skills ─────────────── method, tool sequence, output format
  │    ├─ MCP tools ─────────────── b2c-dx-mcp from node_modules (.mcp.json, .vscode/mcp.json)
  │    └─ shell commands ────────── npx realm-doctor audit … --json, npx b2c …
- │                                   └─ @salesforce/b2c-tooling-sdk: auth, WebDAV, OCAPI, Safety Mode
+ │                                   └─ @salesforce/b2c-tooling-sdk: auth, WebDAV, SCAPI/OCAPI, Safety Mode
  └─ dw.json ────────────────────── every realm and environment, credentials, Safety Mode READ_ONLY
                                    ↓
                          SFCC instance (read-only)
@@ -31,7 +31,8 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | Deterministic rules, the LLM explains | Repeatable, verifiable results; Claude interprets, correlates and proposes the fix |
 | No database | SFCC is the data source; the local cache avoids repeated downloads |
 | Code download with PROPFIND + GET | The SDK's `downloadCartridges()` creates a zip on the server (POST + DELETE), which `READ_ONLY` blocks |
-| Promotions through OCAPI `*_search` | The APIs do not expose qualifiers and discount criteria: those are verified with test baskets on a sandbox |
+| SCAPI first, OCAPI as fallback (code versions, jobs, promotions) | New instances have no OCAPI. Jobs and code versions use the SDK's dual backends (`BackendDispatcher`, `createScriptsBackend`), as the official CLI does; promotions use the SCAPI Promotions, Campaigns, Coupons and Customers APIs (`src/lib/scapi-promotions.ts`) mapped to the same data model, so the rules do not depend on the API. `api-backend` in dw.json forces one |
+| Promotion qualifiers and discount rules verified with test baskets | The searches return promotions, campaigns and assignments, not the qualifier logic: the `promo-audit` skill checks it on a sandbox |
 
 ## CLI plugin modules
 
@@ -47,7 +48,8 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | `src/lib/instances.ts` | MCP: dw.json location, per-call instance resolution, Safety Mode per instance |
 | `src/commands/mcp.ts` | MCP server (stdio), read-only tools |
 | `src/commands/install/copilot.ts`, `init.ts` | Copilot install (skills + MCP config) and creation of a dw.json |
-| `src/lib/sfcc.ts` | Read-only instance access: logs (with Range), code versions, paged OCAPI searches |
+| `src/lib/sfcc.ts` | Read-only instance access: logs (with Range), code versions, jobs and promotions (SCAPI first, OCAPI fallback) |
+| `src/lib/scapi-promotions.ts` | Promotions through the SCAPI Admin APIs, mapped to the rules' data model |
 | `src/lib/cache.ts` | Cache per host in `<repo>/.cache` |
 | `src/rules/*` | JS rules (Babel AST), ISML, Hyperforce, promotions |
 | `src/commands/audit/*` | oclif commands: read data, apply rules, build the report |
@@ -57,9 +59,10 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | Level | What it checks |
 | --- | --- |
 | Unit (fixtures) | Parsers, masking, signatures, every rule with positive cases plus a clean file to catch false positives |
-| End-to-end | The compiled commands and the MCP server (through a real MCP client), run as processes against a fake HTTPS instance: OAuth, WebDAV, OCAPI with paging, cache, partial reads with Range, Safety Mode per instance, no write requests. The MCP test can also run against the package installed by `npx github:` |
+| End-to-end | The compiled commands and the MCP server (through a real MCP client), run as processes against a fake HTTPS instance: OAuth, WebDAV, SCAPI and OCAPI with paging, an instance without OCAPI, SCAPI-to-OCAPI fallback, cache, partial reads with Range, Safety Mode per instance, no write requests. The MCP test can also run against the package installed by `npx github:` |
 | Distribution | Root package runnable by npx, plugin manifest and marketplace, plugin skills identical to `.claude/`, Copilot install and removal on a temporary home, `init` |
 | Configuration | Example `dw.json` valid against the official schema, multi-realm and sandbox default, complete skills, commands referenced by skills exist, local MCP config, cache inside the repository |
+| SCAPI mapping | SCAPI objects validated against the official OpenAPI specs; SCAPI and OCAPI data give the same findings |
 | Setup | `npm run doctor` checks on temporary copies; postinstall creates `dw.json` only in a clone and only when missing, does nothing when installed by npx, can be skipped in CI |
 
 ## Known limits

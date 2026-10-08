@@ -123,19 +123,22 @@ export interface PromotionsOptions {
 
 export async function auditPromotions(target: (() => Target) | undefined, o: PromotionsOptions): Promise<{report: Report; bundle: PromoBundle}> {
   let bundle: PromoBundle;
+  let api: string | undefined;
   if (o.bundle) bundle = o.bundle;
   else {
     if (!o.site) throw new Error('A site id is required.');
-    bundle = await fetchPromoBundle(requireTarget(target)().instance, o.site, o.currencies);
+    const fetched = await fetchPromoBundle(requireTarget(target)().instance, o.site, o.currencies);
+    bundle = fetched.bundle;
+    api = fetched.backend;
   }
   if (o.now) bundle.now = o.now;
   if (o.currencies?.length) bundle.currencies = o.currencies;
   const findings = analyzePromotions(bundle);
-  const notes = ['Product qualifiers and discount rules are not exposed by the APIs: verify them with test baskets (promo-audit skill).'];
+  const notes = ['Product qualifiers and discount rules are not analyzed: verify them with test baskets (promo-audit skill).'];
   if (!bundle.currencies?.length) notes.push('Currency check skipped: pass the site currencies.');
   const report = buildReport(
     'audit promotions',
-    {site: bundle.site, now: bundle.now},
+    {site: bundle.site, now: bundle.now, ...(api ? {api} : {})},
     findings,
     {
       counts: {
@@ -198,9 +201,9 @@ export interface JobsOptions {
 }
 
 export async function auditJobs(t: Target, o: JobsOptions = {}): Promise<Report> {
-  const executions = await fetchJobExecutions(t.instance, {jobId: o.jobId, count: o.count ?? 100});
+  const {executions, backend} = await fetchJobExecutions(t.instance, {jobId: o.jobId, count: o.count ?? 100});
   const jobs = summarizeJobs(executions, o.now);
   const notes = executions.length === 0 ? ['No job executions returned: no jobs ran, or the API client lacks POST /job_execution_search.'] : [];
   notes.push('Read a failing job log with read_instance_file (MCP) or `npx b2c job log <jobId> <executionId>`.');
-  return buildReport('audit jobs', {hostname: t.hostname, jobId: o.jobId}, jobFindings(jobs), {executions: executions.length, jobs}, notes);
+  return buildReport('audit jobs', {hostname: t.hostname, jobId: o.jobId, api: backend}, jobFindings(jobs), {executions: executions.length, jobs}, notes);
 }

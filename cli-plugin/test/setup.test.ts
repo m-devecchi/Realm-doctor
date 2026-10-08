@@ -19,7 +19,9 @@ const instance = (over: Record<string, unknown> = {}) => ({
   hostname: 'production-eu01-lavazza.demandware.net',
   'client-id': '3f2a9c1e-5b7d-4e8a-9c21-7d4e5f6a8b90',
   'client-secret': 's3cret',
-  safety: {level: 'READ_ONLY', rules: [{method: 'POST', path: '/s/-/dw/data/*/sites/*/*_search', action: 'allow'}]},
+  'short-code': 'abcd1234',
+  'tenant-id': 'lava_prd',
+  safety: {level: 'READ_ONLY', rules: JSON.parse(readFileSync(join(REPO, 'config', 'safety.example.json'), 'utf8')).rules},
   ...over,
 });
 
@@ -74,6 +76,11 @@ describe('npm run doctor', () => {
     expect(status(r, '[lavazza-prd] client-id')).toBe('WARN');
     expect(status(r, '[lavazza-prd] client secret')).toBe('WARN');
     expect(status(r, '[lavazza-prd] search exception')).toBe('WARN');
+  });
+
+  it('warns when an instance has no SCAPI coordinates', () => {
+    writeFileSync(join(root, 'dw.json'), JSON.stringify({configs: [instance({'short-code': undefined})]}));
+    expect(status(runChecks({root, env: {}}), '[lavazza-prd] SCAPI')).toBe('WARN');
   });
 
   it('ignores a commented secret in .env', () => {

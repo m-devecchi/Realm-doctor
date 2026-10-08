@@ -1,9 +1,19 @@
 /**
  * Read-only data access to a B2C Commerce instance through the official SDK.
- * Every function only issues GET / PROPFIND / ranged GET on WebDAV and GET or
- * POST *_search on OCAPI. Nothing is written to the instance.
+ * WebDAV: GET / PROPFIND / ranged GET. Code versions, jobs and promotions: SCAPI Admin APIs first
+ * (instances with short-code and tenant-id), OCAPI Data API as fallback, like the official CLI
+ * (`api-backend` auto | scapi | ocapi in dw.json). Only GETs and searches: nothing is written.
  */
 import type {B2CInstance} from '@salesforce/b2c-tooling-sdk';
+import {BackendDispatcher} from '@salesforce/b2c-tooling-sdk/cli';
+import {createScapiJobsClient} from '@salesforce/b2c-tooling-sdk/clients';
+import {createScriptsBackend} from '@salesforce/b2c-tooling-sdk/operations/code';
+import {
+  mapCanonicalToOcapiExecution,
+  mapOcapiSearchResult,
+  scapiSearchJobExecutions,
+  searchJobExecutions,
+} from '@salesforce/b2c-tooling-sdk/operations/jobs';
 import {listLogFiles} from '@salesforce/b2c-tooling-sdk/operations/logs';
 import {join} from 'node:path';
 import {hostDir, keyFor, readCached, writeCached} from './cache.js';
@@ -11,6 +21,11 @@ import {dateFromLogFileName, parseLogText, type ParsedEntry} from './logparse.js
 import {maskPII} from './mask.js';
 import {isAnalyzed, type SourceFile} from '../rules/source.js';
 import type {Assignment, Campaign, Coupon, CustomerGroup, PromoBundle, Promotion} from '../rules/promo-rules.js';
+import type {JobExecution} from './jobs.js';
+import {fetchPromoBundleScapi} from './scapi-promotions.js';
+
+/** Which API answered: SCAPI (Admin APIs) or OCAPI (Data API). */
+export type Backend = 'scapi' | 'ocapi';
 
 export interface LogFetchOptions {
   prefixes: string[];
@@ -159,12 +174,6 @@ async function listChildren(instance: B2CInstance, dir: string): Promise<Child[]
     .filter((e) => e.name);
 }
 
-export async function getActiveCodeVersionId(instance: B2CInstance): Promise<string | undefined> {
-  const {data, error} = await instance.ocapi.GET('/code_versions', {});
-  if (error) throw new Error(`OCAPI GET /code_versions failed: ${JSON.stringify(error)}`);
-  return (data?.data ?? []).find((v) => v.active)?.id;
-}
-
 export interface CodeVersionInfo {
   id?: string;
   active?: boolean;
@@ -173,24 +182,44 @@ export interface CodeVersionInfo {
   cartridges?: string[];
 }
 
+/** Code versions through SCAPI (dx/scripts) or OCAPI, chosen by the SDK's scripts backend. */
 export async function listCodeVersions(instance: B2CInstance): Promise<CodeVersionInfo[]> {
-  const {data, error} = await instance.ocapi.GET('/code_versions', {});
-  if (error) throw new Error(`OCAPI GET /code_versions failed: ${JSON.stringify(error)}`);
-  return (data?.data ?? []) as CodeVersionInfo[];
+  const versions = await createScriptsBackend({instance}).listCodeVersions();
+  return versions.map((v) => ({
+    id: v.id,
+    active: v.active,
+    last_modification_time: v.lastModificationTime,
+    activation_time: v.activationTime,
+    cartridges: v.cartridges,
+  }));
 }
 
-/** Job executions, newest first, through the read-only OCAPI job_execution_search. */
-export async function fetchJobExecutions(instance: B2CInstance, opts: {jobId?: string; count?: number} = {}): Promise<import('./jobs.js').JobExecution[]> {
-  const query = opts.jobId
-    ? {term_query: {fields: ['job_id'], operator: 'is', values: [opts.jobId]}}
-    : {match_all_query: {}};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const post = instance.ocapi.POST as any;
-  const {data, error} = await post('/job_execution_search', {
-    body: {query, select: '(**)', count: Math.min(opts.count ?? 100, 200), sorts: [{field: 'start_time', sort_order: 'desc'}]},
-  });
-  if (error) throw new Error(`OCAPI POST /job_execution_search failed: ${JSON.stringify(error)}`);
-  return (data?.hits ?? []) as import('./jobs.js').JobExecution[];
+export async function getActiveCodeVersionId(instance: B2CInstance): Promise<string | undefined> {
+  return (await createScriptsBackend({instance}).getActiveCodeVersion())?.id;
+}
+
+/** Job executions, newest first: SCAPI job-execution-search, or OCAPI job_execution_search. */
+export async function fetchJobExecutions(instance: B2CInstance, opts: {jobId?: string; count?: number} = {}): Promise<{executions: JobExecution[]; backend: Backend}> {
+  const scapi = instance.scapiClientConfig;
+  const dispatcher = new BackendDispatcher(
+    instance.apiBackend,
+    () => (scapi ? createScapiJobsClient({shortCode: scapi.shortCode, tenantId: scapi.tenantId}, scapi.auth) : undefined),
+    'jobs',
+  );
+  const wanted = Math.min(opts.count ?? 100, 200);
+  const executions: JobExecution[] = [];
+  // pages until `wanted` executions: servers may return fewer per page than asked
+  for (let start = 0; executions.length < wanted; ) {
+    const options = {jobId: opts.jobId, count: wanted - executions.length, start, sortBy: 'start_time', sortOrder: 'desc' as const};
+    const page = await dispatcher.run({
+      scapi: (client) => scapiSearchJobExecutions(client, {...options, tenantId: scapi!.tenantId}),
+      ocapi: async () => mapOcapiSearchResult(await searchJobExecutions(instance, options)),
+    });
+    executions.push(...page.hits.map((h) => mapCanonicalToOcapiExecution(h) as JobExecution));
+    start += page.hits.length;
+    if (page.hits.length === 0 || start >= page.total) break;
+  }
+  return {executions, backend: dispatcher.active ?? 'ocapi'};
 }
 
 /** Reads a file under Logs/ or Cartridges/ (tail only for large files). Log text is masked. */
@@ -246,7 +275,17 @@ export async function searchAll<T>(instance: B2CInstance, path: SearchPath, site
   return out;
 }
 
-export async function fetchPromoBundle(instance: B2CInstance, siteId: string, currencies?: string[]): Promise<PromoBundle> {
+export async function fetchPromoBundle(instance: B2CInstance, siteId: string, currencies?: string[]): Promise<{bundle: PromoBundle; backend: Backend}> {
+  const scapi = instance.scapiClientConfig;
+  const dispatcher = new BackendDispatcher(instance.apiBackend, () => scapi, 'promotions');
+  const bundle = await dispatcher.run({
+    scapi: (config) => fetchPromoBundleScapi(config, siteId, currencies),
+    ocapi: () => fetchPromoBundleOcapi(instance, siteId, currencies),
+  });
+  return {bundle, backend: dispatcher.active ?? 'ocapi'};
+}
+
+export async function fetchPromoBundleOcapi(instance: B2CInstance, siteId: string, currencies?: string[]): Promise<PromoBundle> {
   const [promotions, campaigns, assignments, coupons, customerGroups] = await Promise.all([
     searchAll<Promotion>(instance, '/sites/{site_id}/promotion_search', siteId),
     searchAll<Campaign>(instance, '/sites/{site_id}/campaign_search', siteId),

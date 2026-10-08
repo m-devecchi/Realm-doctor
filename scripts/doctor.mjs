@@ -7,7 +7,14 @@ import {fileURLToPath} from 'node:url';
 
 const DEFAULT_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EXAMPLE_HOSTS = /acme|globex|zzzz-001/i;
-const SEARCH_RULE = '/s/-/dw/data/*/sites/*/*_search';
+const SEARCH_RULES = [
+  '/s/-/dw/data/*/sites/*/*_search',
+  '/s/-/dw/data/*/job_execution_search',
+  '/operation/jobs/v1/organizations/*/job-execution-search',
+  '/pricing/promotions/v1/organizations/*/promotions',
+  '/pricing/campaigns/v1/organizations/*/campaigns',
+  '/pricing/coupons/v1/organizations/*/coupons',
+];
 
 /**
  * @param {{root?: string, env?: NodeJS.ProcessEnv, nodeVersion?: string}} [opts]
@@ -85,8 +92,12 @@ export function runChecks(opts = {}) {
     const level = c.safety?.level;
     add(`[${name}] Safety Mode`, level === 'READ_ONLY' ? 'OK' : 'FAIL', level ? `level ${level}` : 'no safety policy: add the one from config/dw.example.json');
     const rules = (c.safety?.rules ?? []).map((r) => r.path);
-    if (level === 'READ_ONLY' && !rules.includes(SEARCH_RULE)) {
-      add(`[${name}] search exception`, 'WARN', `without ${SEARCH_RULE} the promotions audit is blocked`);
+    const missing = SEARCH_RULES.filter((r) => !rules.includes(r));
+    if (level === 'READ_ONLY' && missing.length) {
+      add(`[${name}] search exception`, 'WARN', `missing allow rules (jobs or promotions audits blocked): ${missing.join(', ')}. Copy the safety block from config/dw.example.json`);
+    }
+    if (!c['short-code'] || !c['tenant-id']) {
+      add(`[${name}] SCAPI`, 'WARN', 'no short-code/tenant-id: OCAPI only. Instances without OCAPI (new ones) need both (Business Manager > Administration > Site Development > Salesforce Commerce API Settings)');
     }
   }
   return results;

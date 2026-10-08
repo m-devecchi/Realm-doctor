@@ -24,7 +24,7 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
    - **JOB-002 medium**: last duration > 1.5 × median and > 5 minutes.
    - **JOB-003 medium**: still running beyond 2 × median.
    - **JOB-004 medium**: overlapping executions of the same job.
-   If it fails because of Safety Mode, tell the user to add the `job_execution_search` allow rule (see
+   If it fails because of Safety Mode, tell the user to add the job search allow rules, SCAPI `job-execution-search` and OCAPI `job_execution_search` (see
    `../../reference/safety.md`).
 3. For each JOB-001: read the job log at `lastLogFile` (MCP `read_instance_file`, or `npx b2c job log <jobId> <executionId> -i <instance>`),
    look at the last 100 lines, identify the failing step and the error message. Quote at most 3 lines, masked.

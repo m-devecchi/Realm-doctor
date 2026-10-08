@@ -51,6 +51,12 @@ export interface MockOptions {
   promoBundle: {site: string; promotions: unknown[]; campaigns: unknown[]; assignments: unknown[]; coupons: unknown[]; customerGroups: unknown[]};
   /** executions served by job_execution_search */
   jobs?: unknown[];
+  /** SCAPI Admin APIs: 'on' serves them, 'forbidden' answers 403 (client without SCAPI scopes), default off (404) */
+  scapi?: 'on' | 'forbidden';
+  /** tenant id expected in SCAPI organization ids (f_ecom_<tenant>) */
+  tenantId?: string;
+  /** false: OCAPI Data API answers 403 (SCAPI-only instance) */
+  ocapi?: boolean;
   /** page size forced by the server, to exercise paging */
   maxPage?: number;
 }
@@ -133,8 +139,12 @@ export async function startMockSfcc(opts: MockOptions): Promise<MockSfcc> {
         return send(405, 'method not allowed in mock', 'text/plain');
       }
 
+      // SCAPI Admin APIs (reached through test/e2e/scapi-redirect.mjs)
+      if (path.startsWith('/scapi/')) return scapiRoute(path.slice('/scapi'.length), req.method ?? '', url, body, send);
+
       // OCAPI Data
       const ocapi = /^\/s\/-\/dw\/data\/v\d+_\d+(\/.*)$/.exec(path);
+      if (ocapi && opts.ocapi === false) return send(403, '{"fault":{"type":"ClientAccessForbiddenException","message":"OCAPI not enabled"}}');
       if (ocapi) {
         const p = ocapi[1];
         if (p === '/code_versions' && req.method === 'GET') {
@@ -162,6 +172,48 @@ export async function startMockSfcc(opts: MockOptions): Promise<MockSfcc> {
     });
   });
 
+  function scapiRoute(p: string, method: string, url: URL, body: string, send: (s: number, b: string) => void): void {
+    if (opts.scapi === 'forbidden') return send(403, JSON.stringify({type: 'https://api.commercecloud.salesforce.com/documentation/error/v1/errors/forbidden', title: 'Forbidden', detail: 'missing scope'}));
+    if (opts.scapi !== 'on') return send(404, '{"title":"Not Found"}');
+    const m = /^\/([a-z-]+\/[a-z-]+\/v1)\/organizations\/([^/]+)(\/.*)$/.exec(p);
+    if (!m) return send(404, '{"title":"Not Found"}');
+    const [, api, org, rest] = m;
+    if (org !== `f_ecom_${opts.tenantId}`) return send(404, JSON.stringify({title: 'Organization not found', org}));
+    const site = url.searchParams.get('siteId');
+    const q = JSON.parse(body || '{}') as {limit?: number; offset?: number; query?: {termQuery?: {values?: string[]}}};
+    const page = <T,>(all: T[], offset: number, limit: number) => all.slice(offset, offset + Math.min(limit, opts.maxPage ?? 200));
+    const search = (all: unknown[]) => {
+      const offset = q.offset ?? 0;
+      const hits = page(all.map(toScapi), offset, q.limit ?? 25);
+      return send(200, JSON.stringify({hits, limit: hits.length, offset, total: all.length, query: q.query ?? {}}));
+    };
+    const needSite = () => site === opts.promoBundle.site;
+
+    if (api === 'operation/jobs/v1' && rest === '/job-execution-search' && method === 'POST') {
+      const only = q.query?.termQuery?.values?.[0];
+      return search((opts.jobs ?? []).filter((j) => !only || (j as {job_id?: string}).job_id === only));
+    }
+    if (api === 'dx/scripts/v1' && rest === '/code-versions' && method === 'GET') {
+      const data = [{id: 'old_version', active: false}, {id: opts.codeVersion, active: true}];
+      return send(200, JSON.stringify({data, limit: data.length, total: data.length}));
+    }
+    if (!needSite()) return send(404, JSON.stringify({title: 'Site not found', siteId: site}));
+    if (method === 'POST' && api === 'pricing/promotions/v1' && rest === '/promotions') return search(opts.promoBundle.promotions);
+    if (method === 'POST' && api === 'pricing/campaigns/v1' && rest === '/campaigns') return search(opts.promoBundle.campaigns);
+    if (method === 'POST' && api === 'pricing/coupons/v1' && rest === '/coupons') return search(opts.promoBundle.coupons);
+    const assign = /^\/campaigns\/([^/]+)\/promotions$/.exec(rest);
+    if (method === 'GET' && api === 'pricing/campaigns/v1' && assign) {
+      const data = (opts.promoBundle.assignments as Array<{campaign_id?: string}>).filter((a) => a.campaign_id === decodeURIComponent(assign[1])).map(toScapiAssignment);
+      return send(200, JSON.stringify({data, limit: data.length, total: data.length}));
+    }
+    if (method === 'GET' && api === 'customer/customers/v1' && rest === '/customer-groups') {
+      const offset = Number(url.searchParams.get('offset') ?? 0);
+      const data = page(opts.promoBundle.customerGroups.map(toScapi), offset, Number(url.searchParams.get('limit') ?? 25));
+      return send(200, JSON.stringify({data, limit: data.length, offset, total: opts.promoBundle.customerGroups.length}));
+    }
+    return send(404, '{"title":"Not Found"}');
+  }
+
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const port = (server.address() as AddressInfo).port;
   const caFile = join(dir, 'ca.pem');
@@ -176,4 +228,30 @@ export async function startMockSfcc(opts: MockOptions): Promise<MockSfcc> {
 
 export function relPosix(root: string, p: string): string {
   return relative(root, p).split(sep).join('/');
+}
+
+/** OCAPI document (snake_case) to the SCAPI shape (camelCase), recursively. */
+export function toScapi(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(toScapi);
+  if (v && typeof v === 'object') {
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()), k === 'name' ? x : toScapi(x)]));
+  }
+  return v;
+}
+
+/** A promotion-campaign assignment as SCAPI returns it: every field present (they are required in the spec). */
+export function toScapiAssignment(a: Record<string, any>): Record<string, unknown> {
+  const x = toScapi(a) as Record<string, any>;
+  return {
+    ...x,
+    campaign: {campaignId: x.campaignId},
+    coupons: x.coupons ?? [],
+    couponsBased: x.couponsBased ?? (x.coupons?.length ?? 0) > 0,
+    customerGroups: x.customerGroups ?? [],
+    customerGroupsBased: x.customerGroupsBased ?? (x.customerGroups?.length ?? 0) > 0,
+    sourceCodeGroups: x.sourceCodeGroups ?? [],
+    sourceCodeBased: x.sourceCodeBased ?? (x.sourceCodeGroups?.length ?? 0) > 0,
+    requiredQualifier: 'any',
+    schedule: x.schedule ?? {},
+  };
 }

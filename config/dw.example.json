@@ -29,6 +29,21 @@
           },
           {
             "method": "POST",
+            "path": "/pricing/promotions/v1/organizations/*/promotions",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/campaigns/v1/organizations/*/campaigns",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/coupons/v1/organizations/*/coupons",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
             "path": "/checkout/shopper-baskets/v1/organizations/*/baskets/**",
             "action": "allow"
           },
@@ -50,6 +65,8 @@
       "hostname": "staging-eu01-acme.demandware.net",
       "client-id": "00000000-0000-0000-0000-000000000000",
       "site-id": "RefArch",
+      "short-code": "abcd1234",
+      "tenant-id": "zzzz_stg",
       "safety": {
         "level": "READ_ONLY",
         "rules": [
@@ -66,6 +83,21 @@
           {
             "method": "POST",
             "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/promotions/v1/organizations/*/promotions",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/campaigns/v1/organizations/*/campaigns",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/coupons/v1/organizations/*/coupons",
             "action": "allow"
           }
         ]
@@ -95,6 +127,21 @@
             "method": "POST",
             "path": "/operation/jobs/v1/organizations/*/job-execution-search",
             "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/promotions/v1/organizations/*/promotions",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/campaigns/v1/organizations/*/campaigns",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/coupons/v1/organizations/*/coupons",
+            "action": "allow"
           }
         ]
       }
@@ -104,6 +151,8 @@
       "hostname": "staging-eu02-globex.demandware.net",
       "client-id": "00000000-0000-0000-0000-000000000000",
       "site-id": "Globex-IT",
+      "short-code": "efgh5678",
+      "tenant-id": "glob_stg",
       "safety": {
         "level": "READ_ONLY",
         "rules": [
@@ -120,6 +169,21 @@
           {
             "method": "POST",
             "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/promotions/v1/organizations/*/promotions",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/campaigns/v1/organizations/*/campaigns",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/coupons/v1/organizations/*/coupons",
             "action": "allow"
           }
         ]
@@ -130,6 +194,8 @@
       "hostname": "production-eu02-globex.demandware.net",
       "client-id": "00000000-0000-0000-0000-000000000000",
       "site-id": "Globex-IT",
+      "short-code": "efgh5678",
+      "tenant-id": "glob_prd",
       "safety": {
         "level": "READ_ONLY",
         "rules": [
@@ -146,6 +212,21 @@
           {
             "method": "POST",
             "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/promotions/v1/organizations/*/promotions",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/campaigns/v1/organizations/*/campaigns",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/pricing/coupons/v1/organizations/*/coupons",
             "action": "allow"
           }
         ]

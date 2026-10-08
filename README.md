@@ -38,11 +38,13 @@ About 15 minutes the first time. You do steps 1–3 once; step 4 depends on the 
 
 ### 2. Create the Salesforce API client
 
-Realm Doctor needs an API client (a client id and a password) allowed to read logs, code, jobs and promotions. Someone
-with Account Manager and Business Manager admin rights creates it once: the full procedure, with the exact settings to
-paste, is in **[docs/salesforce-setup.md](docs/salesforce-setup.md)**.
+Realm Doctor needs an API client (a client id and a password) allowed to read logs, code, jobs and promotions. It uses
+the **SCAPI** Admin APIs (required on new instances, which have no OCAPI) and falls back to **OCAPI** on older ones.
+Someone with Account Manager and Business Manager admin rights sets it up once: the full procedure, with the exact
+settings to paste, is in **[docs/salesforce-setup.md](docs/salesforce-setup.md)**.
 
-You get two values: the **client id** and the **client secret** (the password).
+You get the **client id** and the **client secret** (the password), and for each instance its **short code** and
+**tenant id** (Business Manager > Administration > Site Development > Salesforce Commerce API Settings).
 
 ### 3. Create your instance file (dw.json)
 
@@ -64,12 +66,15 @@ Open that file with any text editor and replace the example instances with yours
   "hostname": "production-eu01-acme.demandware.net",
   "client-id": "the client id from step 2",
   "client-secret": "the client secret from step 2",
+  "short-code": "abcd1234",
+  "tenant-id": "zzzz_prd",
   "safety": { … leave it as it is … }
 }
 ```
 
 - `name`: a short name you will use to ask for that instance: `<realm>-<environment>`, e.g. `acme-prd`, `acme-stg`.
 - `hostname`: the Business Manager address, without `https://`.
+- `short-code`, `tenant-id`: from step 2 (for the tenant id, the part after `f_ecom_`).
 - **Do not touch the `safety` block**: it makes the tools refuse any change to the instance.
 - Mark your sandbox with `"active": true`: it is the default when you do not name an instance.
 - Delete the example instances you do not need. All your realms go in this one file.
@@ -222,7 +227,8 @@ fixtures and a test, then regenerate `docs/rules.md` (see `AGENTS.md`). Design d
 
 ## Security and data
 
-- **Read-only.** Only `GET` and `PROPFIND` on WebDAV, and `GET` plus search `POST`s on OCAPI. The end-to-end tests
+- **Read-only.** Only `GET` and `PROPFIND` on WebDAV, and `GET` plus searches on SCAPI and OCAPI (SCAPI first, OCAPI
+  as fallback, like the official `b2c` CLI). The end-to-end tests
   record every request to a fake instance and fail if any write appears. Large log files are read from the end only.
 - **Safety Mode** `READ_ONLY` (the `safety` block of every instance) is a second layer: the Salesforce tools themselves
   refuse any write. The tests check that a search without its exception is blocked before it reaches the instance.
