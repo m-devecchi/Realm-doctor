@@ -12,12 +12,12 @@ export const VERSION = (JSON.parse(readFileSync(join(CLI_ROOT, 'package.json'), 
 export const REPO_SPEC = 'github:m-devecchi/Realm-doctor';
 export const OFFICIAL_MCP = '@salesforce/b2c-dx-mcp@3.5.0';
 
-/** MCP server entries for a client config, from the main branch (the session cannot push tags). */
+/** MCP server entries for a client config, from the default branch (main); same spec as the README commands, so `init` already fills the npx cache. */
 export function mcpServers(dwJson: string): Record<string, {command: string; args: string[]; env: Record<string, string>}> {
   return {
     'realm-doctor': {
       command: 'npx',
-      args: ['-y', `${REPO_SPEC}#main`, 'mcp'],
+      args: ['-y', REPO_SPEC, 'mcp'],
       env: {SFCC_CONFIG: dwJson, SFCC_DISABLE_TELEMETRY: 'true'},
     },
     'b2c-dx-mcp': {

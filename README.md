@@ -111,11 +111,12 @@ Ask the assistant:
 
 It lists your instances and tests the connection, and tells you exactly what is missing if something does not work.
 
-**If the assistant says the realm-doctor tools are not available**: the very first start downloads Realm Doctor and can
-take longer than the assistant waits. Run this once in a terminal, then restart the assistant:
+**If the assistant says the realm-doctor tools are not available**: after an update of Realm Doctor the first start
+downloads the new version (about a minute) and can take longer than the assistant waits. Run this once in a terminal,
+then restart the assistant:
 
 ```bash
-npx -y github:m-devecchi/Realm-doctor#main --version
+npx -y github:m-devecchi/Realm-doctor --version
 ```
 
 ## Use it
@@ -146,7 +147,7 @@ estimate), analysis limits and next actions. Rule list: [docs/rules.md](docs/rul
 | | Claude Code | GitHub Copilot |
 | --- | --- | --- |
 | Update the skills | `claude plugin marketplace update realm-doctor` then `claude plugin update realm-doctor@realm-doctor`, then restart | run the `install copilot` command of step 4b again |
-| Update the audit server | automatic: it runs the latest version of the `main` branch at each start | automatic, same |
+| Update the audit server | automatic: each start checks for the latest version (the first start after an update takes about a minute) | automatic, same |
 | Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor install copilot --remove` |
 
 Your `dw.json` is never touched; delete it yourself if you no longer need it.
@@ -193,7 +194,7 @@ npm run sync-plugin               # after changing .claude/skills or .claude/ref
 The end-to-end tests start a fake SFCC instance over HTTPS (Account Manager token, WebDAV, OCAPI) and run the real
 commands and the MCP server through the official SDK. They require `openssl`.
 To test the package exactly as npx installs it:
-`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor#main"]' npx vitest run test/e2e/mcp.e2e.test.ts`
+`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor"]' npx vitest run test/e2e/mcp.e2e.test.ts`
 (in `cli-plugin/`).
 
 Layout:

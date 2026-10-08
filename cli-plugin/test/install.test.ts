@@ -41,7 +41,7 @@ describe('install copilot', () => {
     expect(cfg.mcpServers['realm-doctor']).toEqual({
       type: 'local',
       command: 'npx',
-      args: ['-y', "github:m-devecchi/Realm-doctor#main", 'mcp'],
+      args: ['-y', "github:m-devecchi/Realm-doctor", 'mcp'],
       env: {SFCC_CONFIG: dw, SFCC_DISABLE_TELEMETRY: 'true'},
       tools: ['*'],
     });
