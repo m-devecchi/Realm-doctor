@@ -8,16 +8,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: cli-plugin
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: cli-plugin/package-lock.json
       - run: npm ci
-      - run: npm run typecheck
+      - run: npm run doctor || true
+      - run: npm run typecheck -w cli-plugin
       - run: npm test

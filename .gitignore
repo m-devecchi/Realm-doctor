@@ -11,5 +11,5 @@ dw.json
 !config/*.example.json
 
 # cache and test output
-.realm-doctor/
+.cache/
 promo-bundle*.json

@@ -1,6 +1,6 @@
 {
   "name": "@realm-doctor/b2c-plugin-audit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "B2C CLI plugin: read-only audit commands for Salesforce Commerce Cloud realms (errors, quota, code, Hyperforce, promotions, frontend).",
   "private": true,
   "type": "module",
@@ -9,7 +9,8 @@
     "node": ">=22"
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -20,6 +21,8 @@
     "test:e2e": "npm run build && vitest run test/e2e"
   },
   "oclif": {
+    "bin": "realm-doctor",
+    "dirname": "realm-doctor",
     "commands": "./dist/commands",
     "topicSeparator": " ",
     "topics": {
@@ -30,16 +33,16 @@
   },
   "dependencies": {
     "@babel/parser": "^7.26.0",
-    "@salesforce/b2c-tooling-sdk": "^2.6.0"
-  },
-  "peerDependencies": {
-    "@oclif/core": "^4"
+    "@oclif/core": "^4",
+    "@salesforce/b2c-tooling-sdk": "2.6.0"
   },
   "devDependencies": {
-    "@oclif/core": "^4",
     "@types/node": "^22.10.0",
     "jsonschema": "^1.5.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^5.0.3"
+  },
+  "bin": {
+    "realm-doctor": "bin/run.js"
   }
 }

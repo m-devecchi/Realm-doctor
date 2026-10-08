@@ -1,0 +1,24 @@
+{
+  "name": "realm-doctor",
+  "version": "0.2.0",
+  "description": "Read-only Salesforce B2C Commerce audit kit for Claude Code and GitHub Copilot. Everything installs locally in this folder.",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "cli-plugin"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.mjs",
+    "build": "npm run build -w cli-plugin",
+    "test": "npm test -w cli-plugin",
+    "doctor": "node scripts/doctor.mjs"
+  },
+  "dependencies": {
+    "@salesforce/b2c-cli": "2.5.1",
+    "@salesforce/b2c-dx-mcp": "3.5.0"
+  }
+}

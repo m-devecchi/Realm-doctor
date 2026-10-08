@@ -1,6 +1,6 @@
 # Rules
 
-Generated from `b2c audit rules`. Rules PROMO-010 to PROMO-013 are checked by the `promo-audit` skill with test baskets on a sandbox, not by the command.
+Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are checked by the `promo-audit` skill with test baskets on a sandbox, not by the command.
 
 ## Errors (audit errors)
 

@@ -1,14 +1,17 @@
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, rm, stat, writeFile, readdir} from 'node:fs/promises';
-import {homedir} from 'node:os';
 import {dirname, join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 /**
- * Local cache under ~/.realm-doctor/cache/<host>/ (override with REALM_DOCTOR_CACHE).
+ * Local cache inside the repository: <repo>/.cache/realm-doctor/<host>/ (override with REALM_DOCTOR_CACHE).
+ * Nothing is written outside the repository folder.
  * Only masked log text and code snapshots are stored. Files are user-readable only.
  */
 export function cacheRoot(): string {
-  return process.env.REALM_DOCTOR_CACHE ?? join(homedir(), '.realm-doctor', 'cache');
+  // this file lives in <repo>/cli-plugin/{src,dist}/lib/
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+  return process.env.REALM_DOCTOR_CACHE ?? join(repoRoot, '.cache', 'realm-doctor');
 }
 
 export function hostDir(hostname: string): string {

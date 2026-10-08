@@ -1,18 +1,47 @@
 {
   "configs": [
     {
-      "name": "acme-prd",
-      "hostname": "production-eu01-acme.demandware.net",
+      "name": "acme-sbx",
+      "hostname": "zzzz-001.dx.commercecloud.salesforce.com",
       "client-id": "00000000-0000-0000-0000-000000000000",
-      "short-code": "abcd1234",
-      "tenant-id": "abcd_prd",
       "site-id": "RefArch",
+      "active": true,
+      "short-code": "abcd1234",
+      "tenant-id": "zzzz_001",
+      "slas-client-id": "00000000-0000-0000-0000-000000000000",
       "safety": {
         "level": "READ_ONLY",
         "rules": [
-          {"method": "POST", "path": "/s/-/dw/data/*/sites/*/*_search", "action": "allow"},
-          {"method": "POST", "path": "/s/-/dw/data/*/job_execution_search", "action": "allow"},
-          {"method": "POST", "path": "/operation/jobs/v1/organizations/*/job-execution-search", "action": "allow"}
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/sites/*/*_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/job_execution_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/checkout/shopper-baskets/v1/organizations/*/baskets/**",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/checkout/shopper-baskets/v1/organizations/*/baskets",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/shopper/auth/v1/organizations/*/oauth2/**",
+            "action": "allow"
+          }
         ]
       }
     },
@@ -24,30 +53,101 @@
       "safety": {
         "level": "READ_ONLY",
         "rules": [
-          {"method": "POST", "path": "/s/-/dw/data/*/sites/*/*_search", "action": "allow"},
-          {"method": "POST", "path": "/s/-/dw/data/*/job_execution_search", "action": "allow"},
-          {"method": "POST", "path": "/operation/jobs/v1/organizations/*/job-execution-search", "action": "allow"}
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/sites/*/*_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/job_execution_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          }
         ]
       }
     },
     {
-      "name": "acme-sandbox",
-      "active": true,
-      "hostname": "zzzz-001.dx.commercecloud.salesforce.com",
+      "name": "acme-prd",
+      "hostname": "production-eu01-acme.demandware.net",
       "client-id": "00000000-0000-0000-0000-000000000000",
-      "short-code": "abcd1234",
-      "tenant-id": "zzzz_001",
       "site-id": "RefArch",
-      "slas-client-id": "00000000-0000-0000-0000-000000000000",
+      "short-code": "abcd1234",
+      "tenant-id": "zzzz_prd",
       "safety": {
         "level": "READ_ONLY",
         "rules": [
-          {"method": "POST", "path": "/s/-/dw/data/*/sites/*/*_search", "action": "allow"},
-          {"method": "POST", "path": "/s/-/dw/data/*/job_execution_search", "action": "allow"},
-          {"method": "POST", "path": "/operation/jobs/v1/organizations/*/job-execution-search", "action": "allow"},
-          {"method": "POST", "path": "/checkout/shopper-baskets/v1/organizations/*/baskets/**", "action": "allow"},
-          {"method": "POST", "path": "/checkout/shopper-baskets/v1/organizations/*/baskets", "action": "allow"},
-          {"method": "POST", "path": "/shopper/auth/v1/organizations/*/oauth2/**", "action": "allow"}
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/sites/*/*_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/job_execution_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          }
+        ]
+      }
+    },
+    {
+      "name": "globex-stg",
+      "hostname": "staging-eu02-globex.demandware.net",
+      "client-id": "00000000-0000-0000-0000-000000000000",
+      "site-id": "Globex-IT",
+      "safety": {
+        "level": "READ_ONLY",
+        "rules": [
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/sites/*/*_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/job_execution_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          }
+        ]
+      }
+    },
+    {
+      "name": "globex-prd",
+      "hostname": "production-eu02-globex.demandware.net",
+      "client-id": "00000000-0000-0000-0000-000000000000",
+      "site-id": "Globex-IT",
+      "safety": {
+        "level": "READ_ONLY",
+        "rules": [
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/sites/*/*_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/s/-/dw/data/*/job_execution_search",
+            "action": "allow"
+          },
+          {
+            "method": "POST",
+            "path": "/operation/jobs/v1/organizations/*/job-execution-search",
+            "action": "allow"
+          }
         ]
       }
     }

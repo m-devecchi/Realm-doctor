@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "b2c-dx-mcp": {
+      "command": "npx",
+      "args": ["--no-install", "b2c-dx-mcp"]
+    }
+  }
+}
