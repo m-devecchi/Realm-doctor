@@ -2,7 +2,7 @@ import {Command, Flags, ux} from '@oclif/core';
 import {copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join, resolve} from 'node:path';
-import {mcpServers, PACKAGE_ROOT, VERSION} from '../../lib/distribution.js';
+import {mcpServers, PACKAGE_ROOT, resolveUserPath, VERSION} from '../../lib/distribution.js';
 
 const MARKER = 'realm-doctor';
 
@@ -43,7 +43,7 @@ export default class InstallCopilot extends Command {
     }
 
     if (!flags.config) this.error('Pass --config <path to dw.json> (the file with your instances).');
-    const dwJson = resolve(flags.config);
+    const dwJson = resolveUserPath(flags.config);
     if (!existsSync(dwJson)) this.error(`No file at ${dwJson}. Create it from config/dw.example.json in the repository.`);
 
     // reference files used by the skills, then the skills with the reference path made absolute

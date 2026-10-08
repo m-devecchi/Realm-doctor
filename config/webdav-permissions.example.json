@@ -1,0 +1,11 @@
+{
+  "clients": [
+    {
+      "client_id": "PUT-YOUR-API-CLIENT-ID-HERE",
+      "permissions": [
+        {"path": "/logs", "operations": ["read"]},
+        {"path": "/cartridges", "operations": ["read"]}
+      ]
+    }
+  ]
+}

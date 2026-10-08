@@ -40,6 +40,9 @@ async function call(name: string, args: Record<string, unknown> = {}): Promise<{
   return {isError: res.isError, text, json};
 }
 
+const serverCommand = (): string[] =>
+  process.env.REALM_DOCTOR_MCP_COMMAND ? (JSON.parse(process.env.REALM_DOCTOR_MCP_COMMAND) as string[]) : [process.execPath, join(ROOT, 'bin', 'run.js')];
+
 const ruleIds = (r?: Report) => (r?.findings ?? []).map((f) => f.rule).sort();
 
 beforeAll(async () => {
@@ -69,8 +72,9 @@ beforeAll(async () => {
   client = new Client({name: 'realm-doctor-test', version: '0.0.0'});
   await client.connect(
     new StdioClientTransport({
-      command: process.execPath,
-      args: [join(ROOT, 'bin', 'run.js'), 'mcp', '--config', join(work, 'dw.json')],
+      // REALM_DOCTOR_MCP_COMMAND (JSON array) runs another build, e.g. the package installed by npx
+      command: serverCommand()[0],
+      args: [...serverCommand().slice(1), 'mcp', '--config', join(work, 'dw.json')],
       cwd: tmpdir(),
       stderr: 'pipe',
       env: {

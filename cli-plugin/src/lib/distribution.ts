@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
+import {homedir} from 'node:os';
+import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 /** <package>/cli-plugin */
@@ -25,4 +26,9 @@ export function mcpServers(dwJson: string): Record<string, {command: string; arg
       env: {SFCC_DISABLE_TELEMETRY: 'true'},
     },
   };
+}
+
+/** resolve() that also expands a leading ~ (PowerShell and some clients pass it literally) */
+export function resolveUserPath(p: string): string {
+  return resolve(p.replace(/^~(?=$|[\\/])/, homedir()));
 }

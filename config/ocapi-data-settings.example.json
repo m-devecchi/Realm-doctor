@@ -1,0 +1,18 @@
+{
+  "_v": "24.5",
+  "clients": [
+    {
+      "client_id": "PUT-YOUR-API-CLIENT-ID-HERE",
+      "resources": [
+        {"resource_id": "/code_versions", "methods": ["get"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/job_execution_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites", "methods": ["get"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites/*/promotion_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites/*/campaign_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites/*/promotion_campaign_assignment_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites/*/coupon_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"},
+        {"resource_id": "/sites/*/customer_group_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)"}
+      ]
+    }
+  ]
+}

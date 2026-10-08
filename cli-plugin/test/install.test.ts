@@ -67,3 +67,24 @@ describe('install copilot', () => {
     expect(existsSync(join(home, '.copilot', 'mcp-config.json'))).toBe(false);
   });
 });
+
+describe('init', () => {
+  it('creates ~/realm-doctor/dw.json from the example and never overwrites it', () => {
+    const home = mkdtempSync(join(tmpdir(), 'rd-init-'));
+    const init = () => spawnSync(process.execPath, [BIN, 'init'], {encoding: 'utf8', env: {...process.env, HOME: home, USERPROFILE: home}});
+    const first = init();
+    expect(first.status, first.stderr).toBe(0);
+    const file = join(home, 'realm-doctor', 'dw.json');
+    expect(readFileSync(file, 'utf8')).toBe(readFileSync(join(REPO, 'config', 'dw.example.json'), 'utf8'));
+    writeFileSync(file, '{"configs":[{"name":"mine-prd"}]}');
+    expect(init().stdout).toContain('left unchanged');
+    expect(readFileSync(file, 'utf8')).toBe('{"configs":[{"name":"mine-prd"}]}');
+  });
+
+  it('expands ~ in --path', () => {
+    const home = mkdtempSync(join(tmpdir(), 'rd-init-'));
+    const res = spawnSync(process.execPath, [BIN, 'init', '--path', '~/sfcc/dw.json'], {encoding: 'utf8', env: {...process.env, HOME: home, USERPROFILE: home}});
+    expect(res.status, res.stderr).toBe(0);
+    expect(existsSync(join(home, 'sfcc', 'dw.json'))).toBe(true);
+  });
+});

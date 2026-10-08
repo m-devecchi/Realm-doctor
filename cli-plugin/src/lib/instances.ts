@@ -9,6 +9,7 @@ import {getB2CConfigDirectory, resolveConfig} from '@salesforce/b2c-tooling-sdk/
 import {createSafetyMiddleware, globalMiddlewareRegistry} from '@salesforce/b2c-tooling-sdk/clients';
 import {loadGlobalSafetyConfig, resolveEffectiveSafetyConfig, SafetyGuard} from '@salesforce/b2c-tooling-sdk/safety';
 import type {Target} from './audits.js';
+import {resolveUserPath} from './distribution.js';
 
 export interface ConfigLocation {
   /** explicit dw.json path (--config / SFCC_CONFIG) */
@@ -20,7 +21,7 @@ export interface ConfigLocation {
 export function locateConfig(opts: {config?: string; projectDirectory?: string}, env: NodeJS.ProcessEnv = process.env): ConfigLocation {
   const configPath = opts.config || env.SFCC_CONFIG || undefined;
   const projectDirectory = resolve(opts.projectDirectory || env.SFCC_PROJECT_DIRECTORY || process.cwd());
-  return {configPath: configPath ? resolve(configPath) : undefined, projectDirectory};
+  return {configPath: configPath ? resolveUserPath(configPath) : undefined, projectDirectory};
 }
 
 export function dwJsonPath(loc: ConfigLocation): string {

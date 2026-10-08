@@ -18,6 +18,15 @@ Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are 
 | QUOTA-002 | high | Non-enforced quota limit exceeded |
 | QUOTA-003 | medium/high | Warning threshold exceeded (high above 80% of the limit) |
 
+## Jobs (audit jobs)
+
+| Rule | Severity | Description |
+| --- | --- | --- |
+| JOB-001 | high/critical | Job failing (critical when it handles orders, payments, inventory, prices or data exchange) |
+| JOB-002 | medium | Job slower than usual (> 1.5x median and > 5 min) |
+| JOB-003 | medium | Job running much longer than usual (> 2x median) |
+| JOB-004 | medium | Overlapping executions of the same job |
+
 ## JavaScript code (audit code)
 
 | Rule | Severity | Description |
