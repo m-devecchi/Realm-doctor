@@ -62,7 +62,7 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | --- | --- |
 | Unit (fixtures) | Parsers, masking, signatures, every rule with positive cases plus a clean file to catch false positives |
 | End-to-end | The compiled commands and the MCP server (through a real MCP client), run as processes against a fake HTTPS instance: OAuth, WebDAV, SCAPI and OCAPI with paging, an instance without OCAPI, SCAPI-to-OCAPI fallback, cache, partial reads with Range, Safety Mode per instance, no write requests. The MCP test can also run against the package installed by `npx github:` |
-| Distribution | Root package runnable by npx, plugin manifest and marketplace, plugin skills identical to `.claude/`, Copilot install and removal on a temporary home, `init` |
+| Distribution | Root package runnable by npx, plugin manifest and marketplace, plugin skills are symlinks to `.claude/`, Copilot install and removal on a temporary home, `init` |
 | Configuration | Example `dw.json` valid against the official schema, multi-realm and sandbox default, complete skills, commands referenced by skills exist, local MCP config, cache inside the repository |
 | SCAPI mapping | SCAPI objects validated against the official OpenAPI specs; SCAPI and OCAPI data give the same findings |
 | Skill evals | Every skill is checked statically (commands, flags, MCP tools, rule ids, read-only) and by scenario: the tool calls it prescribes are replayed through the real MCP server against the fake instance, judged by a rubric, by invariants on every result (shape, severity order, masking, no secrets) and by golden files. A new skill without a scenario fails |

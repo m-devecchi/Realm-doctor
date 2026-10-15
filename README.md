@@ -196,7 +196,7 @@ Development:
 ```bash
 npm test                          # build + unit, configuration, install and end-to-end tests
 npm run test:unit -w cli-plugin   # unit tests only, fast
-npm run sync-plugin               # after changing .claude/skills or .claude/reference
+npm run sync-plugin               # recreates the plugin/ symlinks if a checkout broke them (Windows)
 ```
 
 The end-to-end tests start a fake SFCC instance over HTTPS (Account Manager token, WebDAV, OCAPI) and run the real
@@ -210,7 +210,7 @@ Layout:
 ```
 .claude/skills/        skills (source)
 .claude/reference/     conventions and access rules used by the skills
-plugin/                Claude Code plugin: manifest, MCP servers, copy of the skills (npm run sync-plugin)
+plugin/                Claude Code plugin: manifest, MCP servers, skills as symlinks to .claude/
 .claude-plugin/        marketplace that lists the plugin
 .mcp.json              MCP server for Claude Code and Copilot CLI (clone)
 .vscode/mcp.json       MCP server for VS Code (clone)

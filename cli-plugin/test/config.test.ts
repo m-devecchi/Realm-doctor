@@ -1,4 +1,4 @@
-import {readFileSync, readdirSync, existsSync} from 'node:fs';
+import {readFileSync, readdirSync, existsSync, lstatSync, readlinkSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
@@ -133,14 +133,12 @@ describe('distribution (npx, Claude Code plugin, Copilot)', () => {
     expect(read('.claude-plugin/marketplace.json').plugins).toEqual([expect.objectContaining({name: 'realm-doctor', source: './plugin'})]);
   });
 
-  it('plugin skills and reference are an exact copy of .claude/ (run `npm run sync-plugin`)', () => {
-    const list = (dir: string): string[] =>
-      readdirSync(dir, {withFileTypes: true}).flatMap((d) => (d.isDirectory() ? list(join(dir, d.name)).map((f) => `${d.name}/${f}`) : [d.name]));
+  it('plugin skills and reference are symlinks to .claude/ (run `npm run sync-plugin` if they are not)', () => {
     for (const dir of ['skills', 'reference']) {
-      const src = join(REPO, '.claude', dir);
-      const dst = join(REPO, 'plugin', dir);
-      expect(list(dst).sort(), dir).toEqual(list(src).sort());
-      for (const f of list(src)) expect(readFileSync(join(dst, f), 'utf8'), f).toBe(readFileSync(join(src, f), 'utf8'));
+      const link = join(REPO, 'plugin', dir);
+      expect(lstatSync(link).isSymbolicLink(), `plugin/${dir} must be a symlink`).toBe(true);
+      expect(readlinkSync(link)).toBe(join('..', '.claude', dir));
+      expect(readdirSync(link).sort(), dir).toEqual(readdirSync(join(REPO, '.claude', dir)).sort());
     }
   });
 

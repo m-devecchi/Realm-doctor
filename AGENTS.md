@@ -29,8 +29,9 @@ This repository is a **read-only** audit kit for Salesforce B2C Commerce (SFCC).
 - Every new rule: a file in `cli-plugin/src/rules/`, an entry in `RULES` (`src/rules/index.ts`), a case in the fixtures,
   a positive test, and a check that `app_clean` stays free of findings. Then regenerate `docs/rules.md` from
   `npx realm-doctor audit rules --json` (keep its current layout).
-- Skills and reference files are edited in `.claude/` only; run `npm run sync-plugin` to copy them into `plugin/`
-  (`npm test` fails if the copy differs). A new audit needs both a command in `src/commands/audit/` and an MCP tool in
+- Skills and reference files are edited in `.claude/` only; `plugin/skills` and `plugin/reference` are
+  symlinks to them (one copy; `npm run sync-plugin` recreates them if a checkout turned them into files; `npm test`
+  fails if they are not symlinks). A new audit needs both a command in `src/commands/audit/` and an MCP tool in
   `src/commands/mcp.ts`, both calling a function in `src/lib/audits.ts`.
 - Findings can be hidden on purpose: `realm-doctor.json` (see `config/realm-doctor.example.json`; thresholds, per-realm
   settings, suppressions that need a reason) and `realm-doctor-ignore <RULE> <reason>` comments in the code. A new
