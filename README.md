@@ -227,7 +227,7 @@ fixtures and a test, then regenerate `docs/rules.md` (see `AGENTS.md`). Design d
 
 ## Settings, suppressions and saved reports
 
-Optional `realm-doctor.json` next to `dw.json` (or the file named by `REALM_DOCTOR_SETTINGS`; start from
+Optional `realm-doctor.json` next to `dw.json` (the MCP server finds it there; the CLI reads it from the current folder; or the file named by `REALM_DOCTOR_SETTINGS`; start from
 `config/realm-doctor.example.json`):
 
 - **thresholds**: spike factor, slow-job limits, quota warning ratio, remote includes per template; global or per realm.

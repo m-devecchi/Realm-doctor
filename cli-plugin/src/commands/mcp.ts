@@ -1,11 +1,13 @@
 import {Command, Flags} from '@oclif/core';
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
+import {existsSync} from 'node:fs';
+import {dirname, join} from 'node:path';
 import {z} from 'zod';
 import {auditCode, auditErrors, auditFrontend, auditHyperforce, auditJobs, auditPromotions, auditQuota} from '../lib/audits.js';
 import {VERSION} from '../lib/distribution.js';
 import {errorText, limitResponse} from '../lib/mcp-result.js';
-import {listInstances, loadDotEnv, locateConfig, resolveTarget, type ConfigLocation} from '../lib/instances.js';
+import {dwJsonPath, listInstances, loadDotEnv, locateConfig, resolveTarget, type ConfigLocation} from '../lib/instances.js';
 import {listCodeVersions, readInstanceFile} from '../lib/sfcc.js';
 import {allRules} from '../rules/index.js';
 
@@ -240,6 +242,9 @@ export default class Mcp extends Command {
     process.env.SFCC_DISABLE_TELEMETRY ??= 'true';
     const loc = locateConfig({config: flags.config, projectDirectory: flags['project-directory']});
     loadDotEnv(loc);
+    // settings live next to dw.json (or in the project folder): the server's own cwd is not meaningful
+    const settings = [join(dirname(dwJsonPath(loc)), 'realm-doctor.json'), join(loc.projectDirectory, 'realm-doctor.json')].find((f) => existsSync(f));
+    if (settings) process.env.REALM_DOCTOR_SETTINGS ??= settings;
     const server = createServer(loc);
     await server.connect(new StdioServerTransport());
     process.stderr.write(`realm-doctor MCP ${VERSION} ready (config: ${loc.configPath ?? loc.projectDirectory})\n`);
