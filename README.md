@@ -8,8 +8,8 @@ It checks:
 - error logs: new errors, spikes, recurring errors
 - quota limits
 - jobs: failing, slow or stuck
-- the code deployed on the instance
-- Hyperforce readiness
+- the code deployed on the instance (custom cartridges; ask in plain language, or run `audit code`)
+- Hyperforce readiness (hardcoded IPs and hostnames; `audit hyperforce`, no skill of its own)
 - promotions that are set up wrong
 - page speed
 
@@ -147,7 +147,14 @@ Ask in plain language, or name a skill:
 | `promo-audit` | Promotions that do not work | "the AUTUMN20 promotion does not fire on acme-prd" |
 
 Always say which instance (`acme-prd`, `acme-stg`…). If you do not, the assistant asks: it never guesses between
-production and sandbox.
+production and sandbox, and the tools refuse to run without an instance name.
+
+Two things worth asking for:
+
+- **A release or an incident:** "we deployed at 14:00 on acme-prd, compare before and after". Errors get counts and
+  per-hour rates on both sides of the deploy, and a short period is judged against the 7 days before it.
+- **What changed:** "what changed since last week on acme-prd?". The server keeps the last 20 runs of each audit and
+  lists new, fixed and still open findings.
 
 Every report has the same structure: instance and period, summary, findings (severity, rule, evidence, impact, fix,
 estimate), analysis limits and next actions. Rule list: [docs/rules.md](docs/rules.md).
@@ -157,7 +164,7 @@ estimate), analysis limits and next actions. Rule list: [docs/rules.md](docs/rul
 | | Claude Code | GitHub Copilot |
 | --- | --- | --- |
 | Update the skills | `claude plugin marketplace update realm-doctor` then `claude plugin update realm-doctor@realm-doctor`, then restart | run the `install copilot` command of step 4b again |
-| Update the audit server | automatic: each start checks for the latest version (the first start after an update takes about a minute) | automatic, same |
+| Update the audit server | with the skills: the plugin is pinned to a release (`#vX.Y.Z`), so the server changes only when you update the plugin. The first start after an update takes about a minute | run the `install copilot` command of step 4b again |
 | Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --remove` |
 
 Your `dw.json` is never touched; delete it yourself if you no longer need it.
@@ -181,14 +188,16 @@ The audits also run from the terminal (add `--json` for structured output, which
 
 ```bash
 npx realm-doctor audit errors -i acme-prd --since 7d
+npx realm-doctor audit errors -i acme-prd --since 2026-10-08T06:00:00Z --split-at 2026-10-08T14:00:00Z   # before/after a deploy
 npx realm-doctor audit quota -i acme-prd --since 7d
 npx realm-doctor audit jobs -i acme-prd
-npx realm-doctor audit code -i acme-prd --cartridge app_custom
+npx realm-doctor audit code -i acme-prd --cartridge app_custom   # custom cartridges only; add --include-base for the Salesforce ones
 npx realm-doctor audit code --dir ../client-repo/cartridges   # local code, no instance needed
 npx realm-doctor audit hyperforce -i globex-prd
 npx realm-doctor audit promotions -i acme-prd --site RefArch --currency EUR
 npx realm-doctor audit frontend --url https://www.acme.com/
 npx realm-doctor audit rules
+npx realm-doctor audit diff last-week.json this-week.json     # new, fixed and still open findings between two --json reports
 npx realm-doctor mcp --config ./dw.json                       # the MCP server used by the plugin
 npx b2c job search -i globex-prd --json                       # official Salesforce CLI, local too
 ```
@@ -223,6 +232,11 @@ scripts/               postinstall, doctor, sync-plugin
 docs/                  Salesforce setup, architecture, rules
 ```
 
+**Releasing.** Users run a tag, never `main`: the plugin and the install commands point to
+this repository at the release tag `vX.Y.Z`. To release: `npm run set-version -- X.Y.Z` (updates every file and the pinned
+spec), run `npm test`, merge, then `git tag -a vX.Y.Z -m "Realm Doctor X.Y.Z" && git push origin vX.Y.Z`. Create the tag before
+users update; without it the plugin cannot start. `npm test` fails if the versions or pinned specs differ.
+
 To add a rule: write it in `cli-plugin/src/rules/`, add it to `RULES` in `src/rules/index.ts`, add a case to the
 fixtures and a test, then regenerate `docs/rules.md` (see `AGENTS.md`). Design details:
 [docs/architecture.md](docs/architecture.md).
@@ -246,7 +260,8 @@ Optional `realm-doctor.json` next to `dw.json` (the MCP server finds it there; t
   as fallback, like the official `b2c` CLI). The end-to-end tests
   record every request to a fake instance and fail if any write appears. Large log files are read from the end only.
 - **Safety Mode** `READ_ONLY` (the `safety` block of every instance) is a second layer: the Salesforce tools themselves
-  refuse any write. The tests check that a search without its exception is blocked before it reaches the instance.
+  refuse any write. The Realm Doctor server adds the few read-only searches it needs when an instance has no `rules` key;
+  `"rules": []` makes it strict, and the tests check that strict mode blocks a search before it reaches the instance.
 - **Personal data.** Emails, IPs, phone numbers, card numbers, order and customer numbers, tokens and secrets are masked
   before caching or showing. Masking is pattern-based and then verified by a second check; a log file that still looks personal is withheld, not
   cached and not returned. Free-text names and addresses are not guaranteed to be removed. See [SECURITY.md](SECURITY.md).
@@ -256,5 +271,8 @@ Optional `realm-doctor.json` next to `dw.json` (the MCP server finds it there; t
   folder for Claude Code, `~/.cache/realm-doctor` for Copilot.
 - **Telemetry** of the Salesforce tools is off (`SFCC_DISABLE_TELEMETRY=true`).
 - **Never on production:** the debugger (`debug_*`), deployments and test baskets.
+- **Text from the instance is data.** Log lines, code, comments and names are marked as untrusted in every report, and the
+  assistant is told never to follow instructions found in them. Credentials written as strings in code are hidden
+  when a file is read through the server.
 - **Dependencies.** `npm audit` reports vulnerabilities inside the pinned dependencies of the Salesforce packages. They
   are fixed by upgrading those packages when Salesforce releases new versions, not with `npm audit fix --force`.
