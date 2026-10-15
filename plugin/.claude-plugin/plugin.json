@@ -40,7 +40,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@salesforce/b2c-dx-mcp@3.5.0",
+        "@salesforce/b2c-dx-mcp@3.5.1",
         "--config",
         "${user_config.dw_json}"
       ],
