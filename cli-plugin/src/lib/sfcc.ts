@@ -18,7 +18,7 @@ import {listLogFiles} from '@salesforce/b2c-tooling-sdk/operations/logs';
 import {join} from 'node:path';
 import {hostDir, keyFor, readCached, writeCached} from './cache.js';
 import {dateFromLogFileName, parseLogText, type ParsedEntry} from './logparse.js';
-import {maskPII} from './mask.js';
+import {maskPII, residualPII} from './mask.js';
 import {isAnalyzed, type SourceFile} from '../rules/source.js';
 import type {Assignment, Campaign, Coupon, CustomerGroup, PromoBundle, Promotion} from '../rules/promo-rules.js';
 import type {JobExecution} from './jobs.js';
@@ -37,11 +37,20 @@ export interface LogFetchOptions {
   maxFiles?: number;
   /** today's date YYYY-MM-DD (UTC), files of past days are cached */
   today?: string;
+  /** files downloaded in parallel (default 4) */
+  concurrency?: number;
+  /**
+   * Called with the entries of each file as soon as it is parsed, in file order. When set, entries are
+   * not kept in the result: the caller aggregates incrementally and memory stays flat.
+   */
+  onFile?: (entries: ParsedEntry[], file: string) => void;
 }
 
 export interface LogFetchResult {
   entries: ParsedEntry[];
   files: Array<{name: string; size: number; truncated: boolean; cached: boolean}>;
+  /** files not used because masking could not be verified (fail closed) */
+  withheld: Array<{name: string; reason: string[]}>;
 }
 
 export async function fetchLogEntries(instance: B2CInstance, hostname: string, options: LogFetchOptions): Promise<LogFetchResult> {
@@ -58,8 +67,8 @@ export async function fetchLogEntries(instance: B2CInstance, hostname: string, o
     })
     .slice(0, options.maxFiles ?? 200);
 
-  const result: LogFetchResult = {entries: [], files: []};
-  for (const f of candidates) {
+  type Loaded = {file: LogFetchResult['files'][number]; entries: ParsedEntry[]} | {withheld: LogFetchResult['withheld'][number]} | {failure: unknown};
+  async function load(f: (typeof candidates)[number]): Promise<Loaded> {
     const day = dateFromLogFileName(f.name);
     const cacheable = day !== undefined && day < today;
     const cachePath = join(hostDir(hostname), 'logs', `${f.name.replace(/\//g, '__')}.${keyFor(f.size, f.lastModified.getTime(), maxBytes)}.masked`);
@@ -77,10 +86,36 @@ export async function fetchLogEntries(instance: B2CInstance, hostname: string, o
         raw = new TextDecoder().decode(await instance.webdav.get(f.path));
       }
       text = maskPII(raw);
+      // fail closed: if a second, independent check still sees personal data, the file is neither cached nor used
+      const residual = residualPII(text);
+      if (residual.length) return {withheld: {name: f.name, reason: residual}};
       if (cacheable) await writeCached(cachePath, text);
     }
-    result.files.push({name: f.name, size: f.size, truncated, cached});
-    result.entries.push(...parseLogText(text, f.name));
+    return {file: {name: f.name, size: f.size, truncated, cached}, entries: parseLogText(text, f.name)};
+  }
+
+  // a small pool downloads in parallel; results are consumed in file order
+  const concurrency = Math.max(1, options.concurrency ?? 4);
+  const pending = new Map<number, Promise<Loaded>>();
+  const start = (i: number): void => {
+    // failures are kept and rethrown in order, so a download that fails early never becomes an unhandled rejection
+    if (i < candidates.length && !pending.has(i)) pending.set(i, load(candidates[i]).catch((failure: unknown) => ({failure})));
+  };
+  for (let i = 0; i < Math.min(concurrency, candidates.length); i++) start(i);
+
+  const result: LogFetchResult = {entries: [], files: [], withheld: []};
+  for (let i = 0; i < candidates.length; i++) {
+    const loaded = await pending.get(i)!;
+    pending.delete(i);
+    start(i + concurrency);
+    if ('failure' in loaded) throw loaded.failure;
+    if ('withheld' in loaded) {
+      result.withheld.push(loaded.withheld);
+      continue;
+    }
+    result.files.push(loaded.file);
+    if (options.onFile) options.onFile(loaded.entries, loaded.file.name);
+    else for (const e of loaded.entries) result.entries.push(e);
   }
   return result;
 }
@@ -244,7 +279,11 @@ export async function readInstanceFile(instance: B2CInstance, path: string, tail
   } else {
     text = new TextDecoder().decode(await instance.webdav.get(clean));
   }
-  return {path: clean, size, truncated, content: clean.startsWith('Logs/') ? maskPII(text) : text};
+  if (!clean.startsWith('Logs/')) return {path: clean, size, truncated, content: text};
+  const masked = maskPII(text);
+  const residual = residualPII(masked);
+  if (residual.length) throw new Error(`Content withheld: masking could not be verified (${residual.join(', ')}). Read the file in Business Manager if you really need it.`);
+  return {path: clean, size, truncated, content: masked};
 }
 
 type SearchPath =

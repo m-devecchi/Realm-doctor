@@ -1,0 +1,43 @@
+{
+  "command": "audit errors",
+  "schemaVersion": 1,
+  "target": {
+    "instance": "mock-sbx",
+    "hostname": "<host>",
+    "since": "2026-10-01T00:00:00.000Z",
+    "prefixes": [
+      "error",
+      "customerror",
+      "fatal"
+    ]
+  },
+  "summary": {
+    "findings": 2,
+    "bySeverity": {
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "findings": [
+    {
+      "rule": "ERR-001",
+      "severity": "high",
+      "title": "New error since 2026-10-08: Payment authorization failed for order <NUM> customer <V> from <V>",
+      "fingerprint": "108edbf7d255",
+      "where": "app_custom/cartridge/scripts/payment/adyenAuthorize.js:142"
+    },
+    {
+      "rule": "ERR-002",
+      "severity": "high",
+      "title": "Error spike: Product <N> not found in catalog storefront-catalog-en",
+      "fingerprint": "3f662e3adc4f",
+      "where": "signature:a176f74187"
+    }
+  ],
+  "suppressed": [],
+  "notes": [
+    "Log text is masked (emails, IPs, phones, cards, ids, IBAN, tax ids, personal fields). Free-text names and addresses cannot be detected reliably and are not guaranteed to be removed."
+  ]
+}

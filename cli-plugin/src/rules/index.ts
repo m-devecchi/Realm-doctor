@@ -1,21 +1,55 @@
 import {type Finding} from '../lib/finding.js';
 import {analyzeHyperforce} from './hyperforce-rules.js';
 import {analyzeIsml} from './isml-rules.js';
-import {analyzeJs} from './js-rules.js';
+import {analyzeJsDetailed} from './js-rules.js';
+import {isInlineIgnored} from '../lib/settings.js';
 import {type SourceFile} from './source.js';
 
-export function analyzeCode(files: SourceFile[]): Finding[] {
+export interface CodeAnalysis {
+  findings: Finding[];
+  /** files with syntax errors: only the parts that parsed were analyzed */
+  partial: string[];
+  /** files that could not be parsed at all */
+  failed: string[];
+  /** findings hidden by an inline `realm-doctor-ignore` comment */
+  ignoredInline: number;
+}
+
+/** Drops findings whose line (or the line above) carries `realm-doctor-ignore <RULE>`. */
+function dropInlineIgnored(findings: Finding[], files: SourceFile[]): {kept: Finding[]; ignored: number} {
+  const byPath = new Map(files.map((f) => [f.path, f.content]));
+  const kept = findings.filter((f) => {
+    const where = f.evidence[0]?.location;
+    const m = where ? /^(.*):(\d+)$/.exec(where) : null;
+    const content = m ? byPath.get(m[1]) : undefined;
+    return !(m && content !== undefined && isInlineIgnored(content, f.rule, Number(m[2])));
+  });
+  return {kept, ignored: findings.length - kept.length};
+}
+
+export function analyzeCodeDetailed(files: SourceFile[], options: {remoteIncludes?: number} = {}): CodeAnalysis {
   const findings: Finding[] = [];
+  const partial: string[] = [];
+  const failed: string[] = [];
   for (const f of files) {
     const p = f.path.toLowerCase();
-    if (p.endsWith('.js') || p.endsWith('.ds')) findings.push(...analyzeJs(f));
-    else if (p.endsWith('.isml')) findings.push(...analyzeIsml(f));
+    if (p.endsWith('.js') || p.endsWith('.ds')) {
+      const r = analyzeJsDetailed(f);
+      findings.push(...r.findings);
+      if (r.status === 'partial') partial.push(f.path);
+      if (r.status === 'failed') failed.push(f.path);
+    } else if (p.endsWith('.isml')) findings.push(...analyzeIsml(f, options));
   }
-  return findings;
+  const {kept, ignored} = dropInlineIgnored(findings, files);
+  return {findings: kept, partial, failed, ignoredInline: ignored};
+}
+
+export function analyzeCode(files: SourceFile[], options: {remoteIncludes?: number} = {}): Finding[] {
+  return analyzeCodeDetailed(files, options).findings;
 }
 
 export function analyzeHyperforceReadiness(files: SourceFile[]): Finding[] {
-  return files.flatMap(analyzeHyperforce);
+  return dropInlineIgnored(files.flatMap(analyzeHyperforce), files).kept;
 }
 
 export const RULES = [

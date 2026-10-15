@@ -225,6 +225,18 @@ To add a rule: write it in `cli-plugin/src/rules/`, add it to `RULES` in `src/ru
 fixtures and a test, then regenerate `docs/rules.md` (see `AGENTS.md`). Design details:
 [docs/architecture.md](docs/architecture.md).
 
+## Settings, suppressions and saved reports
+
+Optional `realm-doctor.json` next to `dw.json` (or the file named by `REALM_DOCTOR_SETTINGS`; start from
+`config/realm-doctor.example.json`):
+
+- **thresholds**: spike factor, slow-job limits, quota warning ratio, remote includes per template; global or per realm.
+- **suppress**: a known and accepted finding stops coming back. Each entry needs a `reason`; an entry without one is
+  ignored and reported. In code, a `// realm-doctor-ignore JS-009 <reason>` comment on the line or the line above does
+  the same. Hidden findings are always counted in the report (`suppressed`), never silently dropped.
+- **reports** carry `schemaVersion` and a `fingerprint` per finding, so two saved reports can be compared: same
+  fingerprint is the same issue.
+
 ## Security and data
 
 - **Read-only.** Only `GET` and `PROPFIND` on WebDAV, and `GET` plus searches on SCAPI and OCAPI (SCAPI first, OCAPI
@@ -233,7 +245,8 @@ fixtures and a test, then regenerate `docs/rules.md` (see `AGENTS.md`). Design d
 - **Safety Mode** `READ_ONLY` (the `safety` block of every instance) is a second layer: the Salesforce tools themselves
   refuse any write. The tests check that a search without its exception is blocked before it reaches the instance.
 - **Personal data.** Emails, IPs, phone numbers, card numbers, order and customer numbers, tokens and secrets are masked
-  before caching or showing. Masking is pattern-based: free-text names and addresses are not guaranteed to be removed.
+  before caching or showing. Masking is pattern-based and then verified by a second check; a log file that still looks personal is withheld, not
+  cached and not returned. Free-text names and addresses are not guaranteed to be removed. See [SECURITY.md](SECURITY.md).
 - **Secrets** stay in your `dw.json` (or `.env` in a clone). They are never printed, and `list_instances` only says
   whether a secret is present.
 - **Local files.** Downloaded logs and code are cached on your computer only: `.cache/` in a clone, the plugin data

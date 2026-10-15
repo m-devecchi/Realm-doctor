@@ -1,0 +1,38 @@
+{
+  "command": "audit hyperforce",
+  "schemaVersion": 1,
+  "target": {
+    "instance": "mock-sbx",
+    "origin": "instance",
+    "codeVersion": "v1"
+  },
+  "summary": {
+    "findings": 2,
+    "bySeverity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 2,
+      "low": 0
+    }
+  },
+  "findings": [
+    {
+      "rule": "HF-001",
+      "severity": "medium",
+      "title": "Hardcoded IP address: 10.20.30.40",
+      "fingerprint": "b251a0354829",
+      "where": "app_custom/cartridge/scripts/config.js:5"
+    },
+    {
+      "rule": "HF-002",
+      "severity": "medium",
+      "title": "Hardcoded instance hostname: production-eu01-acme.demandware.net",
+      "fingerprint": "0fd999f2087e",
+      "where": "app_custom/cartridge/controllers/Account.js:10"
+    }
+  ],
+  "suppressed": [],
+  "notes": [
+    "Code version v1: 5 files analyzed in 2 cartridges (N from cache)."
+  ]
+}

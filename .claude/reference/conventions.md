@@ -16,12 +16,12 @@ MCP tool takes the same options (camelCase) plus `instanceName`:
 
 | Command (repository) | MCP tool (`realm-doctor` server) |
 | --- | --- |
-| `npx realm-doctor audit errors -i <instance> --since <period> --json` | `audit_errors` (`since`, `prefixes`, `day`) |
+| `npx realm-doctor audit errors -i <instance> --since <period> --json` | `audit_errors` (`since`, `prefixes`, `day`, `maxFindings`) |
 | `npx realm-doctor audit quota -i <instance> --json` | `audit_quota` (`since`) |
-| `npx realm-doctor audit jobs -i <instance> --json` | `audit_jobs` (`jobId`, `count`) |
-| `npx realm-doctor audit code -i <instance> --json` | `audit_code` (`codeVersion`, `cartridges`, `dir`) |
+| `npx realm-doctor audit jobs -i <instance> --json` | `audit_jobs` (`jobId`, `count`, `maxFindings`) |
+| `npx realm-doctor audit code -i <instance> --json` | `audit_code` (`codeVersion`, `cartridges`, `dir`, `maxFindings`, `offset`) |
 | `npx realm-doctor audit hyperforce -i <instance> --json` | `audit_hyperforce` |
-| `npx realm-doctor audit promotions -i <instance> --site <site> --currency <cur> --json` | `audit_promotions` (`site`, `currencies`) |
+| `npx realm-doctor audit promotions -i <instance> --site <site> --currency <cur> --json` | `audit_promotions` (`site`, `currencies`, `maxFindings`) |
 | `npx realm-doctor audit frontend --url <url> --json` | `audit_frontend` (`urls`, `strategy`) |
 | `npx realm-doctor audit rules --json` | `list_rules` |
 | `npx b2c code list -i <instance> --json` | `list_code_versions` |
@@ -40,6 +40,34 @@ Always pass it explicitly. To analyze a local copy of a client's cartridges, use
 
 If a command or tool fails with an authentication, permission or Safety Mode error, stop and report the exact message
 and the missing permission (see `safety.md`). Do not retry with other credentials and do not change Safety Mode.
+
+## Reading a report
+
+Every report is JSON with `schemaVersion`, `summary`, `findings`, `suppressed`, `data` and `notes`.
+
+- **`notes` are part of the result.** Copy anything that limits the analysis into "Analysis limits": files that were not
+  parsed, log files withheld because masking could not be verified, files read from the tail only, cache problems,
+  pages cut with `maxFindings`/`offset`.
+- **`suppressed`** lists findings hidden on purpose, by `realm-doctor.json` or by a `realm-doctor-ignore <RULE> <reason>`
+  comment in the code. Mention the count in the summary; never re-add them as findings and never edit the settings
+  yourself.
+- Each finding has a `fingerprint`: the same issue keeps the same value across runs, so use it to say "new",
+  "still open" or "fixed" when comparing two reports.
+- When a tool result is cut for size it carries `truncated: true`; narrow the scope (`since`, `site`, `cartridges`) or page
+  with `offset` instead of drawing conclusions from the partial list.
+
+Tool failures read `Error [CODE]: message`. Branch on the code:
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| `AUTH_FAILED` | Credentials or API client scopes rejected | Stop, report the message and the missing permission (`safety.md`) |
+| `NO_OCAPI` | OCAPI not configured for this instance or client | Say that OCAPI settings are missing; SCAPI-only instances need the SCAPI short code and tenant id in `dw.json` |
+| `NOT_FOUND` | Instance, file or code version does not exist | Check the name with `list_instances` / `list_code_versions` |
+| `INVALID_INPUT` | A parameter is wrong or missing | Fix the call, do not guess values |
+| `BLOCKED_BY_SAFETY` | The instance's Safety Mode refused the request | Report it; never change Safety Mode |
+| `CONFIG_ERROR` | `dw.json` or secret missing or incomplete | Run the `realm-doctor-setup` skill |
+| `NETWORK` | Timeout or connection problem | Retry once, then report |
+| `INTERNAL` | Anything else | Report the exact message |
 
 ## Instance first
 

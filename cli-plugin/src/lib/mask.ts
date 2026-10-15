@@ -8,6 +8,15 @@
  */
 
 const RULES: Array<[RegExp, string]> = [
+  // IBAN (before the numeric rules, which would cut it in pieces)
+  [/\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]){11,30}\b/g, '<IBAN>'],
+  // Italian codice fiscale
+  [/\b[A-Z]{6}\d{2}[A-EHLMPRST]\d{2}[A-Z]\d{3}[A-Z]\b/gi, '<TAXID>'],
+  // personal fields written as key=value or "key":"value" (names, addresses, phone, birthday)
+  [
+    /\b((?:first|last|sur|full|given|family|middle)[_ -]?name|address[12]?|street(?:[_ ]?address)?|city|zip(?:[_ ]?code)?|postal[_ ]?code|phone(?:[_ ]?(?:home|mobile|business))?|mobile|birthday|date[_ ]?of[_ ]?birth|dob)(["']?\s*[=:]\s*)("[^"]*"|'[^']*'|[^\s,;&}\])]+)/gi,
+    '$1$2<PII>',
+  ],
   // Emails
   [/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '<EMAIL>'],
   // Card-like numbers: 13-19 digits, optionally grouped by spaces or dashes
@@ -33,4 +42,20 @@ export function maskPII(text: string): string {
   let out = text;
   for (const [re, replacement] of RULES) out = out.replace(re, replacement);
   return out;
+}
+
+/**
+ * Independent second check, with patterns different from the masking rules: lists what still looks like
+ * personal data in text that was already masked. Callers treat a non-empty result as "do not cache, do not
+ * return the text" (fail closed).
+ */
+const RESIDUAL: Array<[string, RegExp]> = [
+  ['email', /[^\s<>@]+@[^\s<>@]+\.[A-Za-z]{2,}/],
+  ['iban', /\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){3,}/],
+  ['digits', /\b\d{9,}\b/],
+  ['personal-field', /\b(?:first|last|full)[_ -]?name["']?\s*[=:]\s*(?!["']?<)["']?\w/i],
+];
+
+export function residualPII(maskedText: string): string[] {
+  return RESIDUAL.filter(([, re]) => re.test(maskedText)).map(([kind]) => kind);
 }

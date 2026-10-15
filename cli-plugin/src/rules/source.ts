@@ -17,7 +17,7 @@ export function isAnalyzed(path: string): boolean {
 }
 
 /** Loads analyzable files from a local folder (a downloaded code version or a repo). */
-export async function loadLocalSources(root: string): Promise<SourceFile[]> {
+export async function loadLocalSources(root: string, skipped: string[] = []): Promise<SourceFile[]> {
   const files: SourceFile[] = [];
   async function walk(dir: string): Promise<void> {
     for (const name of await readdir(dir)) {
@@ -27,7 +27,10 @@ export async function loadLocalSources(root: string): Promise<SourceFile[]> {
       if (st.isDirectory()) await walk(full);
       else {
         const rel = relative(root, full).split(sep).join('/');
-        if (isAnalyzed(rel) && st.size <= MAX_FILE_BYTES) files.push({path: rel, content: await readFile(full, 'utf8')});
+        if (isAnalyzed(rel)) {
+          if (st.size <= MAX_FILE_BYTES) files.push({path: rel, content: await readFile(full, 'utf8')});
+          else skipped.push(rel);
+        }
       }
     }
   }

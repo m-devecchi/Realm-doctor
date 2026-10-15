@@ -32,6 +32,15 @@ This repository is a **read-only** audit kit for Salesforce B2C Commerce (SFCC).
 - Skills and reference files are edited in `.claude/` only; run `npm run sync-plugin` to copy them into `plugin/`
   (`npm test` fails if the copy differs). A new audit needs both a command in `src/commands/audit/` and an MCP tool in
   `src/commands/mcp.ts`, both calling a function in `src/lib/audits.ts`.
+- Findings can be hidden on purpose: `realm-doctor.json` (see `config/realm-doctor.example.json`; thresholds, per-realm
+  settings, suppressions that need a reason) and `realm-doctor-ignore <RULE> <reason>` comments in the code. A new
+  threshold goes in `src/lib/settings.ts` with a default, never as a literal in a rule.
+- Anything that cannot be analyzed (unparsed files, withheld logs, cache problems, cut lists) must reach `notes` in the
+  report. Never return an empty result for something that was not checked.
+- Log text is masked with `maskPII` and then verified with `residualPII`; if the check fails the file is withheld
+  (fail closed). Keep both in sync when adding a pattern.
 - Every new skill: a folder `.claude/skills/<name>/SKILL.md` with `name` equal to the folder, a reference to
-  `../../reference/conventions.md`, and only existing `realm-doctor audit` commands. `npm test` checks this.
+  `../../reference/conventions.md`, and only existing `realm-doctor audit` commands. It also needs a scenario in `cli-plugin/test/evals/skills.scenarios.test.ts`
+  (the tool calls it prescribes, what its report needs, a golden file). `npm test` checks all of this; update golden files
+  on purpose with `npx vitest run -u test/evals` from `cli-plugin/`.
 - Before delivering: `npm test` from the repository root.

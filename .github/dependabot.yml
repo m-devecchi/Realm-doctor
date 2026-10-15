@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # the Salesforce packages are pinned on purpose and move together; the SCAPI mapping tests are the canary
+      salesforce:
+        patterns: ["@salesforce/*"]
+      dev-tools:
+        dependency-type: development
+        exclude-patterns: ["@salesforce/*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

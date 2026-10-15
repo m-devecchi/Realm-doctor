@@ -1,0 +1,52 @@
+{
+  "command": "audit quota",
+  "schemaVersion": 1,
+  "target": {
+    "instance": "mock-sbx",
+    "hostname": "<host>",
+    "since": "2026-10-01T00:00:00.000Z"
+  },
+  "summary": {
+    "findings": 4,
+    "bySeverity": {
+      "critical": 1,
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    }
+  },
+  "findings": [
+    {
+      "rule": "QUOTA-001",
+      "severity": "critical",
+      "title": "Quota limit exceeded (enforced): api.jsArraySize",
+      "fingerprint": "b4a353f4be21",
+      "where": "quota:api.jsArraySize"
+    },
+    {
+      "rule": "QUOTA-002",
+      "severity": "high",
+      "title": "Quota limit exceeded (not enforced yet): api.dw.catalog.ProductMgr.getProduct",
+      "fingerprint": "67fe3c60ff99",
+      "where": "quota:api.dw.catalog.ProductMgr.getProduct"
+    },
+    {
+      "rule": "QUOTA-003",
+      "severity": "high",
+      "title": "Warning threshold exceeded: api.jsStringLength (at 85% of the limit)",
+      "fingerprint": "cc230457442c",
+      "where": "quota:api.jsStringLength"
+    },
+    {
+      "rule": "QUOTA-003",
+      "severity": "medium",
+      "title": "Warning threshold exceeded: object.ProductPO.readonly@SF",
+      "fingerprint": "32d3209b53c3",
+      "where": "quota:object.ProductPO.readonly@SF"
+    }
+  ],
+  "suppressed": [],
+  "notes": [
+    "Log text is masked (emails, IPs, phones, cards, ids, IBAN, tax ids, personal fields). Free-text names and addresses cannot be detected reliably and are not guaranteed to be removed."
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "command": "audit code",
+  "schemaVersion": 1,
+  "target": {
+    "instance": "mock-sbx",
+    "origin": "instance",
+    "codeVersion": "v1"
+  },
+  "summary": {
+    "findings": 14,
+    "bySeverity": {
+      "critical": 0,
+      "high": 9,
+      "medium": 3,
+      "low": 2
+    }
+  },
+  "findings": [
+    {
+      "rule": "ISML-001",
+      "severity": "high",
+      "title": "Unencoded output (isprint encoding=\"off\")",
+      "fingerprint": "12c919147c31",
+      "where": "app_custom/cartridge/templates/default/product/tile.isml:5"
+    },
+    {
+      "rule": "ISML-002",
+      "severity": "high",
+      "title": "Business API in template inside isloop: ProductMgr",
+      "fingerprint": "3f850d23c26f",
+      "where": "app_custom/cartridge/templates/default/product/tile.isml:4"
+    },
+    {
+      "rule": "ISML-003",
+      "severity": "high",
+      "title": "Remote include inside isloop",
+      "fingerprint": "eb11cd4161d0",
+      "where": "app_custom/cartridge/templates/default/product/tile.isml:6"
+    },
+    {
+      "rule": "JS-001",
+      "severity": "high",
+      "title": "Expensive call inside a loop: ProductMgr.getProduct",
+      "fingerprint": "4ecbf74ae909",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:13"
+    },
+    {
+      "rule": "JS-001",
+      "severity": "high",
+      "title": "Expensive call inside a loop: p.getVariants",
+      "fingerprint": "f75d525c5725",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:21"
+    },
+    {
+      "rule": "JS-002",
+      "severity": "high",
+      "title": "SeekableIterator never closed: orders (OrderMgr.searchOrders)",
+      "fingerprint": "e129bf95c916",
+      "where": "app_custom/cartridge/controllers/Account.js:8"
+    },
+    {
+      "rule": "JS-002",
+      "severity": "high",
+      "title": "SeekableIterator never closed: it (CustomObjectMgr.queryCustomObjects)",
+      "fingerprint": "2bed6ab840c1",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:26"
+    },
+    {
+      "rule": "JS-005",
+      "severity": "high",
+      "title": "Possible credential in code: API_KEY",
+      "fingerprint": "0e8c5b377ea8",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:8"
+    },
+    {
+      "rule": "JS-007",
+      "severity": "high",
+      "title": "Order search from a storefront controller: OrderMgr.searchOrders",
+      "fingerprint": "dfda645cad2a",
+      "where": "app_custom/cartridge/controllers/Account.js:8"
+    },
+    {
+      "rule": "ISML-002",
+      "severity": "medium",
+      "title": "Business API in template: ProductMgr",
+      "fingerprint": "436c34265520",
+      "where": "app_custom/cartridge/templates/default/product/tile.isml:1"
+    },
+    {
+      "rule": "JS-003",
+      "severity": "medium",
+      "title": "Transaction containing a loop",
+      "fingerprint": "3aa53ea28052",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:35"
+    },
+    {
+      "rule": "JS-004",
+      "severity": "medium",
+      "title": "Direct HTTP call with HTTPClient",
+      "fingerprint": "7c78c5c7c417",
+      "where": "app_custom/cartridge/controllers/Account.js:9"
+    },
+    {
+      "rule": "JS-006",
+      "severity": "low",
+      "title": "Legacy API: importPackage",
+      "fingerprint": "d1d19f9b6a09",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:49"
+    },
+    {
+      "rule": "JS-009",
+      "severity": "low",
+      "title": "Empty catch block",
+      "fingerprint": "ea6fa6c59007",
+      "where": "app_custom/cartridge/scripts/helpers/productHelper.js:45"
+    }
+  ],
+  "suppressed": [],
+  "notes": [
+    "Code version v1: 5 files analyzed in 2 cartridges (N from cache)."
+  ]
+}

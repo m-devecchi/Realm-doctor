@@ -39,7 +39,7 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | Module | Responsibility |
 | --- | --- |
 | `src/lib/logparse.ts` | Parses SFCC log lines: timestamp, level, site, pipeline, stack |
-| `src/lib/mask.ts` | Masks personal data before caching and output |
+| `src/lib/mask.ts` | Masks personal data before caching and output; `residualPII` is the second check that makes it fail closed |
 | `src/lib/signature.ts`, `errors.ts` | Error signatures, daily aggregation, new errors and spikes |
 | `src/lib/quota.ts` | Parses and aggregates quota messages |
 | `src/lib/frontend.ts` | Analyzes the PageSpeed Insights response |
@@ -50,7 +50,9 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | `src/commands/install/copilot.ts`, `init.ts` | Copilot install (skills + MCP config) and creation of a dw.json |
 | `src/lib/sfcc.ts` | Read-only instance access: logs (with Range), code versions, jobs and promotions (SCAPI first, OCAPI fallback) |
 | `src/lib/scapi-promotions.ts` | Promotions through the SCAPI Admin APIs, mapped to the rules' data model |
-| `src/lib/cache.ts` | Cache per host in `<repo>/.cache` |
+| `src/lib/cache.ts` | Cache per host in `<repo>/.cache`; read and write problems are reported in the notes, never swallowed |
+| `src/lib/settings.ts` | Thresholds, per-realm settings, suppressions (`realm-doctor.json`) and inline `realm-doctor-ignore` |
+| `src/lib/mcp-result.ts` | Stable error codes (`Error [CODE]: ...`) and the size cap of MCP results |
 | `src/rules/*` | JS rules (Babel AST), ISML, Hyperforce, promotions |
 | `src/commands/audit/*` | oclif commands: read data, apply rules, build the report |
 
@@ -63,6 +65,7 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | Distribution | Root package runnable by npx, plugin manifest and marketplace, plugin skills identical to `.claude/`, Copilot install and removal on a temporary home, `init` |
 | Configuration | Example `dw.json` valid against the official schema, multi-realm and sandbox default, complete skills, commands referenced by skills exist, local MCP config, cache inside the repository |
 | SCAPI mapping | SCAPI objects validated against the official OpenAPI specs; SCAPI and OCAPI data give the same findings |
+| Skill evals | Every skill is checked statically (commands, flags, MCP tools, rule ids, read-only) and by scenario: the tool calls it prescribes are replayed through the real MCP server against the fake instance, judged by a rubric, by invariants on every result (shape, severity order, masking, no secrets) and by golden files. A new skill without a scenario fails |
 | Setup | `npm run doctor` checks on temporary copies; postinstall creates `dw.json` only in a clone and only when missing, does nothing when installed by npx, can be skipped in CI |
 
 ## Known limits

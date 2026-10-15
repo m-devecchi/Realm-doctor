@@ -1,0 +1,17 @@
+{
+  "thresholds": {
+    "errors": {"spikeFactor": 3, "minCount": 10},
+    "jobs": {"slowFactor": 1.5, "slowMinutes": 5, "stuckFactor": 2},
+    "quota": {"warnRatio": 0.8},
+    "code": {"remoteIncludes": 5}
+  },
+  "suppress": [
+    {"rule": "JS-009", "location": "int_legacy_adapter/", "reason": "Third-party cartridge, reviewed 2026-10, owner: vendor"}
+  ],
+  "realms": {
+    "myrealm-prd": {
+      "thresholds": {"jobs": {"slowMinutes": 15}},
+      "suppress": [{"rule": "JOB-002", "ref": "job:CatalogImport", "reason": "Runs longer on Mondays by design"}]
+    }
+  }
+}

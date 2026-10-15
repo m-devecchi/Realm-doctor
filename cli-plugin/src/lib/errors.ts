@@ -1,6 +1,7 @@
 import {type Finding, type Severity} from './finding.js';
 import {extractCodeRefs, type ParsedEntry} from './logparse.js';
 import {maskPII} from './mask.js';
+import {DEFAULT_THRESHOLDS} from './settings.js';
 import {normalizeMessage, signatureId} from './signature.js';
 
 export interface ErrorSignature {
@@ -28,15 +29,18 @@ export interface AggregateOptions {
   now?: string;
 }
 
-export function aggregateErrors(entries: ParsedEntry[], options: AggregateOptions = {}): ErrorSignature[] {
-  const since = options.since ? Date.parse(options.since) : undefined;
-  const map = new Map<string, ErrorSignature & {_loc: Map<string, number>; _refs: Map<string, number>; _prefix: Set<string>}>();
+type Acc = ErrorSignature & {_loc: Map<string, number>; _refs: Map<string, number>; _prefix: Set<string>};
 
-  for (const e of entries) {
-    if (since !== undefined && e.timestamp && Date.parse(e.timestamp) < since) continue;
+/** Incremental aggregation: add entries file by file, so a large realm never holds every entry in memory. */
+export function createErrorAggregator(options: AggregateOptions = {}): {add(entries: ParsedEntry[]): void; finish(): ErrorSignature[]} {
+  const since = options.since ? Date.parse(options.since) : undefined;
+  const map = new Map<string, Acc>();
+
+  function addEntry(e: ParsedEntry): void {
+    if (since !== undefined && e.timestamp && Date.parse(e.timestamp) < since) return;
     const masked = maskPII(e.message);
     const template = normalizeMessage(masked);
-    if (!template) continue;
+    if (!template) return;
     const id = signatureId(template);
     let sig = map.get(id);
     if (!sig) {
@@ -72,14 +76,27 @@ export function aggregateErrors(entries: ParsedEntry[], options: AggregateOption
     }
   }
 
-  return [...map.values()]
-    .map(({_loc, _refs, _prefix, ...sig}) => ({
-      ...sig,
-      locations: top(_loc, 5).map(([location, count]) => ({location, count})),
-      codeRefs: top(_refs, 5).map(([ref, count]) => ({ref, count})),
-      logPrefixes: [..._prefix].sort(),
-    }))
-    .sort((a, b) => b.total - a.total);
+  return {
+    add(entries) {
+      for (const e of entries) addEntry(e);
+    },
+    finish() {
+      return [...map.values()]
+        .map(({_loc, _refs, _prefix, ...sig}) => ({
+          ...sig,
+          locations: top(_loc, 5).map(([location, count]) => ({location, count})),
+          codeRefs: top(_refs, 5).map(([ref, count]) => ({ref, count})),
+          logPrefixes: [..._prefix].sort(),
+        }))
+        .sort((a, b) => b.total - a.total);
+    },
+  };
+}
+
+export function aggregateErrors(entries: ParsedEntry[], options: AggregateOptions = {}): ErrorSignature[] {
+  const agg = createErrorAggregator(options);
+  agg.add(entries);
+  return agg.finish();
 }
 
 function top(m: Map<string, number>, n: number): Array<[string, number]> {
@@ -106,8 +123,8 @@ export interface SpikeOptions {
  * and the top recurring errors.
  */
 export function errorFindings(signatures: ErrorSignature[], options: SpikeOptions = {}): Finding[] {
-  const factor = options.factor ?? 3;
-  const minCount = options.minCount ?? 10;
+  const factor = options.factor ?? DEFAULT_THRESHOLDS.errors.spikeFactor;
+  const minCount = options.minCount ?? DEFAULT_THRESHOLDS.errors.minCount;
   const allDays = [...new Set(signatures.flatMap((s) => Object.keys(s.perDay)))].filter((d) => d !== 'unknown').sort();
   const day = options.day ?? allDays.at(-1);
   const previousDays = allDays.filter((d) => day !== undefined && d < day);

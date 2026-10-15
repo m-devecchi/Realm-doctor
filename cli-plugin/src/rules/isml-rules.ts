@@ -7,11 +7,24 @@ const UNENCODED = /<isprint\b[^>]*encoding\s*=\s*["']off["'][^>]*>/gi;
 const LOOP_BLOCK = /<isloop\b[\s\S]*?<\/isloop>/gi;
 const REMOTE_INCLUDE_THRESHOLD = 5;
 
-export function analyzeIsml(file: SourceFile): Finding[] {
+const COMMENTS = /<iscomment>[\s\S]*?<\/iscomment>|<!--[\s\S]*?-->/gi;
+const SCRIPT_BLOCK = /<isscript>[\s\S]*?<\/isscript>/gi;
+const EXPRESSION = /\$\{[^}]*\}/g;
+
+/** Same length and same line breaks, so offsets and line numbers still match the original. */
+function blank(text: string): string {
+  return text.replace(/[^\n]/g, ' ');
+}
+
+export function analyzeIsml(file: SourceFile, options: {remoteIncludes?: number} = {}): Finding[] {
   const findings: Finding[] = [];
-  const c = file.content;
+  const original = file.content;
+  // comments never produce findings: blank them out before matching
+  const c = original.replace(COMMENTS, blank);
+  const codeRanges: Array<[number, number]> = [...c.matchAll(SCRIPT_BLOCK), ...c.matchAll(EXPRESSION)].map((m) => [m.index ?? 0, (m.index ?? 0) + m[0].length]);
+  const inCode = (i: number) => codeRanges.some(([s, e]) => i >= s && i < e);
   const loc = (i: number) => `${file.path}:${lineOf(c, i)}`;
-  const ex = (i: number) => lineText(c, lineOf(c, i));
+  const ex = (i: number) => lineText(original, lineOf(c, i));
 
   // ISML-001 unencoded output
   for (const m of c.matchAll(UNENCODED)) {
@@ -35,6 +48,8 @@ export function analyzeIsml(file: SourceFile): Finding[] {
   const seenLines = new Set<number>();
   for (const m of c.matchAll(HEAVY_API)) {
     const i = m.index ?? 0;
+    // plain markup and text are not business API calls: only <isscript> blocks and ${...} expressions count
+    if (!inCode(i)) continue;
     const line = lineOf(c, i);
     if (seenLines.has(line)) continue;
     seenLines.add(line);
@@ -66,7 +81,7 @@ export function analyzeIsml(file: SourceFile): Finding[] {
       fix: 'Render the content with a local include or group it into a single remote include.',
     });
   }
-  if (includes.length > REMOTE_INCLUDE_THRESHOLD) {
+  if (includes.length > (options.remoteIncludes ?? REMOTE_INCLUDE_THRESHOLD)) {
     findings.push({
       rule: 'ISML-004',
       category: 'code',

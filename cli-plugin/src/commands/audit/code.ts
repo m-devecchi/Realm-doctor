@@ -17,6 +17,7 @@ export default class AuditCode extends InstanceCommand<typeof AuditCode> {
     dir: Flags.string({description: 'Analyze a local folder instead of the instance'}),
     cartridge: Flags.string({description: 'Only these cartridges', multiple: true}),
     'max-findings': Flags.integer({description: 'Maximum findings returned', default: 500}),
+    offset: Flags.integer({description: 'Skip the first N findings (to read the next page)', default: 0}),
   };
 
   async run() {
@@ -26,7 +27,7 @@ export default class AuditCode extends InstanceCommand<typeof AuditCode> {
         this.requireWebDavCredentials();
         return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!};
       },
-      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge, maxFindings: this.flags['max-findings']},
+      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge, maxFindings: this.flags['max-findings'], offset: this.flags.offset},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

@@ -4,6 +4,7 @@ import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
 import {z} from 'zod';
 import {auditCode, auditErrors, auditFrontend, auditHyperforce, auditJobs, auditPromotions, auditQuota} from '../lib/audits.js';
 import {VERSION} from '../lib/distribution.js';
+import {errorText, limitResponse} from '../lib/mcp-result.js';
 import {listInstances, loadDotEnv, locateConfig, resolveTarget, type ConfigLocation} from '../lib/instances.js';
 import {listCodeVersions, readInstanceFile} from '../lib/sfcc.js';
 import {allRules} from '../rules/index.js';
@@ -14,10 +15,18 @@ const instanceName = z
   .optional()
   .describe('Instance name from dw.json (see list_instances). Omit only when the user means the default instance. Never guess between production and sandbox.');
 
+const maxFindings = z.number().int().positive().max(1000).optional().describe('Maximum findings returned (most severe first)');
+
+/** Keeps the first n findings of a report and says so; the summary still counts all of them. */
+function cap<R extends {findings: unknown[]; notes: string[]}>(report: R, n?: number): R {
+  if (!n || report.findings.length <= n) return report;
+  return {...report, findings: report.findings.slice(0, n), notes: [...report.notes, `Showing the ${n} most severe of ${report.findings.length} findings.`]};
+}
+
 type ToolResult = {content: Array<{type: 'text'; text: string}>; isError?: boolean};
 
-const ok = (value: unknown): ToolResult => ({content: [{type: 'text', text: JSON.stringify(value)}]});
-const fail = (error: unknown): ToolResult => ({content: [{type: 'text', text: `Error: ${error instanceof Error ? error.message : String(error)}`}], isError: true});
+const ok = (value: unknown): ToolResult => ({content: [{type: 'text', text: JSON.stringify(limitResponse(value))}]});
+const fail = (error: unknown): ToolResult => ({content: [{type: 'text', text: errorText(error)}], isError: true});
 
 export function createServer(loc: ConfigLocation): McpServer {
   const server = new McpServer(
@@ -78,10 +87,11 @@ export function createServer(loc: ConfigLocation): McpServer {
         prefixes: z.array(z.string()).optional().describe('Log prefixes (default error, customerror, fatal)'),
         day: z.string().optional().describe('Day evaluated for new errors and spikes, YYYY-MM-DD (default: last day in the data)'),
         top: z.number().int().positive().optional().describe('Signatures returned in data (default 30)'),
+        maxFindings,
       },
       annotations: readOnly,
     },
-    withTarget((t, a: {instanceName?: string; since?: string; prefixes?: string[]; day?: string; top?: number}) => auditErrors(t, a)),
+    withTarget(async (t, a: {instanceName?: string; since?: string; prefixes?: string[]; day?: string; top?: number; maxFindings?: number}) => cap(await auditErrors(t, a), a.maxFindings)),
   );
 
   server.registerTool(
@@ -104,10 +114,11 @@ export function createServer(loc: ConfigLocation): McpServer {
         instanceName,
         jobId: z.string().optional().describe('Only this job'),
         count: z.number().int().positive().max(200).optional().describe('Most recent executions to read (default 100)'),
+        maxFindings,
       },
       annotations: readOnly,
     },
-    withTarget((t, a: {instanceName?: string; jobId?: string; count?: number}) => auditJobs(t, a)),
+    withTarget(async (t, a: {instanceName?: string; jobId?: string; count?: number; maxFindings?: number}) => cap(await auditJobs(t, a), a.maxFindings)),
   );
 
   const codeInput = {
@@ -116,7 +127,7 @@ export function createServer(loc: ConfigLocation): McpServer {
     cartridges: z.array(z.string()).optional().describe('Only these cartridges'),
     dir: z.string().optional().describe('Analyze this local folder instead of an instance'),
   };
-  type CodeArgs = {instanceName?: string; codeVersion?: string; cartridges?: string[]; dir?: string; maxFindings?: number};
+  type CodeArgs = {instanceName?: string; codeVersion?: string; cartridges?: string[]; dir?: string; maxFindings?: number; offset?: number};
   const codeTool = (fn: (target: (() => Awaited<ReturnType<typeof resolveTarget>>) | undefined, a: CodeArgs) => Promise<unknown>) => async (a: CodeArgs) => {
     if (a.dir) {
       try {
@@ -133,7 +144,7 @@ export function createServer(loc: ConfigLocation): McpServer {
     {
       title: 'Audit cartridge code',
       description: 'Static analysis of the deployed cartridges (JS and ISML), read via WebDAV, or of a local folder.',
-      inputSchema: {...codeInput, maxFindings: z.number().int().positive().optional().describe('Maximum findings returned (default 200)')},
+      inputSchema: {...codeInput, maxFindings: maxFindings.describe('Maximum findings returned (default 200)'), offset: z.number().int().min(0).optional().describe('Skip the first N findings, to read the next page')},
       annotations: readOnly,
     },
     codeTool((target, a) => auditCode(target, {...a, maxFindings: a.maxFindings ?? 200})),
@@ -159,10 +170,11 @@ export function createServer(loc: ConfigLocation): McpServer {
         instanceName,
         site: z.string().describe('Site id'),
         currencies: z.array(z.string()).optional().describe('Site currencies, e.g. ["EUR"]'),
+        maxFindings,
       },
       annotations: readOnly,
     },
-    withTarget(async (t, a: {instanceName?: string; site: string; currencies?: string[]}) => (await auditPromotions(() => t, a)).report),
+    withTarget(async (t, a: {instanceName?: string; site: string; currencies?: string[]; maxFindings?: number}) => cap((await auditPromotions(() => t, a)).report, a.maxFindings)),
   );
 
   server.registerTool(

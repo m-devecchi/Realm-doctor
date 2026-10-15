@@ -14,6 +14,11 @@ const ITERATOR_CALLBACK = /^(forEach|map|filter|some|every|reduce|find)$/;
 const SECRET_NAME = /(password|passwd|secret|api_?key|apikey|client_?secret|access_?token|private_?key)/i;
 
 export function analyzeJs(file: SourceFile): Finding[] {
+  return analyzeJsDetailed(file).findings;
+}
+
+/** `partial`: syntax errors, the parts that parsed were analyzed; `failed`: nothing could be parsed. */
+export function analyzeJsDetailed(file: SourceFile): {findings: Finding[]; status: 'ok' | 'partial' | 'failed'} {
   let ast: Node;
   try {
     ast = parse(file.content, {
@@ -24,7 +29,7 @@ export function analyzeJs(file: SourceFile): Finding[] {
       plugins: [],
     });
   } catch {
-    return [];
+    return {findings: [], status: 'failed'};
   }
 
   const findings: Finding[] = [];
@@ -165,7 +170,7 @@ export function analyzeJs(file: SourceFile): Finding[] {
     }
   });
 
-  return findings;
+  return {findings, status: ast.errors?.length ? 'partial' : 'ok'};
 }
 
 function walk(node: Node, ancestors: Node[], visit: (node: Node, ancestors: Node[]) => void): void {

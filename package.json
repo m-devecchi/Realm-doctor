@@ -34,7 +34,8 @@
     "build": "npm run build -w cli-plugin",
     "test": "npm test -w cli-plugin",
     "doctor": "node scripts/doctor.mjs",
-    "sync-plugin": "node scripts/sync-plugin.mjs"
+    "sync-plugin": "node scripts/sync-plugin.mjs",
+    "set-version": "node scripts/set-version.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.26.0",

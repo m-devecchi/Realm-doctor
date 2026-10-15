@@ -1,3 +1,4 @@
+import {DEFAULT_THRESHOLDS, type Thresholds} from './settings.js';
 import {type Finding, type Severity} from './finding.js';
 
 /** Subset of the OCAPI job_execution document used by the analysis. */
@@ -79,7 +80,7 @@ export function summarizeJobs(executions: JobExecution[], nowIso?: string): JobS
     .sort((a, b) => b.failed - a.failed || a.jobId.localeCompare(b.jobId));
 }
 
-export function jobFindings(summaries: JobSummary[]): Finding[] {
+export function jobFindings(summaries: JobSummary[], limits: Thresholds['jobs'] = DEFAULT_THRESHOLDS.jobs): Finding[] {
   const out: Finding[] = [];
   for (const s of summaries) {
     const ref = `job:${s.jobId}`;
@@ -96,7 +97,7 @@ export function jobFindings(summaries: JobSummary[]): Finding[] {
         fix: 'Read the job log at the given path, fix the failing step, then re-run the job.',
       });
     }
-    if (s.lastStatus === 'RUNNING' && s.medianDurationMs && s.lastDurationMs && s.lastDurationMs > 2 * s.medianDurationMs) {
+    if (s.lastStatus === 'RUNNING' && s.medianDurationMs && s.lastDurationMs && s.lastDurationMs > limits.stuckFactor * s.medianDurationMs) {
       out.push({
         rule: 'JOB-003',
         category: 'jobs',
@@ -110,8 +111,8 @@ export function jobFindings(summaries: JobSummary[]): Finding[] {
       s.lastStatus !== 'ERROR' &&
       s.medianDurationMs &&
       s.lastDurationMs &&
-      s.lastDurationMs > 1.5 * s.medianDurationMs &&
-      s.lastDurationMs > 5 * 60_000
+      s.lastDurationMs > limits.slowFactor * s.medianDurationMs &&
+      s.lastDurationMs > limits.slowMinutes * 60_000
     ) {
       out.push({
         rule: 'JOB-002',

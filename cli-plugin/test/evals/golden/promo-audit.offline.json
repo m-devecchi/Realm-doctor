@@ -1,0 +1,141 @@
+{
+  "command": "audit promotions",
+  "schemaVersion": 1,
+  "target": {
+    "site": "R<host>e<host>f<host>A<host>r<host>c<host>h"
+  },
+  "summary": {
+    "findings": 17,
+    "bySeverity": {
+      "critical": 0,
+      "high": 10,
+      "medium": 6,
+      "low": 1
+    }
+  },
+  "findings": [
+    {
+      "rule": "PROMO-002",
+      "severity": "high",
+      "title": "O<host>r<host>p<host>h<host>a<host>n<host> <host>a<host>s<host>s<host>i<host>g<host>n<host>m<host>e<host>n<host>t<host>:<host> <host>P<host>_<host>G<host>H<host>O<host>S<host>T<host> <host>@<host> <host>C<host>_<host>L<host>I<host>V<host>E",
+      "fingerprint": "a35920070b69",
+      "where": "assignment:P_GHOST@C_LIVE"
+    },
+    {
+      "rule": "PROMO-003",
+      "severity": "high",
+      "title": "P<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>d<host>a<host>t<host>e<host>s<host> <host>o<host>u<host>t<host>s<host>i<host>d<host>e<host> <host>t<host>h<host>e<host> <host>c<host>a<host>m<host>p<host>a<host>i<host>g<host>n<host>:<host> <host>P<host>_<host>D<host>A<host>T<host>E<host>S<host> <host>@<host> <host>C<host>_<host>L<host>I<host>V<host>E",
+      "fingerprint": "347d0b546176",
+      "where": "assignment:P_DATES@C_LIVE"
+    },
+    {
+      "rule": "PROMO-004",
+      "severity": "high",
+      "title": "E<host>m<host>p<host>t<host>y<host> <host>s<host>t<host>a<host>t<host>i<host>c<host> <host>c<host>u<host>s<host>t<host>o<host>m<host>e<host>r<host> <host>g<host>r<host>o<host>u<host>p<host>:<host> <host>V<host>I<host>P<host>_<host>S<host>T<host>A<host>T<host>I<host>C<host> <host>(<host>P<host>_<host>G<host>R<host>O<host>U<host>P<host> <host>@<host> <host>C<host>_<host>V<host>I<host>P<host>)",
+      "fingerprint": "4adbbe512307",
+      "where": "assignment:P_GROUP@C_VIP"
+    },
+    {
+      "rule": "PROMO-004",
+      "severity": "high",
+      "title": "C<host>u<host>s<host>t<host>o<host>m<host>e<host>r<host> <host>g<host>r<host>o<host>u<host>p<host> <host>d<host>o<host>e<host>s<host> <host>n<host>o<host>t<host> <host>e<host>x<host>i<host>s<host>t<host>:<host> <host>G<host>H<host>O<host>S<host>T<host>_<host>G<host>R<host>O<host>U<host>P<host> <host>(<host>P<host>_<host>G<host>R<host>O<host>U<host>P<host> <host>@<host> <host>C<host>_<host>V<host>I<host>P<host>)",
+      "fingerprint": "12a12f81f6e9",
+      "where": "assignment:P_GROUP@C_VIP"
+    },
+    {
+      "rule": "PROMO-005",
+      "severity": "high",
+      "title": "C<host>o<host>u<host>p<host>o<host>n<host> <host>d<host>i<host>s<host>a<host>b<host>l<host>e<host>d<host>:<host> <host>C<host>P<host>N<host>_<host>D<host>I<host>S<host>A<host>B<host>L<host>E<host>D<host> <host>(<host>P<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host> <host>@<host> <host>C<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host>)",
+      "fingerprint": "f4f962c8b269",
+      "where": "assignment:P_COUPON@C_COUPON"
+    },
+    {
+      "rule": "PROMO-005",
+      "severity": "high",
+      "title": "C<host>o<host>u<host>p<host>o<host>n<host> <host>d<host>o<host>e<host>s<host> <host>n<host>o<host>t<host> <host>e<host>x<host>i<host>s<host>t<host>:<host> <host>C<host>P<host>N<host>_<host>M<host>I<host>S<host>S<host>I<host>N<host>G<host> <host>(<host>P<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host> <host>@<host> <host>C<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host>)",
+      "fingerprint": "fe79683cc7b3",
+      "where": "assignment:P_COUPON@C_COUPON"
+    },
+    {
+      "rule": "PROMO-005",
+      "severity": "high",
+      "title": "M<host>u<host>l<host>t<host>i<host>-<host>c<host>o<host>d<host>e<host> <host>c<host>o<host>u<host>p<host>o<host>n<host> <host>w<host>i<host>t<host>h<host> <host>n<host>o<host> <host>c<host>o<host>d<host>e<host>s<host> <host>l<host>o<host>a<host>d<host>e<host>d<host>:<host> <host>C<host>P<host>N<host>_<host>E<host>M<host>P<host>T<host>Y",
+      "fingerprint": "ee10edee9c6b",
+      "where": "assignment:P_COUPON@C_COUPON"
+    },
+    {
+      "rule": "PROMO-005",
+      "severity": "high",
+      "title": "C<host>o<host>u<host>p<host>o<host>n<host>-<host>b<host>a<host>s<host>e<host>d<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>w<host>i<host>t<host>h<host>o<host>u<host>t<host> <host>c<host>o<host>u<host>p<host>o<host>n<host>s<host>:<host> <host>P<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host>2<host> <host>@<host> <host>C<host>_<host>L<host>I<host>V<host>E",
+      "fingerprint": "bd7524a65232",
+      "where": "assignment:P_COUPON2@C_LIVE"
+    },
+    {
+      "rule": "PROMO-006",
+      "severity": "high",
+      "title": "P<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>c<host>u<host>r<host>r<host>e<host>n<host>c<host>y<host> <host>n<host>o<host>t<host> <host>u<host>s<host>e<host>d<host> <host>b<host>y<host> <host>t<host>h<host>e<host> <host>s<host>i<host>t<host>e<host>:<host> <host>P<host>_<host>U<host>S<host>D<host> <host>(<host>U<host>S<host>D<host>)",
+      "fingerprint": "bbe9203d30d6",
+      "where": "assignment:P_USD@C_LIVE"
+    },
+    {
+      "rule": "PROMO-007",
+      "severity": "high",
+      "title": "G<host>l<host>o<host>b<host>a<host>l<host>l<host>y<host> <host>e<host>x<host>c<host>l<host>u<host>s<host>i<host>v<host>e<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>l<host>i<host>v<host>e<host> <host>a<host>l<host>o<host>n<host>g<host>s<host>i<host>d<host>e<host> <host>o<host>t<host>h<host>e<host>r<host>s<host>:<host> <host>P<host>_<host>G<host>L<host>O<host>B<host>A<host>L",
+      "fingerprint": "a91d002d8166",
+      "where": "promotion:P_GLOBAL"
+    },
+    {
+      "rule": "PROMO-001",
+      "severity": "medium",
+      "title": "E<host>n<host>a<host>b<host>l<host>e<host>d<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>t<host>h<host>a<host>t<host> <host>c<host>a<host>n<host> <host>n<host>e<host>v<host>e<host>r<host> <host>f<host>i<host>r<host>e<host>:<host> <host>P<host>_<host>E<host>X<host>P<host>I<host>R<host>E<host>D",
+      "fingerprint": "32ca74ac92a7",
+      "where": "promotion:P_EXPIRED"
+    },
+    {
+      "rule": "PROMO-001",
+      "severity": "medium",
+      "title": "E<host>n<host>a<host>b<host>l<host>e<host>d<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>t<host>h<host>a<host>t<host> <host>c<host>a<host>n<host> <host>n<host>e<host>v<host>e<host>r<host> <host>f<host>i<host>r<host>e<host>:<host> <host>P<host>_<host>U<host>N<host>A<host>S<host>S<host>I<host>G<host>N<host>E<host>D",
+      "fingerprint": "7dc4b4284267",
+      "where": "promotion:P_UNASSIGNED"
+    },
+    {
+      "rule": "PROMO-001",
+      "severity": "medium",
+      "title": "E<host>n<host>a<host>b<host>l<host>e<host>d<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>t<host>h<host>a<host>t<host> <host>c<host>a<host>n<host> <host>n<host>e<host>v<host>e<host>r<host> <host>f<host>i<host>r<host>e<host>:<host> <host>P<host>_<host>D<host>A<host>T<host>E<host>S",
+      "fingerprint": "4a32015df799",
+      "where": "promotion:P_DATES"
+    },
+    {
+      "rule": "PROMO-005",
+      "severity": "medium",
+      "title": "C<host>o<host>u<host>p<host>o<host>n<host> <host>e<host>x<host>h<host>a<host>u<host>s<host>t<host>e<host>d<host>:<host> <host>C<host>P<host>N<host>_<host>U<host>S<host>E<host>D",
+      "fingerprint": "5b86516daef7",
+      "where": "assignment:P_COUPON@C_COUPON"
+    },
+    {
+      "rule": "PROMO-008",
+      "severity": "medium",
+      "title": "E<host>x<host>c<host>l<host>u<host>s<host>i<host>v<host>e<host> <host>o<host>r<host>d<host>e<host>r<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host>s<host> <host>w<host>i<host>t<host>h<host>o<host>u<host>t<host> <host>r<host>a<host>n<host>k",
+      "fingerprint": "283d1c0225a5",
+      "where": "class:order"
+    },
+    {
+      "rule": "PROMO-008",
+      "severity": "medium",
+      "title": "D<host>u<host>p<host>l<host>i<host>c<host>a<host>t<host>e<host> <host>r<host>a<host>n<host>k<host> <host>(<host>5<host>)<host> <host>a<host>m<host>o<host>n<host>g<host> <host>e<host>x<host>c<host>l<host>u<host>s<host>i<host>v<host>e<host> <host>o<host>r<host>d<host>e<host>r<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host>s",
+      "fingerprint": "2cc6d1177faa",
+      "where": "class:order"
+    },
+    {
+      "rule": "PROMO-009",
+      "severity": "low",
+      "title": "P<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>l<host>i<host>v<host>e<host> <host>i<host>n<host> <host>s<host>e<host>v<host>e<host>r<host>a<host>l<host> <host>c<host>a<host>m<host>p<host>a<host>i<host>g<host>n<host>s<host> <host>a<host>t<host> <host>t<host>h<host>e<host> <host>s<host>a<host>m<host>e<host> <host>t<host>i<host>m<host>e<host>:<host> <host>P<host>_<host>M<host>U<host>L<host>T<host>I",
+      "fingerprint": "4dc626f89a7d",
+      "where": "promotion:P_MULTI"
+    }
+  ],
+  "suppressed": [],
+  "notes": [
+    "P<host>r<host>o<host>d<host>u<host>c<host>t<host> <host>q<host>u<host>a<host>l<host>i<host>f<host>i<host>e<host>r<host>s<host> <host>a<host>n<host>d<host> <host>d<host>i<host>s<host>c<host>o<host>u<host>n<host>t<host> <host>r<host>u<host>l<host>e<host>s<host> <host>a<host>r<host>e<host> <host>n<host>o<host>t<host> <host>a<host>n<host>a<host>l<host>y<host>z<host>e<host>d<host>:<host> <host>v<host>e<host>r<host>i<host>f<host>y<host> <host>t<host>h<host>e<host>m<host> <host>w<host>i<host>t<host>h<host> <host>t<host>e<host>s<host>t<host> <host>b<host>a<host>s<host>k<host>e<host>t<host>s<host> <host>(<host>p<host>r<host>o<host>m<host>o<host>-<host>a<host>u<host>d<host>i<host>t<host> <host>s<host>k<host>i<host>l<host>l<host>)<host>."
+  ]
+}

@@ -1,4 +1,5 @@
 import type {B2CInstance} from '@salesforce/b2c-tooling-sdk';
+import {drainCacheWarnings} from './cache.js';
 import {fetchCodeVersion, getActiveCodeVersionId} from './sfcc.js';
 import {loadLocalSources, type SourceFile} from '../rules/source.js';
 
@@ -16,9 +17,11 @@ export async function loadCode(
   instanceFactory: () => {instance: B2CInstance; hostname: string},
 ): Promise<LoadedCode> {
   if (opts.dir) {
-    let files = await loadLocalSources(opts.dir);
+    const skipped: string[] = [];
+    let files = await loadLocalSources(opts.dir, skipped);
     if (opts.cartridges?.length) files = files.filter((f) => opts.cartridges!.some((c) => f.path.startsWith(`${c}/`) || f.path.includes(`/${c}/`)));
-    return {origin: 'local', root: opts.dir, files, notes: []};
+    const notes = skipped.length ? [`${skipped.length} file(s) over 1 MB were NOT analyzed: ${skipped.slice(0, 5).join(', ')}${skipped.length > 5 ? ', ...' : ''}.`] : [];
+    return {origin: 'local', root: opts.dir, files, notes};
   }
   const {instance, hostname} = instanceFactory();
   const codeVersion = opts.codeVersion ?? (await getActiveCodeVersionId(instance));
@@ -26,5 +29,6 @@ export async function loadCode(
   const res = await fetchCodeVersion(instance, hostname, {codeVersion, cartridges: opts.cartridges});
   const notes = [`Code version ${codeVersion}: ${res.files.length} files analyzed in ${res.cartridges.length} cartridges (${res.fromCache} from cache).`];
   if (res.files.length === 0) notes.push('No files read: check WebDAV read permissions on /Cartridges.');
+  notes.push(...drainCacheWarnings());
   return {origin: 'instance', codeVersion, files: res.files, notes};
 }

@@ -1,4 +1,5 @@
 import {type Finding} from './finding.js';
+import {DEFAULT_THRESHOLDS} from './settings.js';
 import {type ParsedEntry} from './logparse.js';
 
 /**
@@ -85,7 +86,7 @@ function round(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-export function quotaFindings(summaries: QuotaSummary[]): Finding[] {
+export function quotaFindings(summaries: QuotaSummary[], warnRatio = DEFAULT_THRESHOLDS.quota.warnRatio): Finding[] {
   const findings: Finding[] = [];
   for (const s of summaries) {
     const evidence = [
@@ -124,7 +125,7 @@ export function quotaFindings(summaries: QuotaSummary[]): Finding[] {
         fix: 'Fix the code at the reported location before the quota becomes enforced.',
       });
     } else if (s.warnExceeded > 0) {
-      const near = s.limitRatio !== undefined && s.limitRatio >= 0.8;
+      const near = s.limitRatio !== undefined && s.limitRatio >= warnRatio;
       findings.push({
         rule: 'QUOTA-003',
         category: 'quota',

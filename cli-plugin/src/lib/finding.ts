@@ -36,6 +36,8 @@ export interface Finding {
   impact: string;
   /** Concrete fix: where and what to change */
   fix: string;
+  /** stable id across runs, set by buildReport (for diffing saved reports) */
+  fingerprint?: string;
 }
 
 export const SEVERITY_ORDER: Record<Severity, number> = {

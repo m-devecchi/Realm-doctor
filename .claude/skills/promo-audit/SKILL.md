@@ -29,16 +29,16 @@ Run only if the instance is a sandbox/dev/staging and the user agrees. Use the o
 (`scapi_search` to find operations, `scapi_execute` to run them) as a guest shopper:
 
 1. **Products in the promotion**: Shopper Search `productSearch` with `refine=pmid=<promotionId>` and
-   `refine=pmpt=qualifying` (then `discounted`, `bonus`). Zero products → finding **PROMO-010 high** "promotion without
+   `refine=pmpt=qualifying` (then `discounted`, `bonus`). Zero products → finding **MAN-001 high** "promotion without
    qualifying products" (check that products are online and in the storefront catalog).
 2. **Test basket**: create a guest basket, add one qualifying product (quantity enough to pass thresholds the user
    described), apply the coupon code if the promotion needs one, read `productItems[].priceAdjustments`,
    `orderPriceAdjustments`, `shippingItems[].priceAdjustments` and `couponItems[].statusCode`.
 3. Compare with the expected behaviour:
-   - promotion not applied → **PROMO-011 high** with the probable reason (coupon status, qualifier, exclusivity of a
+   - promotion not applied → **MAN-002 high** with the probable reason (coupon status, qualifier, exclusivity of a
      promotion that was applied instead);
-   - discount different from expected → **PROMO-012 high**;
-   - more discounts stacked than intended (sum > what the user expects, or > 50% of the basket) → **PROMO-013 critical**.
+   - discount different from expected → **MAN-003 high**;
+   - more discounts stacked than intended (sum > what the user expects, or > 50% of the basket) → **MAN-004 critical**.
 4. Delete nothing and place no orders. Guest baskets expire on their own.
 
 Promotions for registered customers or customer groups other than Everyone cannot be tested as guest: say so in

@@ -25,17 +25,38 @@ export function hostDir(hostname: string): string {
   return join(cacheRoot(), hostname.replace(/[^A-Za-z0-9.-]/g, '_'));
 }
 
+const warnings = new Set<string>();
+
+/** Cache problems seen since the last call (once per kind and path folder), for the report notes. */
+export function drainCacheWarnings(): string[] {
+  const out = [...warnings];
+  warnings.clear();
+  return out;
+}
+
+const note = (action: string, path: string, error: unknown): void => {
+  const code = (error as NodeJS.ErrnoException)?.code ?? (error instanceof Error ? error.message : String(error));
+  warnings.add(`Cache ${action} failed (${code}) under ${dirname(dirname(path))}: results are correct but slower; check the folder permissions.`);
+};
+
+/** A missing file is a normal cache miss; any other error is reported in the notes. */
 export async function readCached(path: string): Promise<string | undefined> {
   try {
     return await readFile(path, 'utf8');
-  } catch {
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') note('read', path, error);
     return undefined;
   }
 }
 
+/** Best effort: a cache that cannot be written never fails an audit. */
 export async function writeCached(path: string, content: string): Promise<void> {
-  await mkdir(dirname(path), {recursive: true, mode: 0o700});
-  await writeFile(path, content, {mode: 0o600});
+  try {
+    await mkdir(dirname(path), {recursive: true, mode: 0o700});
+    await writeFile(path, content, {mode: 0o600});
+  } catch (error) {
+    note('write', path, error);
+  }
 }
 
 export function keyFor(...parts: Array<string | number | undefined>): string {
