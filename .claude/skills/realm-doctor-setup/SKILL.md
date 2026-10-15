@@ -17,7 +17,7 @@ in a **repository clone**.
 
 1. **Installation**
    - Plugin: call `list_instances`. An error about a missing `dw.json` means the path in the plugin settings is wrong
-     (Claude Code: `/plugin` > realm-doctor > configure; Copilot: run `npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --config <path>` again).
+     (Claude Code: `/plugin` > realm-doctor > configure; Copilot: run `npx github:m-devecchi/Realm-doctor#v0.4.1 install copilot --config <path>` again).
      If the `realm-doctor` tools are missing altogether, the MCP server did not start: Node.js 22+ and Git access to the
      repository are required; restart the client.
    - Repository: run `npm run doctor` from the repository root. If local tools or the build are missing, the fix is

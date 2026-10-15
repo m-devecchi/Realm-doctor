@@ -2,7 +2,7 @@
 
 Realm Doctor is a personal, read-only SFCC audit kit for GitHub Copilot and Claude Code. Salesforce provides data access; the kit adds rules, method and report format. It runs in two ways with the same code and skills:
 
-- **Plugin / Copilot install**: skills plus two MCP servers started with npx (`github:m-devecchi/Realm-doctor#v0.4.0 mcp` and `@salesforce/b2c-dx-mcp`), reading a `dw.json` chosen by the user.
+- **Plugin / Copilot install**: skills plus two MCP servers started with npx (`github:m-devecchi/Realm-doctor#v0.4.1 mcp` and `@salesforce/b2c-dx-mcp`), reading a `dw.json` chosen by the user.
 - **Repository clone**: everything installed locally by `npm install`; the same audits as `npx realm-doctor audit …` commands.
 
 ```

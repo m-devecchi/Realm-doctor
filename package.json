@@ -1,6 +1,6 @@
 {
   "name": "realm-doctor",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Read-only Salesforce B2C Commerce audit kit for Claude Code and GitHub Copilot: skills, CLI and MCP server.",
   "private": true,
   "type": "module",

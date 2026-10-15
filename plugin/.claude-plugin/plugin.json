@@ -1,7 +1,7 @@
 {
   "name": "realm-doctor",
   "displayName": "Realm Doctor",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Read-only audits of Salesforce B2C Commerce instances: error logs, quota, jobs, deployed cartridge code, Hyperforce readiness, promotions and frontend, with standard reports.",
   "author": {
     "name": "m-devecchi"
@@ -27,7 +27,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "github:m-devecchi/Realm-doctor#v0.4.0",
+        "github:m-devecchi/Realm-doctor#v0.4.1",
         "mcp"
       ],
       "env": {

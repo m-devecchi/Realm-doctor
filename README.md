@@ -52,7 +52,7 @@ You get the **client id** and the **client secret** (the password), and for each
 In a terminal:
 
 ```bash
-npx github:m-devecchi/Realm-doctor#v0.4.0 init
+npx github:m-devecchi/Realm-doctor#v0.4.1 init
 ```
 
 The first time it takes about a minute (it downloads Realm Doctor). It creates the file **`realm-doctor/dw.json` in
@@ -103,7 +103,7 @@ If it did not ask for the path, or to change it later, type `/plugin configure r
 In a terminal, with the path from step 3:
 
 ```bash
-npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --config ~/realm-doctor/dw.json
+npx github:m-devecchi/Realm-doctor#v0.4.1 install copilot --config ~/realm-doctor/dw.json
 ```
 
 On Windows: `--config C:\Users\you\realm-doctor\dw.json`. It copies the skills to your Copilot folder (`~/.copilot/skills`)
@@ -125,7 +125,7 @@ downloads the new version (about a minute) and can take longer than the assistan
 then restart the assistant:
 
 ```bash
-npx -y github:m-devecchi/Realm-doctor#v0.4.0 --version
+npx -y github:m-devecchi/Realm-doctor#v0.4.1 --version
 ```
 
 **If that command fails with `Cannot find module`**: a download was interrupted halfway. Delete the folder
@@ -165,7 +165,7 @@ estimate), analysis limits and next actions. Rule list: [docs/rules.md](docs/rul
 | --- | --- | --- |
 | Update the skills | `claude plugin marketplace update realm-doctor` then `claude plugin update realm-doctor@realm-doctor`, then restart | run the `install copilot` command of step 4b again |
 | Update the audit server | with the skills: the plugin is pinned to a release (`#vX.Y.Z`), so the server changes only when you update the plugin. The first start after an update takes about a minute | run the `install copilot` command of step 4b again |
-| Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --remove` |
+| Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor#v0.4.1 install copilot --remove` |
 
 Your `dw.json` is never touched; delete it yourself if you no longer need it.
 
@@ -213,7 +213,7 @@ npm run sync-plugin               # recreates the plugin/ symlinks if a checkout
 The end-to-end tests start a fake SFCC instance over HTTPS (Account Manager token, WebDAV, OCAPI) and run the real
 commands and the MCP server through the official SDK. They require `openssl`.
 To test the package exactly as npx installs it:
-`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor#v0.4.0"]' npx vitest run test/e2e/mcp.e2e.test.ts`
+`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor#v0.4.1"]' npx vitest run test/e2e/mcp.e2e.test.ts`
 (in `cli-plugin/`).
 
 Layout:
