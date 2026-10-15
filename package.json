@@ -35,7 +35,8 @@
     "test": "npm test -w cli-plugin",
     "doctor": "node scripts/doctor.mjs",
     "sync-plugin": "node scripts/sync-plugin.mjs",
-    "set-version": "node scripts/set-version.mjs"
+    "set-version": "node scripts/set-version.mjs",
+    "sync-official-mcp": "node scripts/sync-official-mcp.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.26.0",

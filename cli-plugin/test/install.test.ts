@@ -45,7 +45,7 @@ describe('install copilot', () => {
       env: {SFCC_CONFIG: dw, SFCC_DISABLE_TELEMETRY: 'true'},
       tools: ['*'],
     });
-    expect(cfg.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', '@salesforce/b2c-dx-mcp@3.5.0', '--config', dw]);
+    expect(cfg.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', `@salesforce/b2c-dx-mcp@${JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8')).devDependencies['@salesforce/b2c-dx-mcp']}`, '--config', dw]);
     expect(existsSync(join(copilot, 'mcp-config.json.bak'))).toBe(true);
 
     // running again updates in place
