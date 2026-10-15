@@ -42,10 +42,10 @@
     "zod": "^4.6.6"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
+    "@types/node": "^26.6.5",
     "jsonschema": "^1.5.0",
-    "typescript": "^5.7.0",
-    "vitest": "^5.0.3"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.4"
   },
   "bin": {
     "realm-doctor": "bin/run.js"
