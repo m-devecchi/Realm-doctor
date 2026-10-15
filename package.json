@@ -41,11 +41,11 @@
     "@babel/parser": "^7.26.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@oclif/core": "^4",
-    "@salesforce/b2c-tooling-sdk": "2.6.0",
+    "@salesforce/b2c-tooling-sdk": "2.6.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@salesforce/b2c-cli": "2.5.1",
-    "@salesforce/b2c-dx-mcp": "3.5.0"
+    "@salesforce/b2c-cli": "2.5.2",
+    "@salesforce/b2c-dx-mcp": "3.5.1"
   }
 }
