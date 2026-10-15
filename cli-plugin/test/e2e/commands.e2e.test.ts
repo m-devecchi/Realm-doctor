@@ -105,6 +105,13 @@ describe('audit commands against a fake instance (READ_ONLY safety)', () => {
     expect(text).toContain('order <NUM>');
   });
 
+  it('audit errors --max-files: older files that were not read are declared', async () => {
+    const {status, report, stderr} = await run(['audit', 'errors', '--since', '2026-10-01T00:00:00Z', '--max-files', '1', ...instanceArgs()]);
+    expect(status, stderr).toBe(0);
+    expect(report!.data.files).toBe(1);
+    expect(report!.notes.join(' ')).toMatch(/2 older log file\(s\) were NOT read/);
+  });
+
   it('audit errors --max-kb: reads only the tail of large files with an HTTP Range request', async () => {
     const before = sfcc.requests.length;
     const {status, report, stderr} = await run(['audit', 'errors', '--since', '2026-10-08T00:00:00Z', '--max-kb', '4', ...instanceArgs()]);

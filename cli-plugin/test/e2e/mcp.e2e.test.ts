@@ -64,7 +64,9 @@ beforeAll(async () => {
     JSON.stringify({
       configs: [
         {name: 'mock-sbx', active: true, ...base, 'client-secret': 'test-secret', safety: {level: 'READ_ONLY', rules: allow}},
-        {name: 'mock-strict', ...base, 'client-secret': 'test-secret', safety: {level: 'READ_ONLY'}},
+        {name: 'mock-strict', ...base, 'client-secret': 'test-secret', safety: {level: 'READ_ONLY', rules: []}},
+        // READ_ONLY without a rules key: the server adds the read rules itself
+        {name: 'mock-defaults', ...base, 'client-secret': 'test-secret', safety: {level: 'READ_ONLY'}},
         {name: 'mock-envsecret', ...base, safety: {level: 'READ_ONLY', rules: allow}},
       ],
     }),
@@ -107,6 +109,7 @@ describe('realm-doctor MCP server', () => {
       'audit_jobs',
       'audit_promotions',
       'audit_quota',
+      'compare_runs',
       'list_code_versions',
       'list_instances',
       'list_rules',
@@ -120,7 +123,7 @@ describe('realm-doctor MCP server', () => {
   it('list_instances: every instance, never a secret', async () => {
     const r = await call('list_instances');
     expect(r.isError).toBeFalsy();
-    expect(r.json.instances.map((i: {name: string}) => i.name)).toEqual(['mock-sbx', 'mock-strict', 'mock-envsecret']);
+    expect(r.json.instances.map((i: {name: string}) => i.name)).toEqual(['mock-sbx', 'mock-strict', 'mock-defaults', 'mock-envsecret']);
     expect(r.json.instances[0]).toMatchObject({active: true, safety: 'READ_ONLY', hasSecret: true});
     expect(r.text).not.toContain('test-secret');
   });
@@ -183,6 +186,49 @@ describe('realm-doctor MCP server', () => {
     expect(sfcc.requests.filter((q) => q.path.endsWith('_search')).length).toBe(before);
     // the next call on the other instance still works
     expect((await call('audit_jobs', {instanceName: 'mock-sbx'})).isError).toBeFalsy();
+  });
+
+  it('READ_ONLY without a rules key: the server adds the read rules, so the audits work', async () => {
+    const r = await call('audit_promotions', {instanceName: 'mock-defaults', site: 'RefArch', currencies: ['EUR']});
+    expect(r.isError, r.text).toBeFalsy();
+    expect((await call('audit_jobs', {instanceName: 'mock-defaults'})).isError).toBeFalsy();
+  });
+
+  it('instanceName is required: no silent default to the active instance', async () => {
+    const r = await call('audit_errors', {});
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/instanceName|required/i);
+    const code = await call('audit_code', {});
+    expect(code.isError).toBe(true);
+    expect(code.text).toMatch(/^Error \[INVALID_INPUT\]/);
+  });
+
+  it('audit_jobs says when it read only part of the executions', async () => {
+    const r = await call('audit_jobs', {instanceName: 'mock-sbx', count: 3});
+    expect(r.isError, r.text).toBeFalsy();
+    expect(r.json.data.executions).toBe(3);
+    expect(r.json.notes.join(' ')).toMatch(/Only the most recent 3 of 8 job executions were read/);
+  });
+
+  it('compare_runs: the same audit twice has nothing new or fixed; one run is NOT_FOUND', async () => {
+    await call('audit_quota', {instanceName: 'mock-sbx', since: '2026-10-01T00:00:00Z'});
+    await call('audit_quota', {instanceName: 'mock-sbx', since: '2026-10-01T00:00:00Z'});
+    const same = await call('compare_runs', {instanceName: 'mock-sbx', command: 'audit quota'});
+    expect(same.isError, same.text).toBeFalsy();
+    expect(same.json.new).toEqual([]);
+    expect(same.json.fixed).toEqual([]);
+    expect(same.json.unchanged).toHaveLength(4);
+    const once = await call('compare_runs', {instanceName: 'mock-sbx', command: 'audit hyperforce'});
+    expect(once.isError).toBe(true);
+    expect(once.text).toMatch(/^Error \[NOT_FOUND\]/);
+  });
+
+  it('audit_errors: splitAt adds before/after rates, and a bad date is INVALID_INPUT', async () => {
+    const r = await call('audit_errors', {instanceName: 'mock-sbx', since: '2026-10-08T00:00:00Z', splitAt: '2026-10-08T08:00:00Z'});
+    expect(r.isError, r.text).toBeFalsy();
+    expect(r.json.data.signatures[0].split).toMatchObject({at: '2026-10-08T08:00:00.000Z'});
+    const bad = await call('audit_errors', {instanceName: 'mock-sbx', since: '2026-10-08T00:00:00Z', splitAt: 'yesterday'});
+    expect(bad.text).toMatch(/^Error \[INVALID_INPUT\]/);
   });
 
   it('unknown instance: clear error', async () => {

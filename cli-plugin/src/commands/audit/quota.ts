@@ -19,7 +19,7 @@ export default class AuditQuota extends InstanceCommand<typeof AuditQuota> {
     this.requireServer();
     this.requireWebDavCredentials();
     const report = await auditQuota(
-      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!},
+      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName},
       {since: this.flags.since, prefixes: this.flags.prefix, maxFiles: this.flags['max-files'], maxKb: this.flags['max-kb']},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));

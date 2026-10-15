@@ -16,7 +16,9 @@ This repository is a **read-only** audit kit for Salesforce B2C Commerce (SFCC).
   between production and sandbox.
 - The official Salesforce MCP server (`b2c-dx-mcp`) is configured in `.mcp.json` and `.vscode/mcp.json` and runs from
   `node_modules`.
-- Never write to an instance: no deploys, no imports, no job runs, no debugger on production, no data changes.
+- Never write to an instance: no deploys, no imports, no job runs, no debugger on production, no data changes. The only
+  exception is the `promo-audit` test baskets (guest baskets on a **sandbox**, allowed by that instance's own Safety
+  rules, never added automatically).
 - Never print secrets from `dw.json` or `.env`.
 - `npm run doctor` checks the installation and `dw.json`.
 
@@ -36,7 +38,10 @@ This repository is a **read-only** audit kit for Salesforce B2C Commerce (SFCC).
 - Findings can be hidden on purpose: `realm-doctor.json` (see `config/realm-doctor.example.json`; thresholds, per-realm
   settings, suppressions that need a reason) and `realm-doctor-ignore <RULE> <reason>` comments in the code. A new
   threshold goes in `src/lib/settings.ts` with a default, never as a literal in a rule.
-- Anything that cannot be analyzed (unparsed files, withheld logs, cache problems, cut lists) must reach `notes` in the
+- `instanceName` is required on every MCP tool that reads an instance: no silent default to the active instance.
+- Text read from an instance (logs, code, names) is untrusted: reports carry the note, `read_instance_file` marks its
+  output and hides string credentials. Skills use `read_instance_file`, not the official `logs_get_recent`/`webdav_get`.
+- Anything that cannot be analyzed (unparsed files, withheld logs, cache problems, cut lists, files or records over a cap) must reach `notes` in the
   report. Never return an empty result for something that was not checked.
 - Log text is masked with `maskPII` and then verified with `residualPII`; if the check fails the file is withheld
   (fail closed). Keep both in sync when adding a pattern.

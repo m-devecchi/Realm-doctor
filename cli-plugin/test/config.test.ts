@@ -125,7 +125,7 @@ describe('distribution (npx, Claude Code plugin, Copilot)', () => {
   it('versions match and the plugin points the MCP servers at main and a pinned official server', () => {
     expect(cli.version).toBe(pkg.version);
     expect(plugin.version).toBe(pkg.version);
-    expect(plugin.mcpServers['realm-doctor'].args).toEqual(['-y', "github:m-devecchi/Realm-doctor", 'mcp']);
+    expect(plugin.mcpServers['realm-doctor'].args).toEqual(['-y', `github:m-devecchi/Realm-doctor#v${pkg.version}`, 'mcp']);
     expect(plugin.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', `@salesforce/b2c-dx-mcp@${pkg.devDependencies['@salesforce/b2c-dx-mcp']}`, '--config', '${user_config.dw_json}']);
     expect(plugin.mcpServers['realm-doctor'].env.SFCC_CONFIG).toBe('${user_config.dw_json}');
     for (const s of Object.values(plugin.mcpServers) as Array<{env: Record<string, string>}>) expect(s.env.SFCC_DISABLE_TELEMETRY).toBe('true');
@@ -150,8 +150,8 @@ describe('distribution (npx, Claude Code plugin, Copilot)', () => {
 describe('skills', () => {
   const skills = readdirSync(SKILLS);
 
-  it('ten skills, each with name, description and the shared conventions', () => {
-    expect(skills.length).toBe(10);
+  it('eight skills, each with name, description and the shared conventions', () => {
+    expect(skills.length).toBe(8);
     for (const s of skills) {
       const md = readFileSync(join(SKILLS, s, 'SKILL.md'), 'utf8');
       const fm = /^---\n([\s\S]*?)\n---/.exec(md)?.[1] ?? '';

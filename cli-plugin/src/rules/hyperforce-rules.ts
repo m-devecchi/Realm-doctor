@@ -9,6 +9,10 @@ const POD_HOST = /\b([\w-]+(?:\.[\w-]+)*\.(?:demandware\.net|demandware\.com|com
  * Static checks for a POD -> Hyperforce migration. The migration changes
  * instance hostnames and outbound IPs, so hardcoded values break integrations.
  */
+/** Public Salesforce hosts that appear in namespaces, links and docs: not instance hostnames. */
+const PUBLIC_HOSTS = /^(www|account|xchange|documentation|developer|help|trailhead|status|admin|support)\./i;
+const NAMESPACE_LINE = /xmlns(:\w+)?\s*=|schemaLocation\s*=|<!DOCTYPE/i;
+
 export function analyzeHyperforce(file: SourceFile): Finding[] {
   const findings: Finding[] = [];
   const c = file.content;
@@ -33,6 +37,7 @@ export function analyzeHyperforce(file: SourceFile): Finding[] {
 
   for (const m of c.matchAll(POD_HOST)) {
     const i = m.index ?? 0;
+    if (PUBLIC_HOSTS.test(m[1]) || NAMESPACE_LINE.test(lineText(c, lineOf(c, i)))) continue;
     findings.push({
       rule: 'HF-002',
       category: 'hyperforce',

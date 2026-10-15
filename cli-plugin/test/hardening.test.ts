@@ -2,7 +2,8 @@ import {mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it} from 'vitest';
-import {drainCacheWarnings, readCached, writeCached} from '../src/lib/cache.js';
+import {readCached, writeCached} from '../src/lib/cache.js';
+import {drainNotices} from '../src/lib/notices.js';
 import {aggregateErrors, createErrorAggregator} from '../src/lib/errors.js';
 import {type Finding} from '../src/lib/finding.js';
 import {jobFindings} from '../src/lib/jobs.js';
@@ -162,16 +163,16 @@ describe('incremental error aggregation', () => {
 describe('cache problems are reported, not swallowed', () => {
   it('a missing file is a normal miss; an unreadable one is a warning', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'rd-cache-'));
-    drainCacheWarnings();
+    drainNotices();
     expect(await readCached(join(dir, 'missing'))).toBeUndefined();
-    expect(drainCacheWarnings()).toEqual([]);
+    expect(drainNotices()).toEqual([]);
     // a directory where a file is expected: EISDIR on read, ENOTDIR/EEXIST on write
     expect(await readCached(dir)).toBeUndefined();
-    expect(drainCacheWarnings()[0]).toMatch(/Cache read failed \(EISDIR\)/);
+    expect(drainNotices()[0]).toMatch(/Cache read failed \(EISDIR\)/);
     await writeCached(join(dir, 'a', 'b'), 'x');
     writeFileSync(join(dir, 'file'), '');
     await writeCached(join(dir, 'file', 'child'), 'x');
-    expect(drainCacheWarnings()[0]).toMatch(/Cache write failed/);
+    expect(drainNotices()[0]).toMatch(/Cache write failed/);
   });
 });
 

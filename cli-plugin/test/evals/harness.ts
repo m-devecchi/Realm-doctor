@@ -28,13 +28,13 @@ export interface Harness {
   close(): Promise<void>;
 }
 
-export async function startHarness(): Promise<Harness> {
+export async function startHarness(options: {logsDir?: string; cartridgesDir?: string} = {}): Promise<Harness> {
   if (!existsSync(join(ROOT, 'dist', 'commands', 'mcp.js'))) throw new Error('Run `npm run build` first.');
   const work = mkdtempSync(join(tmpdir(), 'realm-doctor-eval-'));
   mkdirSync(join(work, 'home'));
   const sfcc = await startMockSfcc({
-    logsDir: join(FIX, 'logs'),
-    cartridgesDir: join(FIX, 'cartridges'),
+    logsDir: options.logsDir ?? join(FIX, 'logs'),
+    cartridgesDir: options.cartridgesDir ?? join(FIX, 'cartridges'),
     codeVersion: 'v1',
     promoBundle: bundle,
     jobs: JSON.parse(readFileSync(join(FIX, 'jobs', 'executions.json'), 'utf8')),
@@ -59,6 +59,8 @@ export async function startHarness(): Promise<Harness> {
         NO_PROXY: 'localhost,127.0.0.1',
         no_proxy: 'localhost,127.0.0.1',
         REALM_DOCTOR_CACHE: join(work, 'cache'),
+        // the fixture logs are from 2026-10-08: a "short window" is only short against this clock
+        REALM_DOCTOR_NOW: '2026-10-08T12:00:00Z',
         SFCC_CLIENT_SECRET: 'test-secret',
         SFCC_SAFETY_CONFIG: '',
       },

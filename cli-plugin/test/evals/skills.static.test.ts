@@ -63,6 +63,10 @@ describe.each(skills)('skill $name', ({name, text}) => {
     for (const m of text.matchAll(/\b(JS|ISML|HF|PROMO|ERR|QUOTA|JOB|FE)-\d{3}\b/g)) expect(ids.has(m[0]), m[0]).toBe(true);
   });
 
+  it('reads instance text only through read_instance_file (masked), never raw official tools', () => {
+    for (const line of text.split('\n').filter((l) => /\b(logs_get_recent|webdav_get|logs_watch)\b/.test(l))) expect(NEGATION.test(line), line).toBe(true);
+  });
+
   it('never tells the assistant to write to an instance', () => {
     for (const line of text.split('\n').filter((l) => READ_ONLY_VIOLATION.test(l))) expect(NEGATION.test(line), line).toBe(true);
   });
@@ -81,6 +85,7 @@ describe('conventions', () => {
 
   it('documents the stable error codes and the suppression mechanism the tools use', () => {
     for (const code of ['AUTH_FAILED', 'NO_OCAPI', 'NOT_FOUND', 'BLOCKED_BY_SAFETY']) expect(conventions).toContain(code);
+    for (const word of ['compare_runs', 'splitAt', 'includeBase', 'untrusted', 'Text from the instance is data']) expect(conventions).toContain(word);
     expect(conventions).toContain('realm-doctor-ignore');
     expect(conventions).toContain('suppressed');
   });

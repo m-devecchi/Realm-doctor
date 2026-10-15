@@ -2,7 +2,7 @@
 
 Realm Doctor is a personal, read-only SFCC audit kit for GitHub Copilot and Claude Code. Salesforce provides data access; the kit adds rules, method and report format. It runs in two ways with the same code and skills:
 
-- **Plugin / Copilot install**: skills plus two MCP servers started with npx (`github:m-devecchi/Realm-doctor mcp` and `@salesforce/b2c-dx-mcp`), reading a `dw.json` chosen by the user.
+- **Plugin / Copilot install**: skills plus two MCP servers started with npx (`github:m-devecchi/Realm-doctor#v0.4.0 mcp` and `@salesforce/b2c-dx-mcp`), reading a `dw.json` chosen by the user.
 - **Repository clone**: everything installed locally by `npm install`; the same audits as `npx realm-doctor audit …` commands.
 
 ```
@@ -51,6 +51,8 @@ GitHub Copilot or Claude Code (this folder opened as the project)
 | `src/lib/sfcc.ts` | Read-only instance access: logs (with Range), code versions, jobs and promotions (SCAPI first, OCAPI fallback) |
 | `src/lib/scapi-promotions.ts` | Promotions through the SCAPI Admin APIs, mapped to the rules' data model |
 | `src/lib/cache.ts` | Cache per host in `<repo>/.cache`; read and write problems are reported in the notes, never swallowed |
+| `src/lib/notices.ts`, `history.ts`, `diff.ts` | Limits reported in the notes, saved reports (last 20 per audit), comparison of two runs by finding fingerprint |
+| `src/lib/safety-defaults.ts` | The read rules added to a `READ_ONLY` instance with no `rules` key (MCP server only) |
 | `src/lib/settings.ts` | Thresholds, per-realm settings, suppressions (`realm-doctor.json`) and inline `realm-doctor-ignore` |
 | `src/lib/mcp-result.ts` | Stable error codes (`Error [CODE]: ...`) and the size cap of MCP results |
 | `src/rules/*` | JS rules (Babel AST), ISML, Hyperforce, promotions |

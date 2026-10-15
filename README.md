@@ -13,7 +13,8 @@ It checks:
 - promotions that are set up wrong
 - page speed
 
-It **only reads**: it never changes anything on your instances.
+It **only reads**: it never changes anything on your instances. The one exception is the `promo-audit` skill, which on a
+**sandbox** you have explicitly allowed can create guest test baskets.
 
 - [Install (step by step, no technical knowledge needed)](#install)
 - [Use it](#use-it)
@@ -51,7 +52,7 @@ You get the **client id** and the **client secret** (the password), and for each
 In a terminal:
 
 ```bash
-npx github:m-devecchi/Realm-doctor init
+npx github:m-devecchi/Realm-doctor#v0.4.0 init
 ```
 
 The first time it takes about a minute (it downloads Realm Doctor). It creates the file **`realm-doctor/dw.json` in
@@ -68,14 +69,17 @@ Open that file with any text editor and replace the example instances with yours
   "client-secret": "the client secret from step 2",
   "short-code": "abcd1234",
   "tenant-id": "zzzz_prd",
-  "safety": { … leave it as it is … }
+  "safety": { "level": "READ_ONLY" }
 }
 ```
 
 - `name`: a short name you will use to ask for that instance: `<realm>-<environment>`, e.g. `acme-prd`, `acme-stg`.
 - `hostname`: the Business Manager address, without `https://`.
 - `short-code`, `tenant-id`: from step 2 (for the tenant id, the part after `f_ecom_`).
-- **Do not touch the `safety` block**: it makes the tools refuse any change to the instance.
+- **Keep `"safety": { "level": "READ_ONLY" }`**: it makes the tools refuse any change to the instance. The Realm Doctor
+  server adds the few read-only searches it needs by itself. Only if you also run the `npx realm-doctor audit …` commands
+  from a clone (or the official `b2c-dx-mcp` search tools) copy the longer `safety` block with its `rules` from
+  `config/dw.example.json`.
 - Mark your sandbox with `"active": true`: it is the default when you do not name an instance.
 - Delete the example instances you do not need. All your realms go in this one file.
 - Keep the file private: it contains the secret.
@@ -99,7 +103,7 @@ If it did not ask for the path, or to change it later, type `/plugin configure r
 In a terminal, with the path from step 3:
 
 ```bash
-npx github:m-devecchi/Realm-doctor install copilot --config ~/realm-doctor/dw.json
+npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --config ~/realm-doctor/dw.json
 ```
 
 On Windows: `--config C:\Users\you\realm-doctor\dw.json`. It copies the skills to your Copilot folder (`~/.copilot/skills`)
@@ -121,7 +125,7 @@ downloads the new version (about a minute) and can take longer than the assistan
 then restart the assistant:
 
 ```bash
-npx -y github:m-devecchi/Realm-doctor --version
+npx -y github:m-devecchi/Realm-doctor#v0.4.0 --version
 ```
 
 **If that command fails with `Cannot find module`**: a download was interrupted halfway. Delete the folder
@@ -139,9 +143,7 @@ Ask in plain language, or name a skill:
 | `post-deploy-check` | After a release | "we released on globex-prd at 2 pm, how did it go?" |
 | `quota-audit` | Quota violations, before traffic peaks | "check last week's quota on acme-prd" |
 | `job-health` | Failed or slow jobs | "how did last night's jobs go on globex-prd?" |
-| `cartridge-code-review` | Code review | "review the app_custom cartridge on acme-stg" |
 | `frontend-check` | Slow site, Core Web Vitals | "check home, PLP and PDP of www.acme.com" |
-| `hyperforce-readiness` | Before a migration | "is globex-prd ready for Hyperforce?" |
 | `promo-audit` | Promotions that do not work | "the AUTUMN20 promotion does not fire on acme-prd" |
 
 Always say which instance (`acme-prd`, `acme-stg`…). If you do not, the assistant asks: it never guesses between
@@ -156,7 +158,7 @@ estimate), analysis limits and next actions. Rule list: [docs/rules.md](docs/rul
 | --- | --- | --- |
 | Update the skills | `claude plugin marketplace update realm-doctor` then `claude plugin update realm-doctor@realm-doctor`, then restart | run the `install copilot` command of step 4b again |
 | Update the audit server | automatic: each start checks for the latest version (the first start after an update takes about a minute) | automatic, same |
-| Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor install copilot --remove` |
+| Remove | `claude plugin uninstall realm-doctor@realm-doctor` | `npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --remove` |
 
 Your `dw.json` is never touched; delete it yourself if you no longer need it.
 
@@ -202,7 +204,7 @@ npm run sync-plugin               # recreates the plugin/ symlinks if a checkout
 The end-to-end tests start a fake SFCC instance over HTTPS (Account Manager token, WebDAV, OCAPI) and run the real
 commands and the MCP server through the official SDK. They require `openssl`.
 To test the package exactly as npx installs it:
-`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor"]' npx vitest run test/e2e/mcp.e2e.test.ts`
+`REALM_DOCTOR_MCP_COMMAND='["npx","-y","github:m-devecchi/Realm-doctor#v0.4.0"]' npx vitest run test/e2e/mcp.e2e.test.ts`
 (in `cli-plugin/`).
 
 Layout:
@@ -234,8 +236,9 @@ Optional `realm-doctor.json` next to `dw.json` (the MCP server finds it there; t
 - **suppress**: a known and accepted finding stops coming back. Each entry needs a `reason`; an entry without one is
   ignored and reported. In code, a `// realm-doctor-ignore JS-009 <reason>` comment on the line or the line above does
   the same. Hidden findings are always counted in the report (`suppressed`), never silently dropped.
-- **reports** carry `schemaVersion` and a `fingerprint` per finding, so two saved reports can be compared: same
-  fingerprint is the same issue.
+- **reports** carry `schemaVersion` and a `fingerprint` per finding: same fingerprint, same issue. The MCP server saves the
+  last 20 runs of each audit; ask "what changed since last week" (`compare_runs`) or compare two saved JSON reports with
+  `npx realm-doctor audit diff before.json after.json`.
 
 ## Security and data
 

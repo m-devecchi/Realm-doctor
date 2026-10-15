@@ -14,8 +14,8 @@ export default class InstallCopilot extends Command {
   static description =
     'Installs the realm-doctor skills and MCP servers for GitHub Copilot: skills in ~/.copilot/skills, MCP servers in ~/.copilot/mcp-config.json. Existing entries are kept; run again to update, --remove to uninstall.';
   static examples = [
-    'npx github:m-devecchi/Realm-doctor install copilot --config ~/sfcc/dw.json',
-    'npx github:m-devecchi/Realm-doctor install copilot --remove',
+    'npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --config ~/sfcc/dw.json',
+    'npx github:m-devecchi/Realm-doctor#v0.4.0 install copilot --remove',
   ];
   static flags = {
     config: Flags.string({description: 'Path to the dw.json with your instances (required unless --remove)'}),

@@ -10,6 +10,7 @@ import {createSafetyMiddleware, globalMiddlewareRegistry} from '@salesforce/b2c-
 import {loadGlobalSafetyConfig, resolveEffectiveSafetyConfig, SafetyGuard} from '@salesforce/b2c-tooling-sdk/safety';
 import type {Target} from './audits.js';
 import {resolveUserPath} from './distribution.js';
+import {withDefaultRules} from './safety-defaults.js';
 
 export interface ConfigLocation {
   /** explicit dw.json path (--config / SFCC_CONFIG) */
@@ -64,6 +65,21 @@ export function listInstances(loc: ConfigLocation): {file: string; instances: In
   };
 }
 
+/**
+ * The `rules` of an instance as written in dw.json. The SDK drops an empty list, so "no rules key" (add the read
+ * rules) and `"rules": []` (strict, add nothing) can only be told apart in the raw file. Unreadable: treated as strict.
+ */
+function rawRules(loc: ConfigLocation, name?: string): unknown[] | undefined | 'unreadable' {
+  try {
+    const json = JSON.parse(readFileSync(dwJsonPath(loc), 'utf8')) as {configs?: Array<Record<string, any>>} & Record<string, any>;
+    const configs = json.configs ?? [json];
+    const entry = (name ? configs.find((c) => c.name === name) : configs.find((c) => c.active === true) ?? configs[0]) as Record<string, any> | undefined;
+    return entry?.safety?.rules;
+  } catch {
+    return 'unreadable';
+  }
+}
+
 export interface ResolvedTarget extends Target {
   instanceName?: string;
   /** runs the callback with the instance's Safety Mode applied to every HTTP request */
@@ -88,7 +104,7 @@ export async function resolveTarget(loc: ConfigLocation, instanceName?: string, 
     SFCC_SAFETY_CONFIG: env.SFCC_SAFETY_CONFIG,
   };
   const guard = new SafetyGuard(
-    resolveEffectiveSafetyConfig(config.values.safety, loadGlobalSafetyConfig(getB2CConfigDirectory(), safetyEnv, loc.projectDirectory), safetyEnv),
+    resolveEffectiveSafetyConfig(withDefaultRules(config.values.safety, rawRules(loc, config.values.instanceName ?? instanceName)), loadGlobalSafetyConfig(getB2CConfigDirectory(), safetyEnv, loc.projectDirectory), safetyEnv),
   );
   return {
     instance,

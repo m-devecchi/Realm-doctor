@@ -9,7 +9,8 @@ export const CLI_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..'
 export const PACKAGE_ROOT = join(CLI_ROOT, '..');
 export const VERSION = (JSON.parse(readFileSync(join(CLI_ROOT, 'package.json'), 'utf8')) as {version: string}).version;
 
-export const REPO_SPEC = 'github:m-devecchi/Realm-doctor';
+/** Pinned to the release tag of this version, so a push to main never changes what users run. */
+export const REPO_SPEC = `github:m-devecchi/Realm-doctor#v${VERSION}`;
 export const OFFICIAL_MCP = '@salesforce/b2c-dx-mcp@3.5.0';
 
 /** MCP server entries for a client config, from the default branch (main); same spec as the README commands, so `init` already fills the npx cache. */

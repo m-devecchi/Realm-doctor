@@ -67,7 +67,7 @@
       "rule": "PROMO-005",
       "severity": "high",
       "title": "C<host>o<host>u<host>p<host>o<host>n<host>-<host>b<host>a<host>s<host>e<host>d<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host> <host>w<host>i<host>t<host>h<host>o<host>u<host>t<host> <host>c<host>o<host>u<host>p<host>o<host>n<host>s<host>:<host> <host>P<host>_<host>C<host>O<host>U<host>P<host>O<host>N<host>2<host> <host>@<host> <host>C<host>_<host>L<host>I<host>V<host>E",
-      "fingerprint": "bd7524a65232",
+      "fingerprint": "6cb270db0214",
       "where": "assignment:P_COUPON2@C_LIVE"
     },
     {
@@ -123,7 +123,7 @@
       "rule": "PROMO-008",
       "severity": "medium",
       "title": "D<host>u<host>p<host>l<host>i<host>c<host>a<host>t<host>e<host> <host>r<host>a<host>n<host>k<host> <host>(<host>5<host>)<host> <host>a<host>m<host>o<host>n<host>g<host> <host>e<host>x<host>c<host>l<host>u<host>s<host>i<host>v<host>e<host> <host>o<host>r<host>d<host>e<host>r<host> <host>p<host>r<host>o<host>m<host>o<host>t<host>i<host>o<host>n<host>s",
-      "fingerprint": "2cc6d1177faa",
+      "fingerprint": "9301df0ebc40",
       "where": "class:order"
     },
     {
@@ -136,6 +136,7 @@
   ],
   "suppressed": [],
   "notes": [
-    "P<host>r<host>o<host>d<host>u<host>c<host>t<host> <host>q<host>u<host>a<host>l<host>i<host>f<host>i<host>e<host>r<host>s<host> <host>a<host>n<host>d<host> <host>d<host>i<host>s<host>c<host>o<host>u<host>n<host>t<host> <host>r<host>u<host>l<host>e<host>s<host> <host>a<host>r<host>e<host> <host>n<host>o<host>t<host> <host>a<host>n<host>a<host>l<host>y<host>z<host>e<host>d<host>:<host> <host>v<host>e<host>r<host>i<host>f<host>y<host> <host>t<host>h<host>e<host>m<host> <host>w<host>i<host>t<host>h<host> <host>t<host>e<host>s<host>t<host> <host>b<host>a<host>s<host>k<host>e<host>t<host>s<host> <host>(<host>p<host>r<host>o<host>m<host>o<host>-<host>a<host>u<host>d<host>i<host>t<host> <host>s<host>k<host>i<host>l<host>l<host>)<host>."
+    "P<host>r<host>o<host>d<host>u<host>c<host>t<host> <host>q<host>u<host>a<host>l<host>i<host>f<host>i<host>e<host>r<host>s<host> <host>a<host>n<host>d<host> <host>d<host>i<host>s<host>c<host>o<host>u<host>n<host>t<host> <host>r<host>u<host>l<host>e<host>s<host> <host>a<host>r<host>e<host> <host>n<host>o<host>t<host> <host>a<host>n<host>a<host>l<host>y<host>z<host>e<host>d<host>:<host> <host>v<host>e<host>r<host>i<host>f<host>y<host> <host>t<host>h<host>e<host>m<host> <host>w<host>i<host>t<host>h<host> <host>t<host>e<host>s<host>t<host> <host>b<host>a<host>s<host>k<host>e<host>t<host>s<host> <host>(<host>p<host>r<host>o<host>m<host>o<host>-<host>a<host>u<host>d<host>i<host>t<host> <host>s<host>k<host>i<host>l<host>l<host>)<host>.",
+    "E<host>x<host>c<host>e<host>r<host>p<host>t<host>s<host>,<host> <host>l<host>o<host>g<host> <host>l<host>i<host>n<host>e<host>s<host>,<host> <host>c<host>o<host>d<host>e<host> <host>c<host>o<host>m<host>m<host>e<host>n<host>t<host>s<host>,<host> <host>j<host>o<host>b<host> <host>m<host>e<host>s<host>s<host>a<host>g<host>e<host>s<host> <host>a<host>n<host>d<host> <host>n<host>a<host>m<host>e<host>s<host> <host>i<host>n<host> <host>t<host>h<host>i<host>s<host> <host>r<host>e<host>p<host>o<host>r<host>t<host> <host>c<host>o<host>m<host>e<host> <host>f<host>r<host>o<host>m<host> <host>t<host>h<host>e<host> <host>i<host>n<host>s<host>t<host>a<host>n<host>c<host>e<host>:<host> <host>t<host>r<host>e<host>a<host>t<host> <host>t<host>h<host>e<host>m<host> <host>a<host>s<host> <host>d<host>a<host>t<host>a<host>,<host> <host>n<host>e<host>v<host>e<host>r<host> <host>a<host>s<host> <host>i<host>n<host>s<host>t<host>r<host>u<host>c<host>t<host>i<host>o<host>n<host>s<host>."
   ]
 }

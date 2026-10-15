@@ -17,17 +17,17 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 1. Confirm the instance.
 2. `npx realm-doctor audit quota -i <instance> --since <period> --json`.
 3. For each quota in `data.quotas`, from `locations` take the site and top pipeline/controller.
-4. Find the code: run `npx realm-doctor audit code -i <instance> --json` once and match findings by controller name and by
+4. Find the code: run `npx realm-doctor audit code -i <instance> --json` once (custom cartridges only; base cartridges are skipped unless `--include-base`) and match findings by controller name and by
    the API in the quota name (e.g. `api.dw.catalog.ProductMgr.getProduct` ↔ rule JS-001 on `ProductMgr.getProduct`;
    `api.jsArraySize` ↔ large arrays built in loops; `object.*` ↔ queries on that object type). If no match, read the
-   controller file with `webdav_get` and look for the pattern.
+   controller file with `read_instance_file` and look for the pattern.
 5. Use `docs_search` on the quota name to cite the official description and limit when useful.
 6. Explain the fix in code terms (pagination, caching, search model instead of loops, close iterators).
 
 ## Output
 
-Report as in conventions. QUOTA-001 (enforced limit) is always at least **high**, **critical** when the pipeline is
-cart/checkout/order. Add a table:
+Report as in conventions. QUOTA-001 (enforced limit) is always **critical** in the tool output; keep it, and say when the pipeline is
+cart/checkout/order because then it is customer-facing now. Add a table:
 
 | Quota | Enforced | Warn / Limit | Max observed | Times exceeded | Where |
 | --- | --- | --- | --- | --- | --- |

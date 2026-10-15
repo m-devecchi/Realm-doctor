@@ -16,6 +16,7 @@ export default class AuditCode extends InstanceCommand<typeof AuditCode> {
     ...InstanceCommand.baseFlags,
     dir: Flags.string({description: 'Analyze a local folder instead of the instance'}),
     cartridge: Flags.string({description: 'Only these cartridges', multiple: true}),
+    'include-base': Flags.boolean({description: 'Also analyze app_storefront_base, modules and bm_* (default: custom cartridges only)', default: false}),
     'max-findings': Flags.integer({description: 'Maximum findings returned', default: 500}),
     offset: Flags.integer({description: 'Skip the first N findings (to read the next page)', default: 0}),
   };
@@ -25,9 +26,9 @@ export default class AuditCode extends InstanceCommand<typeof AuditCode> {
       () => {
         this.requireServer();
         this.requireWebDavCredentials();
-        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!};
+        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName};
       },
-      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge, maxFindings: this.flags['max-findings'], offset: this.flags.offset},
+      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge, includeBase: this.flags['include-base'], maxFindings: this.flags['max-findings'], offset: this.flags.offset},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

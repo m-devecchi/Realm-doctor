@@ -3,6 +3,7 @@ import {mkdir, readFile, rm, stat, writeFile, readdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {dirname, join} from 'node:path';
+import {addNotice} from './notices.js';
 import {fileURLToPath} from 'node:url';
 
 /**
@@ -25,18 +26,10 @@ export function hostDir(hostname: string): string {
   return join(cacheRoot(), hostname.replace(/[^A-Za-z0-9.-]/g, '_'));
 }
 
-const warnings = new Set<string>();
-
-/** Cache problems seen since the last call (once per kind and path folder), for the report notes. */
-export function drainCacheWarnings(): string[] {
-  const out = [...warnings];
-  warnings.clear();
-  return out;
-}
 
 const note = (action: string, path: string, error: unknown): void => {
   const code = (error as NodeJS.ErrnoException)?.code ?? (error instanceof Error ? error.message : String(error));
-  warnings.add(`Cache ${action} failed (${code}) under ${dirname(dirname(path))}: results are correct but slower; check the folder permissions.`);
+  addNotice(`Cache ${action} failed (${code}) under ${dirname(dirname(path))}: results are correct but slower; check the folder permissions.`);
 };
 
 /** A missing file is a normal cache miss; any other error is reported in the notes. */

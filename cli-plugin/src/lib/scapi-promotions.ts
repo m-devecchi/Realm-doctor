@@ -6,6 +6,7 @@
  *
  * Endpoints and fields follow the official OpenAPI specs shipped with @salesforce/b2c-api-schemas.
  */
+import {addNotice} from './notices.js';
 import {buildScapiClient, createScapiRequestError, toOrganizationId} from '@salesforce/b2c-tooling-sdk/clients';
 import type {B2CInstance} from '@salesforce/b2c-tooling-sdk';
 import type {Assignment, Campaign, Coupon, CustomerGroup, PromoBundle, Promotion} from '../rules/promo-rules.js';
@@ -129,7 +130,9 @@ async function searchAll<T>(c: AnyClient, path: string, organizationId: string, 
     const hits = (data.hits ?? []) as T[];
     out.push(...hits);
     offset += hits.length;
-    if (hits.length === 0 || offset >= Number(data.total ?? 0) || offset >= maxRecords) return out;
+    const total = Number(data.total ?? 0);
+    if (offset >= maxRecords && offset < total) addNotice(`${path.split('/').pop()}: only the first ${offset} of ${total} records were read (cap ${maxRecords}); the analysis of that part is incomplete.`);
+    if (hits.length === 0 || offset >= total || offset >= maxRecords) return out;
   }
 }
 

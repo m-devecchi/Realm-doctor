@@ -12,6 +12,7 @@ export default class AuditHyperforce extends InstanceCommand<typeof AuditHyperfo
     ...InstanceCommand.baseFlags,
     dir: Flags.string({description: 'Analyze a local folder instead of the instance'}),
     cartridge: Flags.string({description: 'Only these cartridges', multiple: true}),
+    'include-base': Flags.boolean({description: 'Also analyze app_storefront_base, modules and bm_* (default: custom cartridges only)', default: false}),
   };
 
   async run() {
@@ -19,9 +20,9 @@ export default class AuditHyperforce extends InstanceCommand<typeof AuditHyperfo
       () => {
         this.requireServer();
         this.requireWebDavCredentials();
-        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!};
+        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName};
       },
-      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge},
+      {dir: this.flags.dir, codeVersion: this.flags['code-version'], cartridges: this.flags.cartridge, includeBase: this.flags['include-base']},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

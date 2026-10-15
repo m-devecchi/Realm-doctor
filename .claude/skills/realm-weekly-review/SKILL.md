@@ -19,7 +19,7 @@ the commands below, do not re-run the full sub-skills.
 1. Confirm the instance.
 2. Errors: `npx realm-doctor audit errors -i <instance> --since 7d --top 20 --json`.
 3. Quota: `npx realm-doctor audit quota -i <instance> --since 7d --json`.
-4. Jobs: `npx realm-doctor audit jobs -i <instance> --count 200 --json` (MCP `audit_jobs`); failures and slow runs as in the `job-health` skill (no log reading
+4. Jobs: `npx realm-doctor audit jobs -i <instance> --count 500 --json` (MCP `audit_jobs`); failures and slow runs as in the `job-health` skill (no log reading
    unless a job failed 2+ times).
 5. APIs (if CIP is available for the tenant): MCP `cip_discover` for the technical reports, then `cip_query` for
    SCAPI/OCAPI endpoints with the highest 5xx rate and latency in the week. Skip with a note if not available.
@@ -33,7 +33,9 @@ Report as in conventions, with this Summary structure:
 
 - **Verdict:** stable / to monitor / critical, in one sentence.
 - **Top 5 problems** (one line each with severity and rule id).
-- **Compared with last week:** only if the user provides last week's report or the data covers it; otherwise omit.
+- **Compared with last week:** from `compare_runs` (MCP; `instanceName` and the audit, e.g. `audit errors`), which
+  compares this run with the previous saved one: new, fixed, still open, severity changes. Run it after the audits
+  above. If it says fewer than two runs exist, write "first run, no comparison" and omit the section.
 
 Then a short section per area (Errors, Quota, Jobs, APIs, Promotions) with at most 3 findings each, and the full list of
 remaining findings in an appendix table:

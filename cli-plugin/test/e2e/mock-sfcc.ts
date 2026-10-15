@@ -153,8 +153,10 @@ export async function startMockSfcc(opts: MockOptions): Promise<MockSfcc> {
         if (p === '/job_execution_search' && req.method === 'POST') {
           const q = JSON.parse(body || '{}') as {count?: number; query?: {term_query?: {values?: string[]}}};
           const only = q.query?.term_query?.values?.[0];
-          const hits = (opts.jobs ?? []).filter((j) => !only || (j as {job_id?: string}).job_id === only).slice(0, q.count ?? 25);
-          return send(200, JSON.stringify({count: hits.length, hits, start: 0, total: hits.length}));
+          const matching = (opts.jobs ?? []).filter((j) => !only || (j as {job_id?: string}).job_id === only);
+          const hits = matching.slice(0, q.count ?? 25);
+          // like the real API: total is everything that matches, not the page
+          return send(200, JSON.stringify({count: hits.length, hits, start: 0, total: matching.length}));
         }
         const search = /^\/sites\/([^/]+)\/(\w+_search)$/.exec(p);
         if (search && req.method === 'POST') {

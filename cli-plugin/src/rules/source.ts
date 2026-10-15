@@ -51,3 +51,8 @@ export function lineText(content: string, line: number): string {
 export function cartridgeOf(path: string): string {
   return path.split('/')[0];
 }
+
+/** Base and Business Manager cartridges: Salesforce code, skipped by default in code audits (use includeBase). */
+export function isBaseCartridge(name: string): boolean {
+  return name === 'app_storefront_base' || name === 'modules' || name.startsWith('bm_');
+}

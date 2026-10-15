@@ -21,35 +21,35 @@
       "rule": "FE-001",
       "severity": "high",
       "title": "L<host>C<host>P<host> <host>p<host>o<host>o<host>r<host>:<host> <host>4<host>.<host>3<host> <host>s<host> <host>(<host>t<host>h<host>r<host>e<host>s<host>h<host>o<host>l<host>d<host> <host>2<host>.<host>5<host> <host>s<host>)",
-      "fingerprint": "4e3f5e1fda96",
+      "fingerprint": "be946ecbc913",
       "where": "https://www.example.com/"
     },
     {
       "rule": "FE-002",
       "severity": "medium",
       "title": "C<host>L<host>S<host> <host>n<host>e<host>e<host>d<host>s<host> <host>i<host>m<host>p<host>r<host>o<host>v<host>e<host>m<host>e<host>n<host>t<host>:<host> <host>0<host>.<host>1<host>5<host> <host>(<host>t<host>h<host>r<host>e<host>s<host>h<host>o<host>l<host>d<host> <host>0<host>.<host>1<host>)",
-      "fingerprint": "5b2aff840558",
+      "fingerprint": "9d21e469b6cc",
       "where": "https://www.example.com/"
     },
     {
       "rule": "FE-005",
       "severity": "medium",
       "title": "H<host>e<host>a<host>v<host>y<host> <host>J<host>a<host>v<host>a<host>S<host>c<host>r<host>i<host>p<host>t<host>:<host> <host>1<host>.<host>4<host> <host>M<host>B",
-      "fingerprint": "416863cec012",
+      "fingerprint": "27623f04ad10",
       "where": "https://www.example.com/"
     },
     {
       "rule": "FE-006",
       "severity": "medium",
       "title": "T<host>h<host>i<host>r<host>d<host> <host>p<host>a<host>r<host>t<host>i<host>e<host>s<host> <host>b<host>l<host>o<host>c<host>k<host> <host>t<host>h<host>e<host> <host>m<host>a<host>i<host>n<host> <host>t<host>h<host>r<host>e<host>a<host>d<host> <host>f<host>o<host>r<host> <host>3<host>8<host>0<host> <host>m<host>s",
-      "fingerprint": "1d051ed2ab08",
+      "fingerprint": "e9edc6d5b36c",
       "where": "https://www.example.com/"
     },
     {
       "rule": "FE-007",
       "severity": "medium",
       "title": "B<host>r<host>o<host>w<host>s<host>e<host>r<host> <host>c<host>o<host>n<host>s<host>o<host>l<host>e<host> <host>e<host>r<host>r<host>o<host>r<host>s<host> <host>(<host>2<host>)",
-      "fingerprint": "f251676b9115",
+      "fingerprint": "2edf4ca15879",
       "where": "https://www.example.com/"
     }
   ],

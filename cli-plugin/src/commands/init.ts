@@ -7,7 +7,7 @@ import {PACKAGE_ROOT, resolveUserPath} from '../lib/distribution.js';
 export default class Init extends Command {
   static description =
     'Creates a dw.json with example instances to fill in (never overwrites an existing file). Use it with the Claude Code plugin or the Copilot install, which have no repository folder.';
-  static examples = ['npx github:m-devecchi/Realm-doctor init', 'npx github:m-devecchi/Realm-doctor init --path ~/work/sfcc/dw.json'];
+  static examples = ['npx github:m-devecchi/Realm-doctor#v0.4.0 init', 'npx github:m-devecchi/Realm-doctor#v0.4.0 init --path ~/work/sfcc/dw.json'];
   static flags = {
     path: Flags.string({description: 'Where to create the file (default ~/realm-doctor/dw.json)'}),
   };

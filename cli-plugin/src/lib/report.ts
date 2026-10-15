@@ -20,7 +20,7 @@ export interface Report<D = unknown> {
 }
 
 export function buildReport<D>(command: string, target: Record<string, unknown>, findings: Finding[], data?: D, notes: string[] = []): Report<D> {
-  const realm = typeof target.hostname === 'string' ? target.hostname : typeof target.instance === 'string' ? target.instance : undefined;
+  const realm = [target.instance, target.hostname].filter((k): k is string => typeof k === 'string');
   const {kept, suppressed, problems} = applySuppressions(findings, realm);
   const sorted = sortFindings(kept).map((f) => ({...f, fingerprint: fingerprint(f)}));
   return {
@@ -37,10 +37,16 @@ export function buildReport<D>(command: string, target: Record<string, unknown>,
   };
 }
 
-/** Stable id of a finding across runs: same rule, place and title give the same value. */
+/**
+ * Stable id of a finding across runs. When the finding has a ref (an error signature, a job, a quota, a promotion) the
+ * ref plus the title without its numbers is the identity, because titles carry counts that change every run. For code findings
+ * the identity is the place and the title (the API or pattern found there).
+ */
 export function fingerprint(f: Finding): string {
-  const where = f.evidence.map((e) => e.location ?? e.ref ?? '').join(',');
-  return createHash('sha1').update(`${f.rule}|${where}|${f.title}`).digest('hex').slice(0, 12);
+  const refs = f.evidence.map((e) => e.ref).filter(Boolean);
+  // digits in a title are counts, durations and percentages that change every run
+  const key = refs.length ? `${refs.join(',')}|${f.title.replace(/\d+(\.\d+)?/g, '#')}` : `${f.evidence.map((e) => e.location ?? '').join(',')}|${f.title}`;
+  return createHash('sha1').update(`${f.rule}|${key}`).digest('hex').slice(0, 12);
 }
 
 const LABEL: Record<Severity, string> = {critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW'};

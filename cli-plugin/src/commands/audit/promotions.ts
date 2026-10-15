@@ -29,7 +29,7 @@ export default class AuditPromotions extends InstanceCommand<typeof AuditPromoti
     const {report, bundle} = await auditPromotions(
       () => {
         this.requireServer();
-        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!};
+        return {instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName};
       },
       {site: this.flags.site, currencies: this.flags.currency, now: this.flags.now, bundle: input},
     );

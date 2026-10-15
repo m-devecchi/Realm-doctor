@@ -93,9 +93,12 @@ const SCENARIOS: Scenario[] = [
     skill: 'incident-triage',
     steps: [
       {
-        name: 'errors', tool: 'audit_errors', args: {instanceName: 'mock-sbx', since: SINCE, top: 20}, golden: true,
+        // the skill's default is a short window: it must still tell what is new, which needs the days before it
+        name: 'errors', tool: 'audit_errors', args: {instanceName: 'mock-sbx', since: '2026-10-08T06:00:00Z', top: 20}, golden: true,
         expect: (r) => {
-          expect(rulesOf(r)).toEqual(['ERR-001', 'ERR-002']);
+          expect(r.data.mode).toBe('window');
+          expect(rulesOf(r)).toContain('ERR-001');
+          expect(r.notes.join(' ')).toMatch(/judged against the 7 days before it/);
           // step 6 of the skill needs a code reference to read: it must be there
           expect(r.findings.some((f: Json) => f.evidence[0].location)).toBe(true);
           expect(r.data.signatures.length).toBeLessThanOrEqual(20);
@@ -148,57 +151,20 @@ const SCENARIOS: Scenario[] = [
     skill: 'post-deploy-check',
     steps: [
       {
-        name: 'errors before', tool: 'audit_errors', args: {instanceName: 'mock-sbx', since: SINCE, day: '2026-10-07'}, golden: true,
-        expect: (r) => expect(r.data.entries).toBeGreaterThan(0),
-      },
-      {
-        name: 'errors after', tool: 'audit_errors', args: {instanceName: 'mock-sbx', since: SINCE, day: '2026-10-08'}, golden: true,
-        expect: (r, all) => {
-          // the verdict needs a before/after difference on the same signatures
-          expect(r.findings.length).toBeGreaterThan(0);
-          expect(r.findings.map((f: Json) => f.fingerprint)).not.toEqual(all['errors before'].findings.map((f: Json) => f.fingerprint));
+        // deployed at 08:00; the skill reads the 24 h before and the time after, and needs rates on both sides
+        name: 'errors split at the deploy', tool: 'audit_errors', args: {instanceName: 'mock-sbx', since: '2026-10-07T08:00:00Z', splitAt: '2026-10-08T08:00:00Z', top: 50}, golden: true,
+        expect: (r) => {
+          const sigs = r.data.signatures as Array<{template: string; split: {before: number; after: number; hoursBefore: number; hoursAfter: number; beforePerHour: number; afterPerHour: number}}>;
+          expect(sigs.every((s) => s.split)).toBe(true);
+          const payment = sigs.find((s) => s.template.startsWith('Payment authorization failed'))!;
+          expect(payment.split.before).toBe(0); // new after the deploy
+          expect(payment.split.after).toBeGreaterThan(0);
+          expect(payment.split).toMatchObject({hoursBefore: 24, hoursAfter: 4});
+          expect(payment.split.afterPerHour).toBeGreaterThan(payment.split.beforePerHour);
         },
       },
       {name: 'quota', tool: 'audit_quota', args: {instanceName: 'mock-sbx', since: SINCE}, expect: (r) => expect(r.summary.findings).toBeGreaterThan(0)},
       {name: 'versions', tool: 'list_code_versions', args: {instanceName: 'mock-sbx'}, expect: (r) => expect(r.codeVersions[0].id).toBeTruthy()},
-    ],
-  },
-  {
-    skill: 'cartridge-code-review',
-    steps: [
-      {
-        name: 'code (instance)', tool: 'audit_code', args: {instanceName: 'mock-sbx'}, golden: true,
-        expect: (r) => {
-          expect(r.target.codeVersion).toBe('v1');
-          expect(r.summary.findings).toBe(14);
-          expect(r.notes.join(' ')).toMatch(/files analyzed/);
-          // the clean cartridge must stay clean
-          expect(r.findings.some((f: Json) => f.evidence[0].location.startsWith('app_clean/'))).toBe(false);
-        },
-      },
-      {
-        name: 'code (page 2)', tool: 'audit_code', args: {instanceName: 'mock-sbx', maxFindings: 10, offset: 10},
-        expect: (r) => {
-          expect(r.findings).toHaveLength(4);
-          expect(r.notes.join(' ')).not.toMatch(/Pass offset/);
-        },
-      },
-      {name: 'code (page 1)', tool: 'audit_code', args: {instanceName: 'mock-sbx', maxFindings: 10}, expect: (r) => expect(r.notes.join(' ')).toMatch(/Pass offset to read the next page/)},
-      {name: 'code (local folder)', tool: 'audit_code', args: {dir: join(FIX, 'cartridges')}, expect: (r) => expect(r.target.origin).toBe('local')},
-    ],
-  },
-  {
-    skill: 'hyperforce-readiness',
-    steps: [
-      {
-        name: 'hyperforce', tool: 'audit_hyperforce', args: {instanceName: 'mock-sbx'}, golden: true,
-        expect: (r) => {
-          expect(rulesOf(r)).toEqual(['HF-001', 'HF-002']);
-          const status = Object.fromEntries(r.data.checklist.map((c: Json) => [c.item, c.status]));
-          expect(Object.values(status)).toContain('FAIL');
-          expect(Object.values(status)).toContain('TO CHECK'); // what code cannot prove must stay open
-        },
-      },
     ],
   },
   {
@@ -229,6 +195,16 @@ const SCENARIOS: Scenario[] = [
       {name: 'quota', tool: 'audit_quota', args: {instanceName: 'mock-sbx', since: SINCE}, expect: (r) => expect(r.summary.bySeverity.critical).toBe(1)},
       {name: 'jobs', tool: 'audit_jobs', args: {instanceName: 'mock-sbx'}, expect: (r) => expect(r.summary.findings).toBe(2)},
       {name: 'promotions', tool: 'audit_promotions', args: {instanceName: 'mock-sbx', site: 'RefArch', currencies: ['EUR']}, expect: (r) => expect(r.summary.findings).toBeGreaterThan(0)},
+      {name: 'quota again', tool: 'audit_quota', args: {instanceName: 'mock-sbx', since: SINCE}, expect: () => undefined},
+      {
+        // "compared with last week" comes from the tool, not from the user's memory
+        name: 'compare', tool: 'compare_runs', args: {instanceName: 'mock-sbx', command: 'audit quota'},
+        expect: (r) => {
+          expect(r.new).toEqual([]);
+          expect(r.fixed).toEqual([]);
+          expect(r.unchanged.length).toBe(4);
+        },
+      },
     ],
   },
   {
@@ -247,13 +223,55 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
+/** Tools that stay available (quota-audit and job-health use audit_code) but have no skill of their own. */
+const TOOL_SCENARIOS: Scenario[] = [
+  {
+    skill: 'tool-audit-code',
+    steps: [
+      {
+        name: 'code (instance)', tool: 'audit_code', args: {instanceName: 'mock-sbx'}, golden: true,
+        expect: (r) => {
+          expect(r.target.codeVersion).toBe('v1');
+          expect(r.summary.findings).toBe(14);
+          expect(r.notes.join(' ')).toMatch(/files analyzed/);
+          // the clean cartridge must stay clean
+          expect(r.findings.some((f: Json) => f.evidence[0].location.startsWith('app_clean/'))).toBe(false);
+        },
+      },
+      {
+        name: 'code (page 2)', tool: 'audit_code', args: {instanceName: 'mock-sbx', maxFindings: 10, offset: 10},
+        expect: (r) => {
+          expect(r.findings).toHaveLength(4);
+          expect(r.notes.join(' ')).not.toMatch(/Pass offset/);
+        },
+      },
+      {name: 'code (page 1)', tool: 'audit_code', args: {instanceName: 'mock-sbx', maxFindings: 10}, expect: (r) => expect(r.notes.join(' ')).toMatch(/Pass offset to read the next page/)},
+      {name: 'code (local folder)', tool: 'audit_code', args: {dir: join(FIX, 'cartridges')}, expect: (r) => expect(r.target.origin).toBe('local')},
+    ],
+  },
+  {
+    skill: 'tool-audit-hyperforce',
+    steps: [
+      {
+        name: 'hyperforce', tool: 'audit_hyperforce', args: {instanceName: 'mock-sbx'}, golden: true,
+        expect: (r) => {
+          expect(rulesOf(r)).toEqual(['HF-001', 'HF-002']);
+          const status = Object.fromEntries(r.data.checklist.map((c: Json) => [c.item, c.status]));
+          expect(Object.values(status)).toContain('FAIL');
+          expect(Object.values(status)).toContain('TO CHECK'); // what code cannot prove must stay open
+        },
+      },
+    ],
+  },
+];
+
 describe('every skill has a scenario', () => {
   it('lists exactly the skills of the repository', () => {
     expect(SCENARIOS.map((s) => s.skill).sort()).toEqual(SKILLS);
   });
 });
 
-describe.each(SCENARIOS.filter((s) => s.steps.length))('eval: $skill', ({skill, steps}) => {
+describe.each([...SCENARIOS, ...TOOL_SCENARIOS].filter((s) => s.steps.length))('eval: $skill', ({skill, steps}) => {
   const results: Record<string, Json> = {};
   for (const step of steps) {
     it(step.name, async (ctx) => {

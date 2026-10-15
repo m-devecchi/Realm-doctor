@@ -28,7 +28,8 @@ export interface JobSummary {
   lastLogFile?: string;
 }
 
-const CRITICAL_NAME = /order|payment|inventory|price|stock|export|import/i;
+/** jobs that move money, orders or stock; a plain "export" or "import" in the name is not enough */
+const CRITICAL_NAME = /order|payment|inventor|price|stock|refund|settle/i;
 const RUNNING = new Set(['pending', 'running', 'resuming', 'resumed', 'restarting', 'retrying']);
 
 export function isFailed(e: JobExecution): boolean {
@@ -93,7 +94,7 @@ export function jobFindings(summaries: JobSummary[], limits: Thresholds['jobs'] 
         severity: sev,
         title: `Job failing: ${s.jobId} (${s.failed} of ${s.runs} runs failed${s.lastFailedStep ? `, step ${s.lastFailedStep}` : ''})`,
         evidence: [{ref, location: s.lastLogFile, data}],
-        impact: sev === 'critical' ? 'The job name points to orders, payments, inventory, prices or data exchange: business data may be stale or missing.' : 'The job does not complete its work.',
+        impact: sev === 'critical' ? 'The job name points to orders, payments, inventory, prices or refunds: business data may be stale or missing.' : 'The job does not complete its work.',
         fix: 'Read the job log at the given path, fix the failing step, then re-run the job.',
       });
     }
