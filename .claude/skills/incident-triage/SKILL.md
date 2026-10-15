@@ -18,14 +18,16 @@ tool calls, then deepen.
 
 1. Confirm the instance.
 2. **Errors in the window**: `npx realm-doctor audit errors -i <instance> --since <window> --top 20 --json`.
-   Pick the signatures that match the symptom (pipeline/controller in `locations`, words in `template`).
-3. **Live tail if still happening**: MCP `logs_get_recent` filtered on the matching text, to confirm the error is
-   ongoing and get the latest occurrence time.
+   For a window up to 36 hours the tool also reads the 7 days before it, so ERR-001 (new) and ERR-002 (spike) are judged
+   against the normal level (`data.mode` is `window`, and a note says so). Pick the signatures that match the symptom
+   (pipeline/controller in `locations`, words in `template`).
+3. **Still happening?** `lastSeen` of the matching signature, against the current time. Never read raw logs with the official `logs_get_recent` tool (it is not masked); for a log excerpt use
+   `read_instance_file` on the file.
 4. **Quota in the window**: `npx realm-doctor audit quota -i <instance> --since <window> --json`. Quota limits on the same pipeline
    are a strong cause candidate.
 5. **What changed**: `npx b2c code list -i <instance> --json` (MCP `list_code_versions`) (code version activated recently?) and
    `npx realm-doctor audit jobs -i <instance> --count 50 --json` (MCP `audit_jobs`) (imports or jobs finished just before the first occurrence?).
-6. **Code**: for the top matching signature, take `codeRefs[0]` (file:line) and read that file with MCP `webdav_get`
+6. **Code**: for the top matching signature, take `codeRefs[0]` (file:line) and read that file with MCP `read_instance_file`
    on `Cartridges/<activeVersion>/<file>`, around the line. Explain what the code does there.
 7. Build the timeline: first occurrence, peak, changes (deploy, job, campaign start) with timestamps.
 

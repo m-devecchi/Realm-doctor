@@ -20,7 +20,7 @@ to a fake instance and fails on anything that is not a `GET`, a `PROPFIND` or a 
 - **Credentials** live only in your `dw.json` or `.env` (both git-ignored). They are never printed. `list_instances`
   returns only whether a secret exists.
 - **Cache:** masked log text and code snapshots, in a folder only your user can read (`0700` / `0600`). Delete the
-  folder to remove it. Logs older than 30 days can be pruned.
+  folder to remove it. Cached logs older than 30 days are deleted at the next log audit; the last 20 saved reports per audit are kept for comparing runs (findings only, no log text).
 - **Masking** is pattern based: emails, IPs, phones, cards, long ids, IBAN, tax ids, tokens, secrets and personal fields
   (`firstName=...`). A second, independent check runs on masked text; if it still finds personal data, that log file is
   **not cached and not returned** and the report says so. Free-text names and addresses cannot be detected reliably.

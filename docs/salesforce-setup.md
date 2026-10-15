@@ -84,15 +84,18 @@ Every resource is a `GET` or a search (`POST …_search`): searches read data, t
   "client-secret": "the password from step 1",
   "short-code": "abcd1234",
   "tenant-id": "zzzz_prd",
-  "safety": { "level": "READ_ONLY", "rules": [ … copy them from config/dw.example.json … ] }
+  "safety": { "level": "READ_ONLY" }
 }
 ```
 
 - `name`: your choice, `<realm>-<env>` (e.g. `acme-prd`, `acme-stg`, `globex-sbx`). You use it to pick the instance.
 - `hostname`: the Business Manager host, without `https://` and without `/on/demandware.store/…`.
 - `short-code`, `tenant-id`: from step 2a. Without them only OCAPI is used.
-- `safety`: keep it exactly as in the example. It makes the Salesforce tools refuse any write, even by mistake; its
-  rules allow only the searches the audits need, on SCAPI and OCAPI.
+- `safety`: keep `READ_ONLY`. It makes the Salesforce tools refuse any write, even by mistake. The Realm Doctor MCP server
+  adds the allow rules for the searches the audits need (SCAPI and OCAPI) when there is no `rules` key; `"rules": []`
+  turns that off. The CLI commands and the official `b2c-dx-mcp` read the rules from `dw.json` only: if you use them,
+  copy the `rules` list from `config/dw.example.json`. Test baskets for `promo-audit` are never added automatically:
+  add the basket and authentication rules from the sandbox example to that sandbox instance only.
 - Optional `"api-backend": "ocapi"` or `"scapi"` forces one API (default `auto`: SCAPI first).
 
 Keep `dw.json` private: it contains the secret.
@@ -109,4 +112,4 @@ and what is missing. The usual errors:
 | `403` on `/code_versions`, `job_execution_search`, `…_search` | OCAPI resource missing on this instance | step 2c |
 | `invalid_scope`, or SCAPI `403` and then an OCAPI error | the API client lacks the role, the tenant in its filter, or a scope | step 1 (role, tenant filter, scopes) |
 | report says `api: ocapi` on an instance that should use SCAPI | `short-code` or `tenant-id` missing in dw.json | step 2a |
-| Safety Mode blocked | the `safety` block lacks a rule | copy the `safety` block from `config/dw.example.json` again; never lower `READ_ONLY` |
+| Safety Mode blocked | CLI or official MCP search with no rules in `dw.json`, or `"rules": []` | copy the `rules` from `config/dw.example.json`; never lower `READ_ONLY` |

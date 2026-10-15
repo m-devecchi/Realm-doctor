@@ -59,3 +59,13 @@ const RESIDUAL: Array<[string, RegExp]> = [
 export function residualPII(maskedText: string): string[] {
   return RESIDUAL.filter(([, re]) => re.test(maskedText)).map(([kind]) => kind);
 }
+
+/**
+ * Hides credentials written as string literals in code (`apiKey: 'sk_live_...'`, `password = "..."`), so reading a
+ * cartridge file for a finding does not send a secret to the model. Same names as rule JS-005.
+ */
+const CODE_SECRET = /((?:password|passwd|secret|api_?key|apikey|client_?secret|access_?token|private_?key)\w*["']?\s*[:=]\s*)(["'])([^"'\n]{6,})\2/gi;
+
+export function maskCodeSecrets(code: string): string {
+  return code.replace(CODE_SECRET, '$1$2<SECRET>$2');
+}

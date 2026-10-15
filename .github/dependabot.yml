@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # @salesforce/b2c-tooling-sdk declares peer @oclif/core ^4: version 5 makes `npm ci` fail (ERESOLVE).
+      # Remove this when the SDK supports 5.
+      - dependency-name: "@oclif/core"
+        update-types: ["version-update:semver-major"]
     groups:
       # the Salesforce packages are pinned on purpose and move together; the SCAPI mapping tests are the canary
       salesforce:

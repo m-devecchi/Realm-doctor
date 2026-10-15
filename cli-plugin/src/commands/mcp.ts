@@ -6,6 +6,8 @@ import {dirname, join} from 'node:path';
 import {z} from 'zod';
 import {auditCode, auditErrors, auditFrontend, auditHyperforce, auditJobs, auditPromotions, auditQuota} from '../lib/audits.js';
 import {VERSION} from '../lib/distribution.js';
+import {diffReports} from '../lib/diff.js';
+import {lastTwoReports, saveReport} from '../lib/history.js';
 import {errorText, limitResponse} from '../lib/mcp-result.js';
 import {dwJsonPath, listInstances, loadDotEnv, locateConfig, resolveTarget, type ConfigLocation} from '../lib/instances.js';
 import {listCodeVersions, readInstanceFile} from '../lib/sfcc.js';
@@ -14,8 +16,8 @@ import {allRules} from '../rules/index.js';
 
 const instanceName = z
   .string()
-  .optional()
-  .describe('Instance name from dw.json (see list_instances). Omit only when the user means the default instance. Never guess between production and sandbox.');
+  .min(1)
+  .describe('Instance name from dw.json (see list_instances). Always required: ask the user which one if it is not clear. Never guess between production and sandbox.');
 
 const maxFindings = z.number().int().positive().max(1000).optional().describe('Maximum findings returned (most severe first)');
 
@@ -47,8 +49,11 @@ export function createServer(loc: ConfigLocation): McpServer {
     <A extends {instanceName?: string}>(fn: (t: Awaited<ReturnType<typeof resolveTarget>>, args: A) => Promise<unknown>) =>
     async (args: A): Promise<ToolResult> => {
       try {
+        if (!args.instanceName) throw new Error('instanceName is required: ask the user which instance (see list_instances). Invalid input.');
         const t = await resolveTarget(loc, args.instanceName);
         const result = await t.run(() => fn(t, args));
+        const report = result as {command?: string; findings?: unknown[]};
+        if (report?.command && Array.isArray(report.findings)) await saveReport(t.hostname, result as Parameters<typeof saveReport>[1]);
         return ok(addInstance(result, t.instanceName));
       } catch (error) {
         return fail(error);
@@ -87,13 +92,14 @@ export function createServer(loc: ConfigLocation): McpServer {
         instanceName,
         since: z.string().optional().describe('Period start: 24h, 7d or ISO date-time (default 24h)'),
         prefixes: z.array(z.string()).optional().describe('Log prefixes (default error, customerror, fatal)'),
+        splitAt: z.string().optional().describe('ISO date-time of a deployment: each signature gets before/after counts and per-hour rates inside the period (data.signatures[].split)'),
         day: z.string().optional().describe('Day evaluated for new errors and spikes, YYYY-MM-DD (default: last day in the data)'),
         top: z.number().int().positive().optional().describe('Signatures returned in data (default 30)'),
         maxFindings,
       },
       annotations: readOnly,
     },
-    withTarget(async (t, a: {instanceName?: string; since?: string; prefixes?: string[]; day?: string; top?: number; maxFindings?: number}) => cap(await auditErrors(t, a), a.maxFindings)),
+    withTarget(async (t, a: {instanceName?: string; since?: string; splitAt?: string; prefixes?: string[]; day?: string; top?: number; maxFindings?: number}) => cap(await auditErrors(t, a), a.maxFindings)),
   );
 
   server.registerTool(
@@ -115,7 +121,7 @@ export function createServer(loc: ConfigLocation): McpServer {
       inputSchema: {
         instanceName,
         jobId: z.string().optional().describe('Only this job'),
-        count: z.number().int().positive().max(200).optional().describe('Most recent executions to read (default 100)'),
+        count: z.number().int().positive().max(1000).optional().describe('Most recent executions to read (default 100, max 1000)'),
         maxFindings,
       },
       annotations: readOnly,
@@ -124,12 +130,13 @@ export function createServer(loc: ConfigLocation): McpServer {
   );
 
   const codeInput = {
-    instanceName,
+    instanceName: instanceName.optional().describe('Instance name from dw.json (see list_instances). Required unless dir is given.'),
     codeVersion: z.string().optional().describe('Code version (default: the active one)'),
     cartridges: z.array(z.string()).optional().describe('Only these cartridges'),
+    includeBase: z.boolean().optional().describe('Also analyze app_storefront_base, modules and bm_* (default false: custom cartridges only)'),
     dir: z.string().optional().describe('Analyze this local folder instead of an instance'),
   };
-  type CodeArgs = {instanceName?: string; codeVersion?: string; cartridges?: string[]; dir?: string; maxFindings?: number; offset?: number};
+  type CodeArgs = {instanceName?: string; codeVersion?: string; cartridges?: string[]; includeBase?: boolean; dir?: string; maxFindings?: number; offset?: number};
   const codeTool = (fn: (target: (() => Awaited<ReturnType<typeof resolveTarget>>) | undefined, a: CodeArgs) => Promise<unknown>) => async (a: CodeArgs) => {
     if (a.dir) {
       try {
@@ -194,6 +201,25 @@ export function createServer(loc: ConfigLocation): McpServer {
         return fail(error);
       }
     },
+  );
+
+  server.registerTool(
+    'compare_runs',
+    {
+      title: 'Compare with the previous run',
+      description:
+        'Compares the two most recent runs of the same audit on an instance (saved automatically by this server): new, fixed, still open and severity changes. Run the audit first; needs two runs. Use it for "what changed since last week".',
+      inputSchema: {
+        instanceName,
+        command: z.enum(['audit errors', 'audit quota', 'audit jobs', 'audit code', 'audit promotions', 'audit hyperforce']).describe('Which audit to compare'),
+      },
+      annotations: {...readOnly, openWorldHint: false},
+    },
+    withTarget(async (t, a: {instanceName?: string; command: string}) => {
+      const [before, after] = await lastTwoReports(t.hostname, a.command);
+      if (!before || !after) throw new Error(`Not found: fewer than two saved runs of "${a.command}" on ${t.hostname}. Run the audit again later and compare.`);
+      return diffReports(before, after);
+    }),
   );
 
   server.registerTool(

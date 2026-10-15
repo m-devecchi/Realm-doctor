@@ -11,8 +11,11 @@ All realm-doctor analyses are read-only. They need:
 | Promotions | SCAPI Promotions, Campaigns, Coupons (`sfcc.promotions`) and Customer groups (`sfcc.customergroups`), or OCAPI `POST /sites/{site}/*_search` | promotions |
 | Test baskets | SCAPI Shopper APIs as guest (SLAS client) | promo-audit, **sandbox only** |
 
-Recommended Safety Mode policy (`config/safety.example.json` in the repo): level `READ_ONLY` plus `allow` rules for the
-search POSTs only (SCAPI and OCAPI). Under plain `READ_ONLY` the searches are blocked and the jobs and promotions audits fail.
+The realm-doctor MCP server adds the `allow` rules for the search POSTs (SCAPI and OCAPI) itself when an instance has
+`"safety": {"level": "READ_ONLY"}` and no `rules` key; `"rules": []` means strict (nothing added, searches blocked). The
+CLI commands and the official `b2c-dx-mcp` server read the rules from `dw.json` only, so for them copy the block from
+`config/dw.example.json` (`config/safety.example.json`). Baskets and shopper authentication (promo test baskets) are
+never added automatically: they are a sandbox-only decision, written into that instance's `rules`.
 SCAPI is used first when the instance has `short-code` and `tenant-id` in dw.json; reports show `api: scapi` or `api: ocapi`.
 On instances without OCAPI, SCAPI is the only way: the API client needs the Salesforce Commerce API role with the
 instance's tenant and the read scopes above.

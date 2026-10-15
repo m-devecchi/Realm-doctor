@@ -8,7 +8,7 @@
  *   {
  *     "thresholds": {"errors": {"spikeFactor": 4}, "jobs": {"slowMinutes": 10}},
  *     "suppress": [{"rule": "JS-009", "location": "int_legacy/", "reason": "reviewed 2026-10"}],
- *     "realms": {"myrealm-prd": {"thresholds": {...}, "suppress": [...]}}
+ *     "realms": {"acme-prd": {"thresholds": {...}, "suppress": [...]}}   (instance name or hostname)
  *   }
  *
  * A suppression matches when `rule` is equal and, if given, `location` or `ref` is contained in the
@@ -84,13 +84,20 @@ function merge<T extends object>(base: T, over: DeepPartial<T> | undefined): T {
   return out as T;
 }
 
-/** realm = instance name or hostname */
-function realmEntry(realm?: string) {
+/** A realm is named by its instance name (acme-prd), its hostname, or the first labels of the hostname. */
+export type RealmKey = string | Array<string | undefined> | undefined;
+
+function realmEntry(realm?: RealmKey) {
   const realms = getSettings().settings.realms ?? {};
-  return realm ? Object.entries(realms).find(([k]) => realm === k || realm.startsWith(`${k}.`))?.[1] : undefined;
+  const keys = (Array.isArray(realm) ? realm : [realm]).filter((k): k is string => Boolean(k));
+  for (const name of keys) {
+    const hit = Object.entries(realms).find(([k]) => name === k || name.startsWith(`${k}.`));
+    if (hit) return hit[1];
+  }
+  return undefined;
 }
 
-export function thresholds(realm?: string): Thresholds {
+export function thresholds(realm?: RealmKey): Thresholds {
   const s = getSettings().settings;
   return merge(merge(DEFAULT_THRESHOLDS, s.thresholds), realmEntry(realm)?.thresholds);
 }
@@ -103,7 +110,7 @@ export interface SuppressionResult {
 
 const evidenceText = (f: Finding, key: 'location' | 'ref'): string[] => f.evidence.map((e) => e[key]).filter((v): v is string => Boolean(v));
 
-export function applySuppressions(findings: Finding[], realm?: string): SuppressionResult {
+export function applySuppressions(findings: Finding[], realm?: RealmKey): SuppressionResult {
   const s = getSettings();
   const rules = [...(s.settings.suppress ?? []), ...(realmEntry(realm)?.suppress ?? [])];
   const problems = [...s.problems];

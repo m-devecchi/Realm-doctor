@@ -11,13 +11,13 @@ export default class AuditJobs extends InstanceCommand<typeof AuditJobs> {
   static flags = {
     ...InstanceCommand.baseFlags,
     'job-id': Flags.string({description: 'Only this job'}),
-    count: Flags.integer({description: 'Number of most recent executions to read (max 200)', default: 100}),
+    count: Flags.integer({description: 'Number of most recent executions to read (max 1000)', default: 100}),
   };
 
   async run() {
     this.requireServer();
     this.requireOAuthCredentials();
-    const report = await auditJobs({instance: this.instance, hostname: this.resolvedConfig.values.hostname!}, {jobId: this.flags['job-id'], count: this.flags.count});
+    const report = await auditJobs({instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName}, {jobId: this.flags['job-id'], count: this.flags.count});
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;
   }

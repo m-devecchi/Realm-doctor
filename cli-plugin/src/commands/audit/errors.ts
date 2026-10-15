@@ -16,6 +16,7 @@ export default class AuditErrors extends InstanceCommand<typeof AuditErrors> {
     since: Flags.string({description: 'Period start: 24h, 7d or ISO date-time', default: '24h'}),
     prefix: Flags.string({description: 'Log prefixes', multiple: true, default: ['error', 'customerror', 'fatal']}),
     day: Flags.string({description: 'Day to evaluate for new errors and spikes (YYYY-MM-DD, default: last day in the data)'}),
+    'split-at': Flags.string({description: 'ISO date-time of a deployment: every signature gets before/after counts and rates inside the period'}),
     top: Flags.integer({description: 'Number of signatures returned in data', default: 30}),
     'max-files': Flags.integer({description: 'Maximum log files to read (newest first)', default: 200}),
     'max-kb': Flags.integer({description: 'Read at most this many KB from the end of each file', default: 20_480}),
@@ -25,8 +26,8 @@ export default class AuditErrors extends InstanceCommand<typeof AuditErrors> {
     this.requireServer();
     this.requireWebDavCredentials();
     const report = await auditErrors(
-      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!},
-      {since: this.flags.since, prefixes: this.flags.prefix, day: this.flags.day, top: this.flags.top, maxFiles: this.flags['max-files'], maxKb: this.flags['max-kb']},
+      {instance: this.instance, hostname: this.resolvedConfig.values.hostname!, instanceName: this.resolvedConfig.values.instanceName},
+      {since: this.flags.since, prefixes: this.flags.prefix, day: this.flags.day, splitAt: this.flags['split-at'], top: this.flags.top, maxFiles: this.flags['max-files'], maxKb: this.flags['max-kb']},
     );
     if (!this.jsonEnabled()) ux.stdout(formatReport(report));
     return report;

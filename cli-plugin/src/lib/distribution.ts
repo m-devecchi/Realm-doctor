@@ -9,8 +9,10 @@ export const CLI_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..'
 export const PACKAGE_ROOT = join(CLI_ROOT, '..');
 export const VERSION = (JSON.parse(readFileSync(join(CLI_ROOT, 'package.json'), 'utf8')) as {version: string}).version;
 
-export const REPO_SPEC = 'github:m-devecchi/Realm-doctor';
-export const OFFICIAL_MCP = '@salesforce/b2c-dx-mcp@3.5.0';
+/** Pinned to the release tag of this version, so a push to main never changes what users run. */
+export const REPO_SPEC = `github:m-devecchi/Realm-doctor#v${VERSION}`;
+/** The official server, at the version pinned in the root package.json (Dependabot bumps it there). */
+export const OFFICIAL_MCP = `@salesforce/b2c-dx-mcp@${(JSON.parse(readFileSync(join(PACKAGE_ROOT, 'package.json'), 'utf8')) as {devDependencies: Record<string, string>}).devDependencies['@salesforce/b2c-dx-mcp']}`;
 
 /** MCP server entries for a client config, from the default branch (main); same spec as the README commands, so `init` already fills the npx cache. */
 export function mcpServers(dwJson: string): Record<string, {command: string; args: string[]; env: Record<string, string>}> {

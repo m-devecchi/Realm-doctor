@@ -18,15 +18,16 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 ## Steps
 
 1. Confirm the instance and the active code version.
-2. `npx realm-doctor audit errors -i <instance> --since <deploy - 24h> --top 50 --json`.
-3. Split each signature's `perDay` and timestamps (`firstSeen`, `lastSeen`) into before/after the deploy. Normalize per
-   hour of observation. Classify:
-   - **new** after the deploy (firstSeen > deploy time);
-   - **regressed**: rate after ≥ 2 × rate before and ≥ 10 occurrences;
-   - **fixed**: present before, absent after.
+2. `npx realm-doctor audit errors -i <instance> --since <deploy - 24h> --split-at <deploy time> --top 50 --json`
+   (MCP `audit_errors` with `since` and `splitAt`, both ISO date-times).
+3. Every signature in `data.signatures` has `split`: `before` and `after` counts inside the period, the hours on each
+   side and the per-hour rates (`beforePerHour`, `afterPerHour`). Use those numbers, never estimate. Classify:
+   - **new** after the deploy (`before` is 0 and `after` > 0);
+   - **regressed**: `afterPerHour` ≥ 2 × `beforePerHour` and `after` ≥ 10;
+   - **fixed**: `before` > 0 and `after` is 0, with `hoursAfter` of at least 2 (say so when it is shorter).
 4. `npx realm-doctor audit quota -i <instance> --since <deploy - 24h> --json`: new quota names after the deploy.
 5. For new or regressed errors, check if `codeRefs` point to files changed in this release (ask the user for the
-   list of changed cartridges if needed) and read the line with `webdav_get`.
+   list of changed cartridges if needed) and read the line with `read_instance_file`.
 
 ## Verdict
 

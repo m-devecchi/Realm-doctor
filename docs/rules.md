@@ -1,13 +1,13 @@
 # Rules
 
-Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are checked by the `promo-audit` skill with test baskets on a sandbox, not by the command.
+Generated from `npx realm-doctor audit rules`. Findings MAN-001 to MAN-004 are derived by the `promo-audit` skill with test baskets on a sandbox, not by the command (the `MAN-` prefix marks findings made by the assistant, see the conventions).
 
 ## Errors (audit errors)
 
 | Rule | Severity | Description |
 | --- | --- | --- |
-| ERR-001 | medium..critical | New error on the evaluated day |
-| ERR-002 | high/critical | Error spike (>= 3x the average of previous days) |
+| ERR-001 | medium..critical | New error on the evaluated day, or in the evaluated short window (never seen in the days before) |
+| ERR-002 | high/critical | Error spike (>= 3x the average of the previous days, scaled to the window length) |
 | ERR-003 | medium/critical | High-volume recurring error |
 
 ## Quota (audit quota)
@@ -22,7 +22,7 @@ Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are 
 
 | Rule | Severity | Description |
 | --- | --- | --- |
-| JOB-001 | high/critical | Job failing (critical when it handles orders, payments, inventory, prices or data exchange) |
+| JOB-001 | high/critical | Job failing (critical when it handles orders, payments, inventory, prices or refunds) |
 | JOB-002 | medium | Job slower than usual (> 1.5x median and > 5 min) |
 | JOB-003 | medium | Job running much longer than usual (> 2x median) |
 | JOB-004 | medium | Overlapping executions of the same job |
@@ -54,7 +54,7 @@ Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are 
 | Rule | Severity | Description |
 | --- | --- | --- |
 | HF-001 | medium | Hardcoded IP address |
-| HF-002 | medium | Hardcoded instance hostname |
+| HF-002 | medium | Hardcoded instance hostname (XML namespaces and public documentation or Account Manager links are ignored) |
 
 ## Promotions (audit promotions)
 
@@ -86,7 +86,7 @@ Generated from `npx realm-doctor audit rules`. Rules PROMO-010 to PROMO-013 are 
 
 | Rule | Severity | Description |
 | --- | --- | --- |
-| PROMO-010 | high | Promotion with no qualifying products (Shopper Search pmid/pmpt) |
-| PROMO-011 | high | Expected promotion not applied to the test basket |
-| PROMO-012 | high | Applied discount differs from the expected one |
-| PROMO-013 | critical | Discounts stacked beyond what was intended |
+| MAN-001 | high | Promotion with no qualifying products (Shopper Search pmid/pmpt) |
+| MAN-002 | high | Expected promotion not applied to the test basket |
+| MAN-003 | high | Applied discount differs from the expected one |
+| MAN-004 | critical | Discounts stacked beyond what was intended |

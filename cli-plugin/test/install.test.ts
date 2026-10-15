@@ -41,11 +41,11 @@ describe('install copilot', () => {
     expect(cfg.mcpServers['realm-doctor']).toEqual({
       type: 'local',
       command: 'npx',
-      args: ['-y', "github:m-devecchi/Realm-doctor", 'mcp'],
+      args: ['-y', `github:m-devecchi/Realm-doctor#v${version}`, 'mcp'],
       env: {SFCC_CONFIG: dw, SFCC_DISABLE_TELEMETRY: 'true'},
       tools: ['*'],
     });
-    expect(cfg.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', '@salesforce/b2c-dx-mcp@3.5.0', '--config', dw]);
+    expect(cfg.mcpServers['b2c-dx-mcp'].args).toEqual(['-y', `@salesforce/b2c-dx-mcp@${JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8')).devDependencies['@salesforce/b2c-dx-mcp']}`, '--config', dw]);
     expect(existsSync(join(copilot, 'mcp-config.json.bak'))).toBe(true);
 
     // running again updates in place

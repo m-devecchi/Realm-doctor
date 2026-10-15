@@ -66,7 +66,7 @@ export const RULES = [
   {id: 'ISML-003', severity: 'high', title: 'Remote include inside isloop'},
   {id: 'ISML-004', severity: 'low', title: 'Too many remote includes in one template'},
   {id: 'HF-001', severity: 'medium', title: 'Hardcoded IP address'},
-  {id: 'HF-002', severity: 'medium', title: 'Hardcoded instance hostname'},
+  {id: 'HF-002', severity: 'medium', title: 'Hardcoded instance hostname (XML namespaces and public documentation or Account Manager links are ignored)'},
   {id: 'PROMO-001', severity: 'medium', title: 'Enabled promotion that can never fire'},
   {id: 'PROMO-002', severity: 'high', title: 'Orphan promotion/campaign assignment'},
   {id: 'PROMO-003', severity: 'medium/high', title: 'Promotion dates outside the campaign'},
@@ -80,13 +80,13 @@ export const RULES = [
 
 /** Rules of the log, quota, job and frontend audits (not code rules). */
 export const OTHER_RULES = [
-  {id: 'ERR-001', severity: 'medium..critical', title: 'New error on the evaluated day'},
-  {id: 'ERR-002', severity: 'high/critical', title: 'Error spike (>= 3x the average of previous days)'},
+  {id: 'ERR-001', severity: 'medium..critical', title: 'New error on the evaluated day, or in the evaluated short window (never seen in the days before)'},
+  {id: 'ERR-002', severity: 'high/critical', title: 'Error spike (>= 3x the average of the previous days, scaled to the window length)'},
   {id: 'ERR-003', severity: 'medium/critical', title: 'High-volume recurring error'},
   {id: 'QUOTA-001', severity: 'critical', title: 'Enforced quota limit exceeded'},
   {id: 'QUOTA-002', severity: 'high', title: 'Non-enforced quota limit exceeded'},
   {id: 'QUOTA-003', severity: 'medium/high', title: 'Warning threshold exceeded (high above 80% of the limit)'},
-  {id: 'JOB-001', severity: 'high/critical', title: 'Job failing (critical when it handles orders, payments, inventory, prices or data exchange)'},
+  {id: 'JOB-001', severity: 'high/critical', title: 'Job failing (critical when it handles orders, payments, inventory, prices or refunds)'},
   {id: 'JOB-002', severity: 'medium', title: 'Job slower than usual (> 1.5x median and > 5 min)'},
   {id: 'JOB-003', severity: 'medium', title: 'Job running much longer than usual (> 2x median)'},
   {id: 'JOB-004', severity: 'medium', title: 'Overlapping executions of the same job'},

@@ -16,14 +16,15 @@ Read `../../reference/conventions.md` (relative to this skill's folder) first.
 ## Steps
 
 1. Confirm the instance (see "Instance first" in the conventions).
-2. Jobs: `npx realm-doctor audit jobs -i <instance> --count 200 --json` (MCP `audit_jobs`; add `--job-id <jobId>` /
+2. Jobs: `npx realm-doctor audit jobs -i <instance> --count 500 --json` (MCP `audit_jobs`; add `--job-id <jobId>` /
    `jobId` when focused). Keep the executions inside the period. It returns per-job runs, failures, durations and the
    findings:
    - **JOB-001 high**: last run failed, or 2+ failures. **critical** when the job name points to orders, payments,
-     inventory, prices or data exchange (`order`, `payment`, `inventory`, `price`, `stock`, `export`, `import`).
+     inventory, prices or refunds (`order`, `payment`, `inventor`, `price`, `stock`, `refund`, `settle`; a plain `export` or `import` is not enough).
    - **JOB-002 medium**: last duration > 1.5 × median and > 5 minutes.
    - **JOB-003 medium**: still running beyond 2 × median.
    - **JOB-004 medium**: overlapping executions of the same job.
+   If a note says only part of the executions were read, say so and re-run with `--job-id` for the jobs that matter.
    If it fails because of Safety Mode, tell the user to add the job search allow rules, SCAPI `job-execution-search` and OCAPI `job_execution_search` (see
    `../../reference/safety.md`).
 3. For each JOB-001: read the job log at `lastLogFile` (MCP `read_instance_file`, or `npx b2c job log <jobId> <executionId> -i <instance>`),
